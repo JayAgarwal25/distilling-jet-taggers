@@ -50,15 +50,15 @@ DEPTHS = {
 }
 
 # Each family trains under the recipe it was published with. The Transformer
-# and the width ladders take the Economical Jet Taggers recipe of their size
-# class; changing the depth never changes the recipe.
+# and the width ladders share one recipe per size class, taken from the
+# Economical Jet Taggers; changing the depth never changes the recipe.
 RECIPES = {
-    "transformer_200k": "ejt_200k",
+    "transformer_200k": "size_200k",
     "part_200k": "part",
     "mipart_200k": "mipart",
     "lgatr_slim_200k": "lgatr_slim",
     "lorentznet_200k": "lorentznet",
-    **{s: f"ejt_{s.rsplit('_', 1)[1]}" for s in WIDTH_STUDENTS},
+    **{s: f"size_{s.rsplit('_', 1)[1]}" for s in WIDTH_STUDENTS},
 }
 
 
