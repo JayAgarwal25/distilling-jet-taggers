@@ -40,13 +40,14 @@ class TopTaggingSplit(Dataset):
     """One split, held in memory.
 
     Items are (p4, label, row index). The row index identifies a jet in every
-    prediction file and teacher logit cache.
+    prediction file and teacher logit file. `limit` keeps the first rows only.
     """
 
-    def __init__(self, split: str, path: str = "data/toptagging_full.npz"):
+    def __init__(self, split: str, path: str = "data/toptagging_full.npz",
+                 limit: int | None = None):
         with np.load(path) as f:
-            self.p4 = torch.from_numpy(f[f"kinematics_{split}"].astype(np.float32))
-            self.label = torch.from_numpy(f[f"labels_{split}"].astype(np.float32))
+            self.p4 = torch.from_numpy(f[f"kinematics_{split}"][:limit].astype(np.float32))
+            self.label = torch.from_numpy(f[f"labels_{split}"][:limit].astype(np.float32))
 
     def __len__(self) -> int:
         return len(self.label)

@@ -11,6 +11,8 @@ from pathlib import Path
 
 import yaml
 
+from jetkd.recipes import recipe_for
+
 SEEDS = (1001, 1002, 1003)
 TEACHERS = ("part", "mipart", "lgatr", "lgatr_slim", "omnilearned_s", "part_pretrained")
 PAIRED_TEACHERS = ("part", "lgatr", "lgatr_slim")   # teacher seed = student seed; others 1001
@@ -25,14 +27,6 @@ WIDTH_STUDENTS = tuple(f"{f}_deep_{s}" for f in ("transformer", "lgatr_slim")
 DEPTHS = {
     "transformer_200k": ((0, 1, 2, 3, 4, 6, 8, 10), 10),
     "lgatr_slim_200k": ((1, 2, 3, 4, 5, 6, 8, 10), 5),
-}
-RECIPES = {
-    "transformer_200k": "size_200k",
-    "part_200k": "part",
-    "mipart_200k": "mipart",
-    "lgatr_slim_200k": "lgatr_slim",
-    "lorentznet_200k": "lorentznet",
-    **{s: f"size_{s.rsplit('_', 1)[1]}" for s in WIDTH_STUDENTS},
 }
 
 
@@ -86,7 +80,7 @@ def paper_runs() -> list[Run]:
             for t in SCALING_TEACHERS:
                 use(st, 1001, t, {table, "depth"} if t == "part_pretrained" else {table})
 
-    return [Run(st, t, ts, seed, RECIPES[st.split("_L")[0]], tuple(sorted(names)))
+    return [Run(st, t, ts, seed, recipe_for(st).name, tuple(sorted(names)))
             for (st, t, ts, seed), names in tables.items()]
 
 
