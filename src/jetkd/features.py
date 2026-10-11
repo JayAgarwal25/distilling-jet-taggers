@@ -1,8 +1,7 @@
 """Particle features.
 
-Seven per-particle features as in ParticleNet (Qu and Gouskos, arXiv:1902.08570), and
-four pairwise features as in Particle Transformer (Qu, Li and Qian, arXiv:2202.03772),
-here with pseudorapidity and ln m in place of rapidity and ln m^2.
+Per particle: log pT, log E, log pT/pT_jet, log E/E_jet, dphi, deta and dR, standardised
+as in the top tagging inputs of ParticleNet and ParT. Per pair: ln dR, ln kT, ln z and ln m.
 """
 
 from __future__ import annotations
@@ -12,7 +11,7 @@ from lloca.utils.lorentz import lorentz_squarednorm
 
 EPS = 1e-10
 MASS_REG = 0.005
-# (mean, scale) of log pT, log E, log pT/pT_jet, log E/E_jet, dphi, deta, dR, from weaver's top tagging config
+# (mean, scale) of each per-particle feature, in the order above
 STANDARDISATION = ((1.7, 0.7), (2.0, 0.7), (-4.7, 0.7), (-4.7, 0.7), (0, 1), (0, 1), (0.2, 4))
 
 
