@@ -30,6 +30,7 @@ MODELS = {
     # teachers
     "lgatr": LGATrTagger,
     "lgatr_slim": _slim(32, 96, heads=8, blocks=12, float64=True),
+    "mipart": partial(MIParTTagger, float64=True),
     # students
     "transformer_200k": _transformer(6, blocks=10, mlp=2),
     "lgatr_slim_200k": _slim(12, 48, heads=4, blocks=5),

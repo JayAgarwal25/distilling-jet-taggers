@@ -20,6 +20,7 @@ PARAMETERS = {
     "lgatr_slim_deep_20k": 20_405,
     "lgatr_slim_deep_2k": 1_763,
     "lorentznet_200k": 202_511,
+    "mipart": 656_949,
     "mipart_200k": 199_837,
     "part_200k": 205_093,
     "transformer_200k": 188_113,
