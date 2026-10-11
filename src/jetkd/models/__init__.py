@@ -10,6 +10,7 @@ from functools import partial
 from torch import nn
 
 from jetkd.models.lgatr import LGATrSlimTagger, LGATrTagger
+from jetkd.models.part import ParTTagger
 from jetkd.models.transformer import TransformerTagger
 
 
@@ -30,6 +31,7 @@ MODELS = {
     # students
     "transformer_200k": _transformer(6, blocks=10, mlp=2),
     "lgatr_slim_200k": _slim(12, 48, heads=4, blocks=5),
+    "part_200k": ParTTagger,
     # width study: the deep ladder of the Economical Jet Taggers (arXiv:2512.17011, Table 7)
     "transformer_deep_200k": _transformer(4, blocks=10, mlp=2),
     "transformer_deep_20k": _transformer(2, blocks=10, mlp=1),

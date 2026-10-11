@@ -19,6 +19,7 @@ PARAMETERS = {
     "lgatr_slim_deep_200k": 180_969,
     "lgatr_slim_deep_20k": 20_405,
     "lgatr_slim_deep_2k": 1_763,
+    "part_200k": 205_093,
     "transformer_200k": 188_113,
     "transformer_200k_L0": 433,
     "transformer_200k_L1": 19_201,
@@ -45,7 +46,7 @@ def test_parameter_counts():
         assert sum(p.numel() for p in build(name).parameters()) == n, name
 
 
-@pytest.mark.parametrize("name", ["transformer_200k", "lgatr_slim_200k", "lgatr"])
+@pytest.mark.parametrize("name", ["transformer_200k", "part_200k", "lgatr_slim_200k", "lgatr"])
 def test_one_logit_per_jet_independent_of_the_batch(name, batch):
     model = build(name).eval()
     with torch.no_grad():
