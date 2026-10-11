@@ -1,13 +1,14 @@
-"""Input pipeline shared by the Transformer and L-GATr taggers.
+"""Input pipelines shared by the taggers.
 
-Adapted from the top tagging wrappers of tagging-guide (Spinner et al.). Jets are
-packed into one sequence of real tokens and attention is restricted to tokens of
-the same jet.
+`embed` follows the top tagging wrappers of tagging-guide and `embed_sparse` the
+embedding of lloca-experiments (both by Spinner et al.). Jets are packed into one
+sequence of real tokens; attention is restricted to tokens of the same jet.
 """
 
 from __future__ import annotations
 
 import torch
+from torch_geometric.utils import scatter
 
 from jetkd.features import apply_mass_regulator, tagging_features
 
@@ -81,3 +82,25 @@ def attention_mask(jet: torch.Tensor, dtype: torch.dtype) -> dict:
     same = jet.unsqueeze(1) == jet.unsqueeze(0)
     mask = torch.zeros(same.shape, dtype=dtype, device=jet.device)
     return {"attn_mask": mask.masked_fill(~same, float("-inf"))}
+
+
+def embed_sparse(p4: torch.Tensor, mask: torch.Tensor, dtype: torch.dtype):
+    """Particles in `mask`, each jet led by the spurions, as one token sequence.
+
+    Returns momenta (tokens, 4) after the mass regulator, the seven features in
+    float32 (zero for spurions), the spurion flags, the jet index and the jet offsets.
+    """
+    n_spurions = len(SPURIONS)
+    ref = torch.tensor(SPURIONS, device=p4.device, dtype=dtype).expand(len(p4), -1, -1)
+    p4 = torch.cat([ref, p4.to(dtype)], dim=1)
+    mask = torch.cat([torch.ones_like(mask[:, :n_spurions]), mask], dim=1)
+    spurion = torch.zeros_like(mask)
+    spurion[:, :n_spurions] = True
+    [p4, spurion], jet, ptr = pack(mask, p4, spurion)
+
+    p4 = apply_mass_regulator(p4, torch.ones_like(spurion))
+    particle = ~spurion
+    jet_p4 = scatter(p4[particle], jet[particle], dim=0, reduce="sum").index_select(0, jet)
+    feats = tagging_features(p4, jet_p4)
+    feats[spurion] = 0.0
+    return p4, feats.float(), spurion, jet, ptr
