@@ -1,7 +1,11 @@
-"""Distillation loss: alpha * T^2 * KL(teacher || student) + (1 - alpha) * BCE(student, label).
+"""Distillation loss.
 
-The KL term compares the two Bernoulli distributions sigma(z / T). The paper
-uses alpha = 0.7 and T = 2.
+    L = alpha * T^2 * KL(p_T || p_S) + (1 - alpha) * BCE(z_S, y),   with p = sigmoid(z / T)
+
+z_S and z_T are the student and teacher logits and y is the label. The KL term compares
+the softened teacher and student probabilities, the binary case of Hinton et al.'s
+distillation loss. The T^2 factor keeps its gradients on the scale of the BCE term as T
+changes. Every run in the paper uses alpha = 0.7 and T = 2.
 """
 
 from __future__ import annotations
@@ -19,6 +23,7 @@ class KDConfig:
 
 
 def binary_kl(student_logits: torch.Tensor, teacher_logits: torch.Tensor, temperature: float):
+    """Mean KL divergence between the softened teacher and student, computed from logits."""
     s = student_logits / temperature
     t = teacher_logits.detach() / temperature
     pt = torch.sigmoid(t)
@@ -28,7 +33,10 @@ def binary_kl(student_logits: torch.Tensor, teacher_logits: torch.Tensor, temper
 
 
 def kd_loss(student_logits, labels, teacher_logits=None, cfg: KDConfig | None = None):
-    """Total loss and its hard and soft parts. Without teacher logits it is the plain BCE."""
+    """Total loss and its parts: `hard` (BCE) and `soft` (T^2 times the KL).
+
+    Without teacher logits, as for training from scratch, the loss is the BCE alone.
+    """
     cfg = cfg or KDConfig()
     hard = F.binary_cross_entropy_with_logits(student_logits, labels)
     if teacher_logits is None:

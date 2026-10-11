@@ -1,4 +1,10 @@
-"""The top tagging dataset (Kasieczka et al.) and the batch every model takes."""
+"""The top tagging dataset and the batch format every model takes.
+
+The data are the top tagging reference sample of Kasieczka et al. (Zenodo 2603256) in
+the single-file layout used by L-GATr and LLoCa. For each split, `kinematics_<split>`
+holds up to 200 constituents per jet as (E, px, py, pz), zero padded, and
+`labels_<split>` is 1 for top jets. `scripts/get_data.py` downloads the file.
+"""
 
 from __future__ import annotations
 
@@ -31,6 +37,12 @@ def particle_mask(p4: torch.Tensor) -> torch.Tensor:
 
 
 class TopTaggingSplit(Dataset):
+    """One split, held in memory.
+
+    Items are (p4, label, row index). The row index identifies a jet in every
+    prediction file and teacher logit cache.
+    """
+
     def __init__(self, split: str, path: str = "data/toptagging_full.npz"):
         with np.load(path) as f:
             self.p4 = torch.from_numpy(f[f"kinematics_{split}"].astype(np.float32))
