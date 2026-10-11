@@ -1,7 +1,7 @@
 """Particle features.
 
 Per particle: log pT, log E, log pT/pT_jet, log E/E_jet, dphi, deta and dR, standardised
-as in the top tagging inputs of ParticleNet and ParT. Per pair: ln dR, ln kT, ln z and ln m.
+as for the L-GATr, L-GATr-slim, ParT and MIParT teachers. Per pair: ln dR, ln kT, ln z and ln m.
 """
 
 from __future__ import annotations
