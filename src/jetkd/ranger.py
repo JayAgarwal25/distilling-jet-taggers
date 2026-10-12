@@ -2,8 +2,7 @@
 
 This version applies weight decay inside RAdam's update, which differs from
 torch.optim.RAdam and from pytorch-optimizer's Lookahead. The ParT and MIParT recipes
-were trained with it. The original caches step sizes; this recomputes them, which gives
-identical updates (verified against the original in training).
+were trained with it.
 """
 
 from __future__ import annotations
@@ -39,6 +38,8 @@ class RAdam(Optimizer):
                 state["step"] += 1
                 t = state["step"]
 
+                # the original caches these step sizes; recomputing them gives identical
+                # updates (verified in training)
                 beta2_t = beta2**t
                 n_sma_max = 2 / (1 - beta2) - 1
                 n_sma = n_sma_max - 2 * t * beta2_t / (1 - beta2_t)

@@ -3,8 +3,7 @@
 Adapted from the copy in lloca-experiments (Spinner et al.) of the official code
 (github.com/sdogsq/LorentzNet-release). Particles and spurions form a complete graph
 per jet; the seven particle features are the node scalars and the particle momenta
-are divided by 20. Verified to reproduce the original's initial weights, logits and our
-trained checkpoints bit for bit.
+are divided by 20.
 """
 
 from __future__ import annotations
@@ -27,6 +26,7 @@ def segment_mean(data, ids, n):
     return segment_sum(data, ids, n) / count.clamp(min=1)
 
 
+# torch.pow here and p * q below, exactly as the original, so results agree to the bit
 def normsq(p):
     p2 = torch.pow(p, 2)
     return 2 * p2[..., 0] - p2.sum(dim=-1)
@@ -75,6 +75,7 @@ class LGEB(nn.Module):
         return h, x
 
 
+# same initial weights, logits and checkpoints as the original (verified bit for bit)
 class LorentzNet(nn.Module):
     def __init__(self, n_hidden, n_layers, c_weight, dropout, n_scalar=7):
         super().__init__()

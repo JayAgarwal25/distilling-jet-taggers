@@ -3,9 +3,7 @@
 Adapted from the copy in lloca-experiments (Spinner et al.) of the official code
 (github.com/USST-HEP/MIParT, MIT). Particle features and four-momenta enter; ParT's
 pairwise features feed both the More-Interaction attention and the attention bias of
-the standard blocks; class-attention blocks read out a class token. Only the options
-our runs use are kept. Verified to reproduce the original's initial weights, logits and
-our trained checkpoints bit for bit.
+the standard blocks; class-attention blocks read out a class token.
 """
 
 from __future__ import annotations
@@ -171,6 +169,8 @@ class Block(nn.Module):
         return x
 
 
+# Only the options our runs use are kept; same initial weights, logits and checkpoints as
+# the original (verified bit for bit)
 class MIParT(nn.Module):
     """The network: (batch, 7, particles) features and (batch, 4, particles) momenta to logits."""
 
@@ -193,7 +193,7 @@ class MIParT(nn.Module):
         self.calls = 0
 
     def trim(self, x, v, mask):
-        if self.calls < 5:
+        if self.calls < 5:   # as in the original, no trimming on the first five calls
             self.calls += 1
             return x, v, mask
         return trim(x, v, mask, self.training)
@@ -232,6 +232,7 @@ def dense_inputs(batch: JetBatch, dtype: torch.dtype):
 class MIParTTagger(nn.Module):
     def __init__(self, float64: bool = False, **net):
         super().__init__()
+        # the teachers computed their inputs from float64 momenta, the students from float32
         self.dtype = torch.float64 if float64 else torch.float32
         self.net = MIParT(**net)
 

@@ -25,19 +25,21 @@ def embed(p4: torch.Tensor, spurions: bool, dtype: torch.dtype):
     """Padded jets to momenta, the seven features and a token mask.
 
     Spurions, if used, are prepended to every jet. The mass regulator acts on
-    every token, and the features of spurions and padding are zero. Unlike
-    tagging-guide's dense embedding, the features are computed after the mass
-    regulator, as in our training; verified to reproduce the training inputs exactly.
+    every token, and the features of spurions and padding are zero.
     """
     p4 = p4.to(dtype)
     n_spurions = len(SPURIONS) if spurions else 0
     if spurions:
         ref = torch.tensor(SPURIONS, device=p4.device, dtype=dtype).expand(len(p4), -1, -1)
         p4 = torch.cat([ref, p4], dim=1)
+    # tagging-guide's padding mask (.any), not the .all() mask of jetkd.data: the models
+    # using this path were trained with it
     mask = (p4.abs() > 1e-5).any(dim=-1)
     n = int(mask.sum(dim=-1).max())
     p4, mask = p4[:, :n], mask[:, :n]
 
+    # features after the mass regulator, as in our training (tagging-guide's own dense
+    # embedding skips the regulator); reproduces the training inputs exactly (verified)
     p4 = apply_mass_regulator(p4, mask)
     particle = mask.clone()
     particle[:, :n_spurions] = False
@@ -77,10 +79,11 @@ def attention_mask(jet: torch.Tensor, dtype: torch.dtype) -> dict:
     """Keyword arguments that restrict attention to tokens of the same jet.
 
     On GPU with xformers installed this is xformers' block-diagonal mask, as in
-    training. Otherwise it is the same mask written out densely (verified identical).
+    training. Otherwise it is the same mask written out densely.
     """
     if jet.is_cuda and BlockDiagonalMask is not None:
         return {"attn_bias": BlockDiagonalMask.from_seqlens(torch.bincount(jet).tolist())}
+    # equals xformers' block-diagonal mask materialized, as tagging-guide uses on CPU (verified)
     same = jet.unsqueeze(1) == jet.unsqueeze(0)
     mask = torch.zeros(same.shape, dtype=dtype, device=jet.device)
     return {"attn_mask": mask.masked_fill(~same, float("-inf"))}
@@ -91,8 +94,9 @@ def embed_sparse(p4: torch.Tensor, mask: torch.Tensor, dtype: torch.dtype):
 
     Returns momenta (tokens, 4) after the mass regulator, the seven features in
     float32 (zero for spurions), the spurion flags, the jet index and the jet offsets.
-    Verified to match lloca-experiments' embed_tagging_data bit for bit.
     """
+    # same token order and operations as lloca-experiments' embed_tagging_data, including
+    # the jet sum by scatter; matches it bit for bit (verified)
     n_spurions = len(SPURIONS)
     ref = torch.tensor(SPURIONS, device=p4.device, dtype=dtype).expand(len(p4), -1, -1)
     p4 = torch.cat([ref, p4.to(dtype)], dim=1)

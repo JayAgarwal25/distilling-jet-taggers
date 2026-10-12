@@ -1,11 +1,6 @@
 """Particle Transformer (Qu, Li and Qian, arXiv:2202.03772), as our ParT teacher was trained.
 
-Adapted from lloca 1.3.5 (Spinner et al.; MIT), whose version follows weaver-core's ParT
-with these pairwise features in the order ln m^2, ln kT, ln z, ln dR. With the identity
-frames of a non-equivariant network its attention is plain scaled dot-product attention.
-lloca 2.0's ParticleTransformer cannot run this checkpoint: it disables sequence
-trimming and orders the pairwise features differently. Verified against lloca 1.3.5:
-identical initial weights and layers; trained-checkpoint logits agree to 1e-5 on CPU.
+Adapted from lloca 1.3.5 (Spinner et al.; MIT), whose version follows weaver-core's ParT.
 """
 
 from __future__ import annotations
@@ -83,6 +78,8 @@ class PairEmbed(nn.Module):
         return y.permute(0, 3, 1, 2).contiguous()
 
 
+# lloca's LLoCa attention with identity frames, which is plain scaled dot-product
+# attention; verified bit for bit against lloca 1.3.5's Attention
 class Attention(nn.Module):
     def __init__(self, embed_dim, num_heads, dropout):
         super().__init__()
@@ -150,6 +147,9 @@ class Block(nn.Module):
         return x
 
 
+# lloca 2.0's ParticleTransformer cannot run our checkpoint (it disables sequence trimming
+# and orders the pairwise features differently), so this follows lloca 1.3.5. Verified:
+# same initial weights and layer outputs; checkpoint logits agree to 1e-5 on CPU.
 class ParticleTransformer(nn.Module):
     def __init__(self, embed_dims=(128, 512, 128), pair_embed_dims=(64, 64, 64), num_heads=8,
                  num_layers=8, num_cls_layers=2):
@@ -183,7 +183,7 @@ class ParticleTransformer(nn.Module):
 
     def forward(self, x, v, mask):
         with torch.no_grad():
-            if self.calls < 5:
+            if self.calls < 5:   # as in the original, no trimming on the first five calls
                 self.calls += 1
                 mask = mask.bool()
             else:

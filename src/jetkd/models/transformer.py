@@ -1,9 +1,4 @@
-"""The Transformer tagger: lloca's Transformer on the seven particle features, mean pooled.
-
-This writes out the path that tagging-guide's TransformerWrapper takes for a
-non-equivariant network (identity frames, no spurions). Verified to reproduce its
-initial weights, logits and our trained checkpoints bit for bit.
-"""
+"""The Transformer tagger: lloca's Transformer on the seven particle features, mean pooled."""
 
 from __future__ import annotations
 
@@ -23,6 +18,8 @@ class TransformerTagger(nn.Module):
         self.net = Transformer(in_channels=7, attn_reps=attn_reps, out_channels=1,
                                num_blocks=num_blocks, num_heads=num_heads, mlp_factor=mlp_factor)
 
+    # tagging-guide's TransformerWrapper for identity frames, written out; same initial
+    # weights, logits and checkpoints (verified bit for bit)
     def forward(self, batch: JetBatch) -> torch.Tensor:
         _, feats, mask = embed(batch.p4, spurions=False, dtype=torch.float32)
         [x], jet, ptr = pack(mask, feats)

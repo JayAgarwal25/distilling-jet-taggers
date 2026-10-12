@@ -2,9 +2,6 @@
 
 Particles and spurions enter as four-vectors with the seven particle features as
 scalars. L-GATr embeds the vectors in multivectors; L-GATr-slim keeps them as vectors.
-This writes out the path of tagging-guide's LGATrWrapper and LGATrSlimWrapper that our
-models take. Verified to reproduce their initial weights, logits and our trained
-checkpoints bit for bit.
 """
 
 from __future__ import annotations
@@ -18,6 +15,8 @@ from jetkd.data import JetBatch
 from jetkd.models.inputs import add_global_token, attention_mask, embed, pack
 
 
+# tagging-guide's LGATrWrapper and LGATrSlimWrapper (identity frames, global token),
+# written out; same initial weights, logits and checkpoints (verified bit for bit)
 def tokens(p4: torch.Tensor, dtype: torch.dtype):
     """Vectors (tokens, 1, 4), scalars (tokens, 8), jet index and global token positions."""
     p4, feats, mask = embed(p4, spurions=True, dtype=dtype)
