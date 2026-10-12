@@ -26,3 +26,12 @@ def test_teacher_seeds():
 def test_every_matrix_cell_has_three_seeds():
     cells = Counter((r.student, r.teacher) for r in study.paper_runs() if "complete" in r.tables)
     assert len(cells) == 5 * 7 and set(cells.values()) == {3}
+
+
+def test_reference_files_are_current():
+    from jetkd.reference import files
+
+    root = RUNS_YAML.parents[1]
+    for path, text in files().items():
+        if path != "docs/RUNS.md" or "| AUC |" not in (root / path).read_text():
+            assert (root / path).read_text() == text, path

@@ -202,6 +202,8 @@ class ParticleTransformer(nn.Module):
 class ParTTeacher(nn.Module):
     """The ParT teacher; its features are computed from float64 momenta."""
 
+    net_class = ParticleTransformer
+
     def __init__(self):
         super().__init__()
         self.net = ParticleTransformer()

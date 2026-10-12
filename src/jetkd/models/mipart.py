@@ -230,6 +230,8 @@ def dense_inputs(batch: JetBatch, dtype: torch.dtype):
 
 
 class MIParTTagger(nn.Module):
+    net_class = MIParT
+
     def __init__(self, float64: bool = False, **net):
         super().__init__()
         # the teachers computed their inputs from float64 momenta, the students from float32

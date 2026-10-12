@@ -45,13 +45,16 @@ class LGATrSlimTagger(nn.Module):
 class LGATrTagger(nn.Module):
     """The L-GATr teacher. Its features are computed from float64 momenta."""
 
-    def __init__(self):
+    def __init__(self, hidden_mv_channels: int = 16, hidden_s_channels: int = 32,
+                 num_blocks: int = 12, num_heads: int = 8, attn_ratio: int = 2, mlp_ratio: int = 2):
         super().__init__()
         self.net = LGATr(
-            num_blocks=12, in_mv_channels=1, out_mv_channels=1, hidden_mv_channels=16,
-            in_s_channels=8, out_s_channels=None, hidden_s_channels=32,
-            attention=dict(num_heads=8, multi_query=False, attn_ratio=2, head_scale=True),
-            mlp=dict(nonlinearity="gelu", mlp_ratio=2),
+            num_blocks=num_blocks, in_mv_channels=1, out_mv_channels=1,
+            hidden_mv_channels=hidden_mv_channels, in_s_channels=8, out_s_channels=None,
+            hidden_s_channels=hidden_s_channels,
+            attention=dict(num_heads=num_heads, multi_query=False, attn_ratio=attn_ratio,
+                           head_scale=True),
+            mlp=dict(nonlinearity="gelu", mlp_ratio=mlp_ratio),
             primitives=dict(sparse_gp=True, sparse_linear=False, bivector=True,
                             geometric_product=True, subgroup=True),
         )

@@ -1,0 +1,314 @@
+lgatr:
+  class: jetkd.models.lgatr.LGATrTagger
+  arguments:
+    hidden_mv_channels: 16
+    hidden_s_channels: 32
+    num_blocks: 12
+    num_heads: 8
+    attn_ratio: 2
+    mlp_ratio: 2
+  parameters: 1077474
+  recipe: lgatr
+lgatr_slim:
+  class: jetkd.models.lgatr.LGATrSlimTagger
+  arguments:
+    float64: true
+    hidden_v_channels: 32
+    hidden_s_channels: 96
+    num_heads: 8
+    num_blocks: 12
+    mlp_ratio: 4
+  parameters: 2030817
+  recipe: lgatr_slim
+mipart:
+  class: jetkd.models.mipart.MIParTTagger
+  arguments:
+    embed_dims:
+    - 128
+    - 512
+    - 64
+    pair_embed_dims:
+    - 64
+    - 64
+    - 64
+    num_heads: 8
+    num_MIlayers: 5
+    num_layers: 5
+    num_cls_layers: 2
+    float64: true
+  parameters: 656949
+  recipe: mipart
+part:
+  class: jetkd.models.particle_transformer.ParTTeacher
+  arguments:
+    embed_dims:
+    - 128
+    - 512
+    - 128
+    pair_embed_dims:
+    - 64
+    - 64
+    - 64
+    num_heads: 8
+    num_layers: 8
+    num_cls_layers: 2
+  parameters: 2141005
+  recipe: part
+transformer_200k:
+  class: jetkd.models.transformer.TransformerTagger
+  arguments:
+    attn_reps: 4x0n+1x1n
+    num_heads: 6
+    num_blocks: 10
+    mlp_factor: 2
+  parameters: 188113
+  recipe: size_200k
+lgatr_slim_200k:
+  class: jetkd.models.lgatr.LGATrSlimTagger
+  arguments:
+    float64: false
+    hidden_v_channels: 12
+    hidden_s_channels: 48
+    num_heads: 4
+    num_blocks: 5
+    mlp_ratio: 4
+  parameters: 202213
+  recipe: lgatr_slim
+part_200k:
+  class: jetkd.models.part.ParTTagger
+  arguments:
+    d_model: 64
+    num_heads: 4
+    num_blocks: 4
+    ffn_dim: 256
+    pair_hidden: 32
+    dropout: 0.1
+  parameters: 205093
+  recipe: part
+mipart_200k:
+  class: jetkd.models.mipart.MIParTTagger
+  arguments:
+    embed_dims:
+    - 32
+    - 128
+    - 32
+    pair_embed_dims:
+    - 16
+    - 16
+    - 16
+    num_heads: 8
+    num_MIlayers: 6
+    num_layers: 8
+    num_cls_layers: 2
+    float64: false
+  parameters: 199837
+  recipe: mipart
+lorentznet_200k:
+  class: jetkd.models.lorentznet.LorentzNetTagger
+  arguments:
+    n_hidden: 68
+    n_layers: 6
+    c_weight: 0.005
+    dropout: 0.2
+  parameters: 202511
+  recipe: lorentznet
+transformer_deep_200k:
+  class: jetkd.models.transformer.TransformerTagger
+  arguments:
+    attn_reps: 4x0n+1x1n
+    num_heads: 4
+    num_blocks: 10
+    mlp_factor: 2
+  parameters: 84449
+  recipe: size_200k
+transformer_deep_20k:
+  class: jetkd.models.transformer.TransformerTagger
+  arguments:
+    attn_reps: 4x0n+1x1n
+    num_heads: 2
+    num_blocks: 10
+    mlp_factor: 1
+  parameters: 16465
+  recipe: size_20k
+transformer_deep_2k:
+  class: jetkd.models.transformer.TransformerTagger
+  arguments:
+    attn_reps: 1x1n
+    num_heads: 1
+    num_blocks: 10
+    mlp_factor: 1
+  parameters: 1237
+  recipe: size_2k
+lgatr_slim_deep_200k:
+  class: jetkd.models.lgatr.LGATrSlimTagger
+  arguments:
+    float64: false
+    hidden_v_channels: 8
+    hidden_s_channels: 32
+    num_heads: 4
+    num_blocks: 10
+    mlp_ratio: 4
+  parameters: 180969
+  recipe: size_200k
+lgatr_slim_deep_20k:
+  class: jetkd.models.lgatr.LGATrSlimTagger
+  arguments:
+    float64: false
+    hidden_v_channels: 4
+    hidden_s_channels: 16
+    num_heads: 2
+    num_blocks: 10
+    mlp_ratio: 1
+  parameters: 20405
+  recipe: size_20k
+lgatr_slim_deep_2k:
+  class: jetkd.models.lgatr.LGATrSlimTagger
+  arguments:
+    float64: false
+    hidden_v_channels: 2
+    hidden_s_channels: 4
+    num_heads: 1
+    num_blocks: 10
+    mlp_ratio: 1
+  parameters: 1763
+  recipe: size_2k
+transformer_200k_L0:
+  class: jetkd.models.transformer.TransformerTagger
+  arguments:
+    attn_reps: 4x0n+1x1n
+    num_heads: 6
+    num_blocks: 0
+    mlp_factor: 2
+  parameters: 433
+  recipe: size_200k
+transformer_200k_L1:
+  class: jetkd.models.transformer.TransformerTagger
+  arguments:
+    attn_reps: 4x0n+1x1n
+    num_heads: 6
+    num_blocks: 1
+    mlp_factor: 2
+  parameters: 19201
+  recipe: size_200k
+transformer_200k_L2:
+  class: jetkd.models.transformer.TransformerTagger
+  arguments:
+    attn_reps: 4x0n+1x1n
+    num_heads: 6
+    num_blocks: 2
+    mlp_factor: 2
+  parameters: 37969
+  recipe: size_200k
+transformer_200k_L3:
+  class: jetkd.models.transformer.TransformerTagger
+  arguments:
+    attn_reps: 4x0n+1x1n
+    num_heads: 6
+    num_blocks: 3
+    mlp_factor: 2
+  parameters: 56737
+  recipe: size_200k
+transformer_200k_L4:
+  class: jetkd.models.transformer.TransformerTagger
+  arguments:
+    attn_reps: 4x0n+1x1n
+    num_heads: 6
+    num_blocks: 4
+    mlp_factor: 2
+  parameters: 75505
+  recipe: size_200k
+transformer_200k_L6:
+  class: jetkd.models.transformer.TransformerTagger
+  arguments:
+    attn_reps: 4x0n+1x1n
+    num_heads: 6
+    num_blocks: 6
+    mlp_factor: 2
+  parameters: 113041
+  recipe: size_200k
+transformer_200k_L8:
+  class: jetkd.models.transformer.TransformerTagger
+  arguments:
+    attn_reps: 4x0n+1x1n
+    num_heads: 6
+    num_blocks: 8
+    mlp_factor: 2
+  parameters: 150577
+  recipe: size_200k
+lgatr_slim_200k_L1:
+  class: jetkd.models.lgatr.LGATrSlimTagger
+  arguments:
+    float64: false
+    hidden_v_channels: 12
+    hidden_s_channels: 48
+    num_heads: 4
+    num_blocks: 1
+    mlp_ratio: 4
+  parameters: 40837
+  recipe: lgatr_slim
+lgatr_slim_200k_L2:
+  class: jetkd.models.lgatr.LGATrSlimTagger
+  arguments:
+    float64: false
+    hidden_v_channels: 12
+    hidden_s_channels: 48
+    num_heads: 4
+    num_blocks: 2
+    mlp_ratio: 4
+  parameters: 81181
+  recipe: lgatr_slim
+lgatr_slim_200k_L3:
+  class: jetkd.models.lgatr.LGATrSlimTagger
+  arguments:
+    float64: false
+    hidden_v_channels: 12
+    hidden_s_channels: 48
+    num_heads: 4
+    num_blocks: 3
+    mlp_ratio: 4
+  parameters: 121525
+  recipe: lgatr_slim
+lgatr_slim_200k_L4:
+  class: jetkd.models.lgatr.LGATrSlimTagger
+  arguments:
+    float64: false
+    hidden_v_channels: 12
+    hidden_s_channels: 48
+    num_heads: 4
+    num_blocks: 4
+    mlp_ratio: 4
+  parameters: 161869
+  recipe: lgatr_slim
+lgatr_slim_200k_L6:
+  class: jetkd.models.lgatr.LGATrSlimTagger
+  arguments:
+    float64: false
+    hidden_v_channels: 12
+    hidden_s_channels: 48
+    num_heads: 4
+    num_blocks: 6
+    mlp_ratio: 4
+  parameters: 242557
+  recipe: lgatr_slim
+lgatr_slim_200k_L8:
+  class: jetkd.models.lgatr.LGATrSlimTagger
+  arguments:
+    float64: false
+    hidden_v_channels: 12
+    hidden_s_channels: 48
+    num_heads: 4
+    num_blocks: 8
+    mlp_ratio: 4
+  parameters: 323245
+  recipe: lgatr_slim
+lgatr_slim_200k_L10:
+  class: jetkd.models.lgatr.LGATrSlimTagger
+  arguments:
+    float64: false
+    hidden_v_channels: 12
+    hidden_s_channels: 48
+    num_heads: 4
+    num_blocks: 10
+    mlp_ratio: 4
+  parameters: 403933
+  recipe: lgatr_slim
