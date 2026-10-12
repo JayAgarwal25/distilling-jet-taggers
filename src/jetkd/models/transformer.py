@@ -1,4 +1,9 @@
-"""The Transformer tagger: lloca's Transformer on the seven particle features, mean pooled."""
+"""The Transformer tagger: lloca's Transformer on the seven particle features, mean pooled.
+
+This writes out the path that tagging-guide's TransformerWrapper takes for a
+non-equivariant network (identity frames, no spurions). Verified to reproduce its
+initial weights, logits and our trained checkpoints bit for bit.
+"""
 
 from __future__ import annotations
 

@@ -86,7 +86,7 @@ class Trainer:
         torch.set_float32_matmul_precision("highest")
         torch.manual_seed(cfg.seed)
         np.random.seed(cfg.seed)
-        random.seed(cfg.seed)
+        random.seed(cfg.seed)   # ParT and MIParT trim sequences with Python's random
         self.model = build(cfg.model).to(self.device)
         self.data = {s: TopTaggingSplit(s, cfg.data, cfg.limit) for s in ("train", "val")}
         self.teacher_logits = (load_teacher_logits(cfg.teacher_logits, self.data["train"].label)

@@ -3,7 +3,9 @@
 Adapted from the copy in lloca-experiments (Spinner et al.) of the official code
 (github.com/USST-HEP/MIParT, MIT). Particle features and four-momenta enter; ParT's
 pairwise features feed both the More-Interaction attention and the attention bias of
-the standard blocks; class-attention blocks read out a class token.
+the standard blocks; class-attention blocks read out a class token. Only the options
+our runs use are kept. Verified to reproduce the original's initial weights, logits and
+our trained checkpoints bit for bit.
 """
 
 from __future__ import annotations
@@ -40,6 +42,23 @@ def pairwise_lv_fts(xi, xj, eps=1e-8):
         torch.log(delta.clamp(min=eps)),
         torch.log(m2),
     ], dim=1)
+
+
+def trim(x, v, mask, training):
+    """ParT's sequence trimming: drop padding, and in training also a random few percent of
+    particles. An augmentation that draws from Python's `random` and from torch."""
+    if training:
+        q = min(1, random.uniform(0.9, 1.02))
+        maxlen = torch.quantile(mask.type_as(x).sum(dim=-1), q).long()
+        rand = torch.rand_like(mask.type_as(x)).masked_fill_(~mask, -1)
+        perm = rand.argsort(dim=-1, descending=True)
+        mask = torch.gather(mask, -1, perm)
+        x = torch.gather(x, -1, perm.expand_as(x))
+        v = torch.gather(v, -1, perm.expand_as(v))
+    else:
+        maxlen = mask.sum(dim=-1).max()
+    maxlen = max(maxlen, 1)
+    return x[:, :, :maxlen], v[:, :, :maxlen], mask[:, :, :maxlen]
 
 
 class Embed(nn.Module):
@@ -174,26 +193,10 @@ class MIParT(nn.Module):
         self.calls = 0
 
     def trim(self, x, v, mask):
-        """From the sixth call on, drop padding; in training, also a random few percent of particles.
-
-        This is the sequence trimming of the original code, an augmentation that
-        draws from Python's `random` and from torch.
-        """
         if self.calls < 5:
             self.calls += 1
             return x, v, mask
-        if self.training:
-            q = min(1, random.uniform(0.9, 1.02))
-            maxlen = torch.quantile(mask.type_as(x).sum(dim=-1), q).long()
-            rand = torch.rand_like(mask.type_as(x)).masked_fill_(~mask, -1)
-            perm = rand.argsort(dim=-1, descending=True)
-            mask = torch.gather(mask, -1, perm)
-            x = torch.gather(x, -1, perm.expand_as(x))
-            v = torch.gather(v, -1, perm.expand_as(v))
-        else:
-            maxlen = mask.sum(dim=-1).max()
-        maxlen = max(maxlen, 1)
-        return x[:, :, :maxlen], v[:, :, :maxlen], mask[:, :, :maxlen]
+        return trim(x, v, mask, self.training)
 
     def forward(self, x, v, mask):
         with torch.no_grad():
@@ -216,6 +219,16 @@ class MIParT(nn.Module):
         return self.fc(self.norm(cls).squeeze(0))
 
 
+def dense_inputs(batch: JetBatch, dtype: torch.dtype):
+    """Features (B, 7, N), momenta (B, 4, N) as (px, py, pz, E) and mask (B, 1, N), as ParT takes them."""
+    n = int(batch.mask.sum(dim=1).max())
+    p4, feats, spurion, jet, _ = embed_sparse(batch.p4[:, :n], batch.mask[:, :n], dtype)
+    particle = ~spurion
+    x, mask = to_dense_batch(feats[particle], jet[particle])
+    v, _ = to_dense_batch(p4[particle].float()[:, [1, 2, 3, 0]], jet[particle])
+    return x.transpose(1, 2), v.transpose(1, 2), mask.unsqueeze(1).float()
+
+
 class MIParTTagger(nn.Module):
     def __init__(self, float64: bool = False, **net):
         super().__init__()
@@ -223,9 +236,4 @@ class MIParTTagger(nn.Module):
         self.net = MIParT(**net)
 
     def forward(self, batch: JetBatch) -> torch.Tensor:
-        n = int(batch.mask.sum(dim=1).max())
-        p4, feats, spurion, jet, _ = embed_sparse(batch.p4[:, :n], batch.mask[:, :n], self.dtype)
-        particle = ~spurion
-        x, mask = to_dense_batch(feats[particle], jet[particle])
-        v, _ = to_dense_batch(p4[particle].float()[:, [1, 2, 3, 0]], jet[particle])
-        return self.net(x.transpose(1, 2), v.transpose(1, 2), mask.unsqueeze(1).float())[:, 0]
+        return self.net(*dense_inputs(batch, self.dtype))[:, 0]

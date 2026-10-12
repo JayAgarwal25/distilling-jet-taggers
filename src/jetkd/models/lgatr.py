@@ -2,6 +2,9 @@
 
 Particles and spurions enter as four-vectors with the seven particle features as
 scalars. L-GATr embeds the vectors in multivectors; L-GATr-slim keeps them as vectors.
+This writes out the path of tagging-guide's LGATrWrapper and LGATrSlimWrapper that our
+models take. Verified to reproduce their initial weights, logits and our trained
+checkpoints bit for bit.
 """
 
 from __future__ import annotations

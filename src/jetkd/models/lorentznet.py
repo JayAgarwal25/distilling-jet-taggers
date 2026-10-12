@@ -3,7 +3,8 @@
 Adapted from the copy in lloca-experiments (Spinner et al.) of the official code
 (github.com/sdogsq/LorentzNet-release). Particles and spurions form a complete graph
 per jet; the seven particle features are the node scalars and the particle momenta
-are divided by 20.
+are divided by 20. Verified to reproduce the original's initial weights, logits and our
+trained checkpoints bit for bit.
 """
 
 from __future__ import annotations

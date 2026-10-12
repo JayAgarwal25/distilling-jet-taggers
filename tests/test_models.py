@@ -22,6 +22,7 @@ PARAMETERS = {
     "lorentznet_200k": 202_511,
     "mipart": 656_949,
     "mipart_200k": 199_837,
+    "part": 2_141_005,
     "part_200k": 205_093,
     "transformer_200k": 188_113,
     "transformer_200k_L0": 433,

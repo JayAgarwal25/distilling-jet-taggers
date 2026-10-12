@@ -2,7 +2,8 @@
 
 This version applies weight decay inside RAdam's update, which differs from
 torch.optim.RAdam and from pytorch-optimizer's Lookahead. The ParT and MIParT recipes
-were trained with it.
+were trained with it. The original caches step sizes; this recomputes them, which gives
+identical updates (verified against the original in training).
 """
 
 from __future__ import annotations

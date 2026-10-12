@@ -41,7 +41,11 @@ def apply_mass_regulator(p4: torch.Tensor, mask: torch.Tensor, mass_reg: float =
 
 
 def tagging_features(p: torch.Tensor, jet: torch.Tensor) -> torch.Tensor:
-    """(..., 4) particle and jet momenta to (..., 7) standardised features."""
+    """(..., 4) particle and jet momenta to (..., 7) standardised features.
+
+    Same operations in the same order as lloca-experiments' get_tagging_features;
+    verified to give identical values.
+    """
     log_pt = pt(p).unsqueeze(-1).log()
     log_e = p[..., 0].unsqueeze(-1).clamp(min=EPS).log()
     log_pt_rel = (pt(p).log() - pt(jet).log()).unsqueeze(-1)
@@ -62,7 +66,10 @@ def dense_tagging_features(p4: torch.Tensor, mask: torch.Tensor) -> torch.Tensor
 
 
 def pairwise_features(p4: torch.Tensor, mask: torch.Tensor):
-    """ln dR, ln kT, ln z and ln m of every particle pair: (B, N, N, 4) and the pair mask."""
+    """ln dR, ln kT, ln z and ln m of every particle pair: (B, N, N, 4) and the pair mask.
+
+    ParT uses rapidity and ln m^2; part_200k was trained on pseudorapidity and ln m.
+    """
     p4 = apply_mass_regulator(p4, mask)
     pt_, eta_, phi_ = pt(p4), eta(p4), phi(p4)
     pair_mask = mask.unsqueeze(2) & mask.unsqueeze(1)
