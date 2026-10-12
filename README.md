@@ -75,8 +75,8 @@ recipes follow [lloca-experiments](https://github.com/heidelberg-hepml/lloca-exp
 from [MIParT](https://github.com/USST-HEP/MIParT), `models/lorentznet.py` from
 [LorentzNet](https://github.com/sdogsq/LorentzNet-release) (both through lloca-experiments)
 and `models/particle_transformer.py` from lloca 1.3.5's version of ParT. The size-class recipes
-and the width ladders are those of the
-[Economical Jet Taggers](https://arxiv.org/abs/2512.17011). The pretrained ParT teacher comes
+and the width ladders are those of the Economical Jet Taggers
+([paper](https://arxiv.org/abs/2512.17011), [code](https://github.com/heidelberg-hepml/tagger-quantization)). The pretrained ParT teacher comes
 from [particle_transformer](https://github.com/jet-universe/particle_transformer) with
 [weaver-core](https://github.com/hqucms/weaver-core), and OmniLearned-S from
 [OmniLearned](https://github.com/ViniciusMikuni/OmniLearned). We thank their authors.
