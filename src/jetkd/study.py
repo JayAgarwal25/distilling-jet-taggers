@@ -17,6 +17,7 @@ SEEDS = (1001, 1002, 1003)
 TEACHERS = ("part", "mipart", "lgatr", "lgatr_slim", "omnilearned_s", "part_pretrained")
 PAIRED_TEACHERS = ("part", "lgatr", "lgatr_slim")   # teacher seed = student seed; others 1001
 SCALING_TEACHERS = ("lgatr", "part_pretrained", "omnilearned_s")
+TRAINED_TEACHERS = ("part", "mipart", "lgatr", "lgatr_slim")   # trained with jetkd's trainer
 
 MATRIX_STUDENTS = (
     "transformer_200k", "part_200k", "mipart_200k", "lgatr_slim_200k", "lorentznet_200k",
@@ -71,6 +72,10 @@ def paper_runs() -> list[Run]:
             for t in SCALING_TEACHERS:
                 extra = {"size", "cost_provisional", "benyas"} if t == "part_pretrained" else set()
                 use(st, seed, t, {"size_full"} | extra)
+
+    for t in TRAINED_TEACHERS:
+        for seed in SEEDS:
+            use(t, seed, None, {"teachers"})
 
     for base, (depths, own) in DEPTHS.items():
         table = "depth_transformer" if base == "transformer_200k" else "depth_slim"

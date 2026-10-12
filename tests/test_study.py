@@ -13,7 +13,8 @@ def test_runs_yaml_is_current():
 
 def test_run_counts():
     runs = study.paper_runs()
-    assert len({r.id for r in runs}) == len(runs) == 105 + 72 + 56   # matrix, width, depth
+    # matrix, width, depth, trained teachers
+    assert len({r.id for r in runs}) == len(runs) == 105 + 72 + 56 + 12
 
 
 def test_teacher_seeds():

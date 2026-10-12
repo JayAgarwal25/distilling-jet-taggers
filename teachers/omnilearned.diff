@@ -1,0 +1,178 @@
+diff --git a/src/omnilearned/cli.py b/src/omnilearned/cli.py
+index 64bcfe8..81601ed 100644
+--- a/src/omnilearned/cli.py
++++ b/src/omnilearned/cli.py
+@@ -79,6 +79,9 @@ def train(
+     ),
+     # Training options
+     batch: int = typer.Option(64, help="Batch size"),
++    grad_accum: int = typer.Option(
++        1, help="Split each batch into this many micro-batches (gradient accumulation)"
++    ),
+     iterations: int = typer.Option(-1, help="Number of iterations per pass"),
+     epoch: int = typer.Option(10, help="Number of epochs"),
+     warmup_epoch: int = typer.Option(0, help="Number of learning rate warmup epochs"),
+@@ -153,6 +156,7 @@ def train(
+         feature_drop,
+         num_workers,
+         clip_inputs=clip_inputs,
++        grad_accum=grad_accum,
+     )
+ 
+ 
+diff --git a/src/omnilearned/evaluate.py b/src/omnilearned/evaluate.py
+index a6d8a8c..6ea7913 100644
+--- a/src/omnilearned/evaluate.py
++++ b/src/omnilearned/evaluate.py
+@@ -234,9 +234,12 @@ def run(
+         print("************")
+ 
+     # load in train data
++    # jetkd: evaluate any split (train and val logits are needed for distillation);
++    # OMNI_EVAL_SPLIT defaults to "test", the upstream behaviour
++    eval_split = os.environ.get("OMNI_EVAL_SPLIT", "test")
+     test_loader = load_data(
+         dataset,
+-        dataset_type="test",
++        dataset_type=eval_split,
+         use_cond=True,
+         use_pid=use_pid,
+         pid_idx=pid_idx,
+diff --git a/src/omnilearned/train.py b/src/omnilearned/train.py
+index 73f069d..8cedaff 100644
+--- a/src/omnilearned/train.py
++++ b/src/omnilearned/train.py
+@@ -59,6 +59,7 @@ def train_step(
+     gscaler=None,
+     ema_model=None,
+     ema_decay=0.9999,
++    grad_accum=1,
+ ):
+     model.train()
+ 
+@@ -93,32 +94,55 @@ def train_step(
+         else:
+             data_pid = None
+ 
+-        with amp.autocast(
+-            "cuda:{}".format(device) if torch.cuda.is_available() else "cpu",
+-            enabled=use_amp,
+-        ):
+-            outputs = model(X, y, **model_kwargs)
+-            loss = get_loss(
+-                outputs,
+-                y,
+-                mode,
+-                class_cost,
+-                gen_cost,
+-                use_event_loss,
+-                use_clip,
+-                clip_loss,
+-                logs,
+-                data_pid=data_pid,
+-            )
++        # jetkd: gradient accumulation over grad_accum micro-batches, each weighted by
++        # its share of the batch, with one clipped optimizer step per batch.
++        # grad_accum=1 (the default) is the upstream code path.
++        n_batch = X.shape[0]
++        bounds = [n_batch * i // grad_accum for i in range(grad_accum + 1)]
++        for lo, hi in zip(bounds[:-1], bounds[1:]):
++            if hi == lo:
++                continue
++            if grad_accum > 1:
++                share = (hi - lo) / n_batch
++                logs_before = {key: val.clone() for key, val in logs.items()}
++                X_mb, y_mb = X[lo:hi], y[lo:hi]
++                kwargs_mb = {key: val[lo:hi] for key, val in model_kwargs.items()}
++                pid_mb = None if data_pid is None else data_pid[lo:hi]
++            else:
++                X_mb, y_mb, kwargs_mb, pid_mb = X, y, model_kwargs, data_pid
++            with amp.autocast(
++                "cuda:{}".format(device) if torch.cuda.is_available() else "cpu",
++                enabled=use_amp,
++            ):
++                outputs = model(X_mb, y_mb, **kwargs_mb)
++                loss = get_loss(
++                    outputs,
++                    y_mb,
++                    mode,
++                    class_cost,
++                    gen_cost,
++                    use_event_loss,
++                    use_clip,
++                    clip_loss,
++                    logs,
++                    data_pid=pid_mb,
++                )
++            if grad_accum > 1:
++                loss = loss * share
++                for key in logs:
++                    logs[key] = logs_before[key] + (logs[key] - logs_before[key]) * share
++
++            if use_amp and gscaler is not None:
++                gscaler.scale(loss).backward()
++            else:
++                loss.backward()  # Backward pass
+ 
+         if use_amp and gscaler is not None:
+-            gscaler.scale(loss).backward()
+             gscaler.unscale_(optimizer)
+             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+             gscaler.step(optimizer)
+             gscaler.update()
+         else:
+-            loss.backward()  # Backward pass
+             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+             optimizer.step()  # Update parameters
+         scheduler.step()
+@@ -225,6 +249,7 @@ def train_model(
+     run=None,
+     ema_model=None,
+     ema_decay=0.999,
++    grad_accum=1,
+ ):
+     checkpoint_name = get_checkpoint_name(save_tag)
+ 
+@@ -260,6 +285,7 @@ def train_model(
+             use_amp=use_amp,
+             gscaler=gscaler,
+             ema_model=ema_model,
++            grad_accum=grad_accum,
+             ema_decay=ema_decay,
+         )
+         val_logs = val_step(
+@@ -388,6 +414,7 @@ def run(
+     feature_drop: float = 0.0,
+     num_workers: int = 16,
+     clip_inputs: bool = False,
++    grad_accum: int = 1,
+ ):
+     local_rank, rank, size = ddp_setup()
+ 
+@@ -610,6 +637,7 @@ def run(
+         use_amp=use_amp,
+         run=run,
+         ema_model=ema_model,
++        grad_accum=grad_accum,
+     )
+ 
+     dist.destroy_process_group()
+diff --git a/src/omnilearned/utils.py b/src/omnilearned/utils.py
+index 728c265..7f89294 100644
+--- a/src/omnilearned/utils.py
++++ b/src/omnilearned/utils.py
+@@ -1069,9 +1069,12 @@ def ddp_setup():
+     """
+     if "MASTER_ADDR" not in os.environ:
+         os.environ["MASTER_ADDR"] = "localhost"
+-        os.environ["MASTER_PORT"] = "2900"
++        # jetkd: OMNI_MASTER_PORT lets two single-process runs share a machine
++        os.environ["MASTER_PORT"] = os.environ.get("OMNI_MASTER_PORT", "2900")
+         os.environ["RANK"] = "0"
+-        init_process_group(rank=0, world_size=1)
++        # jetkd: gloo, as NCCL failed to initialise on our machine; with one process the
++        # backend does not change the numbers
++        init_process_group(backend="gloo", rank=0, world_size=1)
+         rank = local_rank = 0
+     else:
+         init_process_group(init_method="env://")
