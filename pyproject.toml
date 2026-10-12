@@ -38,7 +38,7 @@ dependencies = [
 xformers = ["xformers"]
 benchmark = ["psutil", "omnilearned"]
 teachers = ["uproot", "h5py"]
-dev = ["pytest", "ruff", "pre-commit"]
+dev = ["pytest", "ruff"]
 
 [project.urls]
 repository = "https://github.com/JayAgarwal25/distilling-jet-taggers"
