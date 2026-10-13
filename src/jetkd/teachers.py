@@ -11,7 +11,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 
 from jetkd.data import TopTaggingSplit, collate
 
@@ -62,12 +62,15 @@ def check_rows(labels: np.ndarray, split: str, data: str | Path,
 
 
 @torch.no_grad()
-def model_logits(model: torch.nn.Module, split: str, data: str | Path, device: str = "cuda",
-                 batch_size: int = 512, workers: int = 4):
-    """Logits and labels of `model` on a whole split, in row order."""
+def model_logits(model: torch.nn.Module, split: str, data: str | Path | Dataset,
+                 device: str = "cuda", batch_size: int = 512, workers: int = 4):
+    """Logits and labels of `model` on a whole split, in row order.
+
+    `data` is the dataset file or an already loaded `TopTaggingSplit` of `split`.
+    """
     model.eval().to(device)
-    loader = DataLoader(TopTaggingSplit(split, data), batch_size=batch_size,
-                        num_workers=workers, collate_fn=collate)
+    dataset = data if isinstance(data, Dataset) else TopTaggingSplit(split, data)
+    loader = DataLoader(dataset, batch_size=batch_size, num_workers=workers, collate_fn=collate)
     z, y = [], []
     for batch in loader:
         z.append(model(batch.to(device)).float().cpu())

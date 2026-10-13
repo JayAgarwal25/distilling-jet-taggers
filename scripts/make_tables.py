@@ -351,13 +351,18 @@ def architectures() -> str:
     return wrap("llllll", "Model & Width & Heads & Blocks & Read-out & Params", rows)
 
 
+TABLES = {
+    "teachers": teachers, "students": students, "matrix_auc": matrix_auc, "matrix_rej": matrix_rej,
+    "gains": gains, "depth": depth, "size": size,
+    "depth_transformer": lambda r: depth_full(r, "transformer_200k"),
+    "depth_slim": lambda r: depth_full(r, "lgatr_slim_200k"), "size_full": size_full,
+    "recipes": lambda r: recipes(), "complete": complete, "architectures": lambda r: architectures(),
+}
+
+
 def tables(summary: dict) -> dict[str, str]:
     r = Results(summary)
-    return {"teachers": teachers(r), "students": students(r), "matrix_auc": matrix_auc(r),
-            "matrix_rej": matrix_rej(r), "gains": gains(r), "depth": depth(r), "size": size(r),
-            "depth_transformer": depth_full(r, "transformer_200k"),
-            "depth_slim": depth_full(r, "lgatr_slim_200k"), "size_full": size_full(r),
-            "recipes": recipes(), "complete": complete(r), "architectures": architectures()}
+    return {name: make(r) for name, make in TABLES.items()}
 
 
 def main() -> None:
