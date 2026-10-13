@@ -3,7 +3,10 @@
 Distillation reads a teacher only through its logits, one file per split:
 `data/teachers/<teacher>_s<seed>_<split>.npz`. We release these files and the teacher
 checkpoints, so retraining a teacher is optional. This page shows how each was trained.
-Seeds 1001, 1002 and 1003 are the three runs of each teacher.
+Seeds 1001, 1002 and 1003 are the three runs of each teacher. Students distill from the
+run with their own seed for ParT, L-GATr and L-GATr-slim and from run 1001 for MIParT,
+pretrained ParT and OmniLearned-S. Runs 1002 and 1003 of these three appear only in the
+teacher table, so we release only their test logits.
 
 ## L-GATr, L-GATr-slim, ParT and MIParT
 
