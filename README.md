@@ -79,7 +79,9 @@ and the width ladders are those of the Economical Jet Taggers
 ([paper](https://arxiv.org/abs/2512.17011), [code](https://github.com/heidelberg-hepml/tagger-quantization)). The pretrained ParT teacher comes
 from [particle_transformer](https://github.com/jet-universe/particle_transformer) with
 [weaver-core](https://github.com/hqucms/weaver-core), and OmniLearned-S from
-[OmniLearned](https://github.com/ViniciusMikuni/OmniLearned). We thank their authors.
+[OmniLearned](https://github.com/ViniciusMikuni/OmniLearned). `models/deepsets.py` adapts the
+Deep Sets students of [fm-distillation](https://github.com/stanford-ai4physics/fm-distillation),
+which we use only to count operations and time them. We thank their authors.
 
 ## Citation
 
