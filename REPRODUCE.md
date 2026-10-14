@@ -9,18 +9,20 @@ Retraining gives the same results in the scientific sense. Each table cell lands
 spread of its runs, and every conclusion of the paper holds. The digits differ from ours because
 training on a GPU is not bit-deterministic.
 
-Our released checkpoints, evaluated on a GPU, give the paper's numbers to the printed digits.
-On a CPU the Transformers agree with our GPU logits to about 1e-4. L-GATr-slim, ParT and MIParT
-amplify float32 round-off, L-GATr-slim in its layers and ParT and MIParT in the masses of nearly
-collinear particle pairs. Single logits can then move by more than one unit, so their metrics can
-change in the last printed digit.
+Evaluation is deterministic: jetkd evaluates with torch's deterministic algorithms, and the paper's
+numbers come from such an evaluation of the released checkpoints. On an RTX 6000 Ada with the versions
+in `requirements.txt`, the checkpoints give the paper's numbers to the printed digits. Other GPUs and
+CPUs use other kernels, so their logits differ by float32 round-off. For the Transformers this is about
+1e-4. L-GATr-slim amplifies round-off in its layers, and ParT and MIParT in the masses of nearly
+collinear particle pairs, so a single logit can move by more than one unit. A background rejection can
+then change in its last printed digit.
 
 ## Setup
 
 ```bash
 pip install -e ".[xformers]"
 python scripts/get_data.py          # data/toptagging_full.npz
-python scripts/get_checkpoints.py   # runs/<id>/best.pt and data/teachers/, only for checking
+python scripts/get_checkpoints.py   # runs/, data/teachers/ and data/external_teachers/, checked by sha256
 ```
 
 ## Tables
@@ -71,3 +73,12 @@ dense mask whose size grows with the square of the number of particles in the ba
 
 The teacher metrics come from the teacher checkpoints, except for pretrained ParT and
 OmniLearned-S, whose test logits are released in `data/teachers/`.
+
+## Operations per jet
+
+```bash
+python scripts/count_flops.py
+```
+
+counts the floating-point operations of every model in the `operations` table on the first 300 test
+jets. The counts do not depend on the hardware and equal ours exactly.

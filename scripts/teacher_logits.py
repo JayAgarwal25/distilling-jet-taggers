@@ -23,13 +23,16 @@ def main() -> None:
     ap.add_argument("--out", default="data/teachers")
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--splits", default="train,val,test")
+    ap.add_argument("--batch-size", type=int, default=512,
+                    help="on CPU use about 100: without xformers attention builds a dense mask")
+    ap.add_argument("--workers", type=int, default=4)
     args = ap.parse_args()
 
     model = build(args.model)
     state = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
     model.load_state_dict(state.get("model", state))
     for split in args.splits.split(","):
-        z, y = model_logits(model, split, args.data, args.device)
+        z, y = model_logits(model, split, args.data, args.device, args.batch_size, args.workers)
         path = logits_path(args.out, args.model, args.seed, split)
         save_logits(path, z, y)
         m = binary_metrics(z, y)
