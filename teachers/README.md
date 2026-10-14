@@ -20,7 +20,8 @@ python scripts/teacher_logits.py --model lgatr --seed 1001 --checkpoint runs/lga
 Replace `lgatr` by `lgatr_slim`, `part` or `mipart`. Our ParT and MIParT checkpoints were
 trained with the training loop of
 [lloca-experiments](https://github.com/heidelberg-hepml/lloca-experiments) under the same
-recipes.
+recipes. Their weights load into jetkd's models, but the optimizer and scheduler state they
+hold is that loop's, so `scripts/train.py` cannot resume them.
 
 ## Pretrained ParT
 
