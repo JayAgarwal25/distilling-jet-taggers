@@ -5,7 +5,7 @@
 - `src/jetkd/`: data, features, models, distillation loss, recipes, trainer, teacher logits,
   summary, the run list (`study.py`) and the reference files (`reference.py`).
 - `scripts/`: command-line entry points (`get_data`, `train`, `teacher_logits`,
-  `import_logits`, `summarize`, `make_tables`).
+  `import_logits`, `summarize`, `make_tables`, `reproduce`, `count_flops`).
 - `configs/`, `docs/RUNS.md`: generated, see below. `teachers/`: how the teachers were trained.
 
 ## Commands
