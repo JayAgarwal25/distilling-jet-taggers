@@ -25,6 +25,7 @@ from jetkd.distillation import KDConfig, kd_loss
 from jetkd.metrics import binary_metrics
 from jetkd.models import build
 from jetkd.recipes import Recipe, build_optimizer, build_scheduler, recipe_for
+from jetkd.teachers import deterministic
 
 
 @dataclass
@@ -244,7 +245,8 @@ def run(cfg: RunConfig, test: bool = True) -> dict:
     results = {"best": best, "stopped_early": trainer.stopped_early,
                "recipe": trainer.recipe.as_record()}
     for split in ("val", "test") if test else ("val",):
-        metrics, z, y, sid = trainer.evaluate(split)
+        with deterministic():
+            metrics, z, y, sid = trainer.evaluate(split)
         results[split] = metrics
         np.savez_compressed(trainer.out / f"predictions_{split}.npz", logits=z, labels=y, sids=sid)
         print(f"[{cfg.id}] {split}: AUC {metrics['auc']:.5f} rej50 {metrics['rej50']:.1f} "

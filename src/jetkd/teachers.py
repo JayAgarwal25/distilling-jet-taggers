@@ -7,6 +7,8 @@ Before a file is written, `check_rows` makes sure its rows are the dataset's row
 
 from __future__ import annotations
 
+import os
+from contextlib import contextmanager
 from pathlib import Path
 
 import numpy as np
@@ -61,6 +63,19 @@ def check_rows(labels: np.ndarray, split: str, data: str | Path,
             raise ValueError(f"{split}: {n} jets differ in pT; rows are not aligned")
 
 
+@contextmanager
+def deterministic():
+    """Deterministic GPU kernels: the sums over particles otherwise use atomics, so two
+    evaluations of one checkpoint differ in the last bits and rej@0.3 in its last digits."""
+    os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+    before = torch.are_deterministic_algorithms_enabled()
+    torch.use_deterministic_algorithms(True)
+    try:
+        yield
+    finally:
+        torch.use_deterministic_algorithms(before)
+
+
 @torch.no_grad()
 def model_logits(model: torch.nn.Module, split: str, data: str | Path | Dataset,
                  device: str = "cuda", batch_size: int = 512, workers: int = 4):
@@ -72,7 +87,8 @@ def model_logits(model: torch.nn.Module, split: str, data: str | Path | Dataset,
     dataset = data if isinstance(data, Dataset) else TopTaggingSplit(split, data)
     loader = DataLoader(dataset, batch_size=batch_size, num_workers=workers, collate_fn=collate)
     z, y = [], []
-    for batch in loader:
-        z.append(model(batch.to(device)).float().cpu())
-        y.append(batch.label)
+    with deterministic():
+        for batch in loader:
+            z.append(model(batch.to(device)).float().cpu())
+            y.append(batch.label)
     return torch.cat(z).numpy(), torch.cat(y).numpy()
