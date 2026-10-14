@@ -67,6 +67,20 @@ def count(name: str, jets: list[JetBatch]) -> dict:
             "flops_mean": float(np.mean(flops)), "flops_median": float(np.median(flops))}
 
 
+def count_all(models: list[str], data: str, n_jets: int = 300) -> dict:
+    p4 = TopTaggingSplit("test", data, n_jets).p4
+    n = particle_mask(p4).sum(1)
+    jets = [JetBatch(p4[i:i + 1, :k], particle_mask(p4[i:i + 1, :k]), None, None)
+            for i, k in enumerate(n.tolist())]
+    out = {"n_jets": n_jets, "particles_mean": float(n.float().mean()),
+           "particles_median": float(n.float().median()), "models": {}}
+    for name in models:
+        out["models"][name] = m = count(name, jets)
+        print(f"{name:24s} {m['parameters']:>9,d} parameters  {m['flops_median'] / 1e6:8.2f} MFLOP "
+              "at the median jet", flush=True)
+    return out
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     ap.add_argument("--models", nargs="+", default=MODELS)
@@ -74,17 +88,7 @@ def main() -> None:
     ap.add_argument("--data", default="data/toptagging_full.npz")
     ap.add_argument("--out", default="results/flops.json")
     args = ap.parse_args()
-
-    p4 = TopTaggingSplit("test", args.data, args.jets).p4
-    n = particle_mask(p4).sum(1)
-    jets = [JetBatch(p4[i:i + 1, :k], particle_mask(p4[i:i + 1, :k]), None, None)
-            for i, k in enumerate(n.tolist())]
-    out = {"n_jets": args.jets, "particles_mean": float(n.float().mean()),
-           "particles_median": float(n.float().median()), "models": {}}
-    for name in args.models:
-        out["models"][name] = m = count(name, jets)
-        print(f"{name:24s} {m['parameters']:>9,d} parameters  {m['flops_median'] / 1e6:8.2f} MFLOP "
-              "at the median jet", flush=True)
+    out = count_all(args.models, args.data, args.jets)
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text(json.dumps(out, indent=1))
 
