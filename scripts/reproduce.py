@@ -31,7 +31,7 @@ from jetkd.summary import summarize
 from jetkd.teachers import logits_path, model_logits, save_logits
 
 # tables that print teacher metrics, from all three runs of every teacher
-WITH_TEACHERS = ("teachers", "matrix_auc", "benyas")
+WITH_TEACHERS = ("teachers", "matrix_auc", "operations")
 
 
 def table_runs(table: str):

@@ -32,7 +32,7 @@ python scripts/get_checkpoints.py   # runs/<id>/best.pt and data/teachers/, only
 | Tables 3 and 4, students and teachers | `matrix_auc`, `matrix_rej` | 105 student runs and all teachers |
 | Width study | `size` | 36 |
 | Depth study | `depth` | 32 |
-| Operations per jet, against Benyas et al. | `benyas` | 24 and all teachers; counts operations on 300 test jets (`scripts/count_flops.py`) |
+| Operations per jet, against Deep Sets | `operations` | 24 and all teachers; counts operations on 300 test jets (`scripts/count_flops.py`) |
 | Architectures and recipes | `architectures`, `recipes` | none, from the code |
 | Appendix: gains, every matrix cell | `gains`, `complete` | as `matrix_auc` |
 | Appendix: depth and width with every teacher | `depth_transformer`, `depth_slim`, `size_full` | 32, 32, 72 |

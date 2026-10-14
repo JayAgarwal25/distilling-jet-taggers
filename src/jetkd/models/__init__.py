@@ -54,10 +54,11 @@ MODELS = {
 }
 
 
-# never trained here: the Deep Sets students of Benyas et al., for operation counts and timing
+# never trained here: the Deep Sets students of arXiv:2609.26899, with and without message
+# passing, for operation counts and timing
 REFERENCE_MODELS = {
-    "benyas_deepsets": DeepSetsTagger,
-    "benyas_deepsets_mp": partial(DeepSetsTagger, message_passing=True),
+    "deepsets": DeepSetsTagger,
+    "deepsets_mp": partial(DeepSetsTagger, message_passing=True),
 }
 
 

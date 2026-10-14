@@ -63,14 +63,14 @@ def paper_runs() -> list[Run]:
                 if t == "part_pretrained":
                     extra = {"cost_provisional"}
                     if st in ("transformer_200k", "lgatr_slim_200k"):
-                        extra.add("benyas")
+                        extra.add("operations")
                 use(st, seed, t, matrix | extra)
 
     for st in WIDTH_STUDENTS:
         for seed in SEEDS:
             use(st, seed, None, {"size_full", "size", "cost_provisional"})
             for t in SCALING_TEACHERS:
-                extra = {"size", "cost_provisional", "benyas"} if t == "part_pretrained" else set()
+                extra = {"size", "cost_provisional", "operations"} if t == "part_pretrained" else set()
                 use(st, seed, t, {"size_full"} | extra)
 
     for t in TRAINED_TEACHERS:

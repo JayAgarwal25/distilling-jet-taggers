@@ -48,7 +48,7 @@ runs:
   teacher_seed: 1001
   seed: 1001
   recipe: size_200k
-  tables: [benyas, complete, cost_provisional, depth, depth_transformer, gains, matrix_auc, matrix_rej]
+  tables: [complete, cost_provisional, depth, depth_transformer, gains, matrix_auc, matrix_rej, operations]
 - id: transformer_200k__scratch__s1002
   student: transformer_200k
   teacher: null
@@ -97,7 +97,7 @@ runs:
   teacher_seed: 1001
   seed: 1002
   recipe: size_200k
-  tables: [benyas, complete, cost_provisional, gains, matrix_auc, matrix_rej]
+  tables: [complete, cost_provisional, gains, matrix_auc, matrix_rej, operations]
 - id: transformer_200k__scratch__s1003
   student: transformer_200k
   teacher: null
@@ -146,7 +146,7 @@ runs:
   teacher_seed: 1001
   seed: 1003
   recipe: size_200k
-  tables: [benyas, complete, cost_provisional, gains, matrix_auc, matrix_rej]
+  tables: [complete, cost_provisional, gains, matrix_auc, matrix_rej, operations]
 - id: part_200k__scratch__s1001
   student: part_200k
   teacher: null
@@ -489,7 +489,7 @@ runs:
   teacher_seed: 1001
   seed: 1001
   recipe: lgatr_slim
-  tables: [benyas, complete, cost_provisional, depth, depth_slim, gains, matrix_auc, matrix_rej]
+  tables: [complete, cost_provisional, depth, depth_slim, gains, matrix_auc, matrix_rej, operations]
 - id: lgatr_slim_200k__scratch__s1002
   student: lgatr_slim_200k
   teacher: null
@@ -538,7 +538,7 @@ runs:
   teacher_seed: 1001
   seed: 1002
   recipe: lgatr_slim
-  tables: [benyas, complete, cost_provisional, gains, matrix_auc, matrix_rej]
+  tables: [complete, cost_provisional, gains, matrix_auc, matrix_rej, operations]
 - id: lgatr_slim_200k__scratch__s1003
   student: lgatr_slim_200k
   teacher: null
@@ -587,7 +587,7 @@ runs:
   teacher_seed: 1001
   seed: 1003
   recipe: lgatr_slim
-  tables: [benyas, complete, cost_provisional, gains, matrix_auc, matrix_rej]
+  tables: [complete, cost_provisional, gains, matrix_auc, matrix_rej, operations]
 - id: lorentznet_200k__scratch__s1001
   student: lorentznet_200k
   teacher: null
@@ -755,7 +755,7 @@ runs:
   teacher_seed: 1001
   seed: 1001
   recipe: size_200k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: transformer_deep_200k__kd_omnilearned_s_t1001__s1001
   student: transformer_deep_200k
   teacher: omnilearned_s
@@ -783,7 +783,7 @@ runs:
   teacher_seed: 1001
   seed: 1002
   recipe: size_200k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: transformer_deep_200k__kd_omnilearned_s_t1001__s1002
   student: transformer_deep_200k
   teacher: omnilearned_s
@@ -811,7 +811,7 @@ runs:
   teacher_seed: 1001
   seed: 1003
   recipe: size_200k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: transformer_deep_200k__kd_omnilearned_s_t1001__s1003
   student: transformer_deep_200k
   teacher: omnilearned_s
@@ -839,7 +839,7 @@ runs:
   teacher_seed: 1001
   seed: 1001
   recipe: size_20k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: transformer_deep_20k__kd_omnilearned_s_t1001__s1001
   student: transformer_deep_20k
   teacher: omnilearned_s
@@ -867,7 +867,7 @@ runs:
   teacher_seed: 1001
   seed: 1002
   recipe: size_20k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: transformer_deep_20k__kd_omnilearned_s_t1001__s1002
   student: transformer_deep_20k
   teacher: omnilearned_s
@@ -895,7 +895,7 @@ runs:
   teacher_seed: 1001
   seed: 1003
   recipe: size_20k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: transformer_deep_20k__kd_omnilearned_s_t1001__s1003
   student: transformer_deep_20k
   teacher: omnilearned_s
@@ -923,7 +923,7 @@ runs:
   teacher_seed: 1001
   seed: 1001
   recipe: size_2k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: transformer_deep_2k__kd_omnilearned_s_t1001__s1001
   student: transformer_deep_2k
   teacher: omnilearned_s
@@ -951,7 +951,7 @@ runs:
   teacher_seed: 1001
   seed: 1002
   recipe: size_2k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: transformer_deep_2k__kd_omnilearned_s_t1001__s1002
   student: transformer_deep_2k
   teacher: omnilearned_s
@@ -979,7 +979,7 @@ runs:
   teacher_seed: 1001
   seed: 1003
   recipe: size_2k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: transformer_deep_2k__kd_omnilearned_s_t1001__s1003
   student: transformer_deep_2k
   teacher: omnilearned_s
@@ -1007,7 +1007,7 @@ runs:
   teacher_seed: 1001
   seed: 1001
   recipe: size_200k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: lgatr_slim_deep_200k__kd_omnilearned_s_t1001__s1001
   student: lgatr_slim_deep_200k
   teacher: omnilearned_s
@@ -1035,7 +1035,7 @@ runs:
   teacher_seed: 1001
   seed: 1002
   recipe: size_200k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: lgatr_slim_deep_200k__kd_omnilearned_s_t1001__s1002
   student: lgatr_slim_deep_200k
   teacher: omnilearned_s
@@ -1063,7 +1063,7 @@ runs:
   teacher_seed: 1001
   seed: 1003
   recipe: size_200k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: lgatr_slim_deep_200k__kd_omnilearned_s_t1001__s1003
   student: lgatr_slim_deep_200k
   teacher: omnilearned_s
@@ -1091,7 +1091,7 @@ runs:
   teacher_seed: 1001
   seed: 1001
   recipe: size_20k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: lgatr_slim_deep_20k__kd_omnilearned_s_t1001__s1001
   student: lgatr_slim_deep_20k
   teacher: omnilearned_s
@@ -1119,7 +1119,7 @@ runs:
   teacher_seed: 1001
   seed: 1002
   recipe: size_20k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: lgatr_slim_deep_20k__kd_omnilearned_s_t1001__s1002
   student: lgatr_slim_deep_20k
   teacher: omnilearned_s
@@ -1147,7 +1147,7 @@ runs:
   teacher_seed: 1001
   seed: 1003
   recipe: size_20k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: lgatr_slim_deep_20k__kd_omnilearned_s_t1001__s1003
   student: lgatr_slim_deep_20k
   teacher: omnilearned_s
@@ -1175,7 +1175,7 @@ runs:
   teacher_seed: 1001
   seed: 1001
   recipe: size_2k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: lgatr_slim_deep_2k__kd_omnilearned_s_t1001__s1001
   student: lgatr_slim_deep_2k
   teacher: omnilearned_s
@@ -1203,7 +1203,7 @@ runs:
   teacher_seed: 1001
   seed: 1002
   recipe: size_2k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: lgatr_slim_deep_2k__kd_omnilearned_s_t1001__s1002
   student: lgatr_slim_deep_2k
   teacher: omnilearned_s
@@ -1231,7 +1231,7 @@ runs:
   teacher_seed: 1001
   seed: 1003
   recipe: size_2k
-  tables: [benyas, cost_provisional, size, size_full]
+  tables: [cost_provisional, operations, size, size_full]
 - id: lgatr_slim_deep_2k__kd_omnilearned_s_t1001__s1003
   student: lgatr_slim_deep_2k
   teacher: omnilearned_s

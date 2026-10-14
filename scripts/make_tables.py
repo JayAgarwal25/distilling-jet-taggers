@@ -351,13 +351,13 @@ def architectures() -> str:
     return wrap("llllll", "Model & Width & Heads & Blocks & Read-out & Params", rows)
 
 
-# Benyas et al. (arXiv:2609.26899), Table 1, distilled from OmniLearned-L: AUC, 1/eps_B at 0.5 and 0.3
-BENYAS = [("Deep Sets", "benyas_deepsets", 0.9800, 199, 748),
-          ("Deep Sets, message passing", "benyas_deepsets_mp", 0.9859, 450, 1980)]
+# Deep Sets students distilled from OmniLearned-L, arXiv:2609.26899 Table 1: AUC, 1/eps_B at 0.5 and 0.3
+DEEPSETS = [("Deep Sets", "deepsets", 0.9800, 199, 748),
+          ("Deep Sets, message passing", "deepsets_mp", 0.9859, 450, 1980)]
 
 
-def benyas(r: Results) -> str:
-    """Operations per jet (median test jet) against performance: their students and ours."""
+def operations(r: Results) -> str:
+    """Operations per jet (median test jet) against performance: the Deep Sets students and ours."""
     flops = r.flops["models"]
 
     def row(label, size, c, m):
@@ -366,7 +366,7 @@ def benyas(r: Results) -> str:
 
     rows = [r"\multicolumn{6}{l}{\textit{Benyas et al., distilled from OmniLearned-L}}"]
     rows += [f"{label} & {num(flops[m]['parameters'] / 1e3)}k & {a:.4f} & {num(r50)} & {num(r30)} & "
-             f"{flops[m]['flops_median'] / 1e6:.1f}" for label, m, a, r50, r30 in BENYAS]
+             f"{flops[m]['flops_median'] / 1e6:.1f}" for label, m, a, r50, r30 in DEEPSETS]
     rows += [r"\midrule", r"\multicolumn{6}{l}{\textit{Ours, distilled from pretrained ParT}}"]
     for sz in reversed(SIZES):   # smallest first
         for f in WIDTH_FAMILIES:
@@ -385,9 +385,9 @@ TABLES = {
     "depth_transformer": lambda r: depth_full(r, "transformer_200k"),
     "depth_slim": lambda r: depth_full(r, "lgatr_slim_200k"), "size_full": size_full,
     "recipes": lambda r: recipes(), "complete": complete, "architectures": lambda r: architectures(),
-    "benyas": benyas,
+    "operations": operations,
 }
-NEEDS_FLOPS = ("benyas",)
+NEEDS_FLOPS = ("operations",)
 
 
 def tables(summary: dict, flops: dict | None = None) -> dict[str, str]:

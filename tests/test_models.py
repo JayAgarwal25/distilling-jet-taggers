@@ -51,13 +51,13 @@ def test_parameter_counts():
 
 
 def test_reference_models():
-    # Benyas et al. state 10,981 and "17k" parameters
+    # arXiv:2609.26899 states 10,981 and "17k" parameters
     assert {n: sum(p.numel() for p in build(n).parameters()) for n in REFERENCE_MODELS} == {
-        "benyas_deepsets": 10_981, "benyas_deepsets_mp": 17_446}
+        "deepsets": 10_981, "deepsets_mp": 17_446}
 
 
 @pytest.mark.parametrize("name", ["transformer_200k", "part_200k", "mipart_200k", "lgatr_slim_200k",
-                                  "lorentznet_200k", "lgatr", "benyas_deepsets_mp"])
+                                  "lorentznet_200k", "lgatr", "deepsets_mp"])
 def test_one_logit_per_jet_independent_of_the_batch(name, batch):
     model = build(name).eval()
     with torch.no_grad():

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Floating-point operations per jet on real test jets, as in the paper's comparison with Benyas et al.
+"""Floating-point operations per jet on real test jets, as in the paper's comparison with Deep Sets.
 
 Each of the first 300 test jets is passed alone, cut to its own particles, in float32 on the
 CPU. torch's FlopCounterMode counts matrix products and attention; elementwise operations
@@ -21,7 +21,7 @@ from torch.utils.flop_counter import FlopCounterMode, register_flop_formula, sdp
 from jetkd.data import JetBatch, TopTaggingSplit, particle_mask
 from jetkd.models import build
 
-MODELS = ["benyas_deepsets", "benyas_deepsets_mp",
+MODELS = ["deepsets", "deepsets_mp",
           *(f"{f}_deep_{s}" for s in ("2k", "20k", "200k") for f in ("transformer", "lgatr_slim")),
           "transformer_200k", "lgatr_slim_200k", "part", "mipart", "lgatr", "lgatr_slim"]
 

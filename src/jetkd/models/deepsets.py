@@ -1,4 +1,4 @@
-"""The two Deep Sets students of Benyas et al. (arXiv:2609.26899), for operation counts and timing.
+"""Deep Sets and Deep Sets with message passing (arXiv:2609.26899), for operation counts and timing.
 
 Adapted from github.com/stanford-ai4physics/fm-distillation (MIT), keeping only the paths their
 students use. Module names follow theirs, so their checkpoints load.
