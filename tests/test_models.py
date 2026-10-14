@@ -3,7 +3,7 @@ import torch
 from jets import random_jets
 
 from jetkd.data import JetBatch, particle_mask
-from jetkd.models import MODELS, build
+from jetkd.models import MODELS, REFERENCE_MODELS, build
 
 PARAMETERS = {
     "lgatr": 1_077_474,
@@ -50,8 +50,14 @@ def test_parameter_counts():
         assert sum(p.numel() for p in build(name).parameters()) == n, name
 
 
+def test_reference_models():
+    # Benyas et al. state 10,981 and "17k" parameters
+    assert {n: sum(p.numel() for p in build(n).parameters()) for n in REFERENCE_MODELS} == {
+        "benyas_deepsets": 10_981, "benyas_deepsets_mp": 17_446}
+
+
 @pytest.mark.parametrize("name", ["transformer_200k", "part_200k", "mipart_200k", "lgatr_slim_200k",
-                                  "lorentznet_200k", "lgatr"])
+                                  "lorentznet_200k", "lgatr", "benyas_deepsets_mp"])
 def test_one_logit_per_jet_independent_of_the_batch(name, batch):
     model = build(name).eval()
     with torch.no_grad():

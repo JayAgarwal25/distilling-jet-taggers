@@ -9,6 +9,7 @@ from functools import partial
 
 from torch import nn
 
+from jetkd.models.deepsets import DeepSetsTagger
 from jetkd.models.lgatr import LGATrSlimTagger, LGATrTagger
 from jetkd.models.lorentznet import LorentzNetTagger
 from jetkd.models.mipart import MIParTTagger
@@ -53,5 +54,12 @@ MODELS = {
 }
 
 
+# never trained here: the Deep Sets students of Benyas et al., for operation counts and timing
+REFERENCE_MODELS = {
+    "benyas_deepsets": DeepSetsTagger,
+    "benyas_deepsets_mp": partial(DeepSetsTagger, message_passing=True),
+}
+
+
 def build(name: str) -> nn.Module:
-    return MODELS[name]()
+    return {**MODELS, **REFERENCE_MODELS}[name]()
