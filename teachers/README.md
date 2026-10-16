@@ -51,16 +51,16 @@ data; the import allows for that and checks every row otherwise.
 
 [OmniLearned](https://github.com/ViniciusMikuni/OmniLearned) at commit `25fef9f` with
 [`omnilearned.diff`](omnilearned.diff) applied. The patch lets `evaluate` run on any split
-(`OMNI_EVAL_SPLIT`), adds gradient accumulation (used only for the batch-256 runs in the
-appendix) and selects the gloo backend and a free port for single-GPU runs, neither of
-which changes the results.
+(`OMNI_EVAL_SPLIT`), adds gradient accumulation and selects the gloo backend and a free
+port for single-GPU runs. We fine-tune on one GPU with batch 256 as four accumulated steps
+of 64. This is the batch of upstream's `train.sh` run on four GPUs (batch 64 per GPU).
 
 ```bash
 git apply omnilearned.diff
 omnilearned dataloader --dataset top --folder DATA_DIR
 omnilearned train -o ./checkpoints --save-tag top_s_run1 --dataset top --path DATA_DIR \
   --size small --fine-tune --pretrain-tag pretrain_s --epoch 10 --lr 5e-6 --lr-factor 5.0 \
-  --wd 0.1 --warmup-epoch 1 --interaction
+  --wd 0.1 --warmup-epoch 1 --interaction --batch 256 --grad-accum 4
 for split in train val test; do
   OMNI_EVAL_SPLIT=$split omnilearned evaluate -i ./checkpoints -o ./outputs \
     --save-tag top_s_run1 --dataset top --path DATA_DIR --size small --interaction
@@ -69,8 +69,6 @@ done
 python scripts/import_logits.py --name omnilearned_s --seed 1001 --format omnilearned \
   --file outputs/top_s_run1_{split}.npz
 ```
-
-For the batch-256 runs, add `--batch 256 --grad-accum 4` to `omnilearned train`.
 
 ## Any other model
 
