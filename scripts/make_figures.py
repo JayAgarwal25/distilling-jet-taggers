@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-"""The paper's figures from results/summary.json and results/analysis.json (scripts/summarize.py).
+"""The paper's figures from results/summary.json and results/analysis.json (scripts/summarize.py),
+results/benchmark.json (scripts/benchmark.py) and results/flops.json (scripts/count_flops.py).
 
     python scripts/make_figures.py --out figures            # all of them
     python scripts/make_figures.py strength analysis       # some of them
 
-Each figure is written as PDF and PNG. The timing figures come with scripts/benchmark.py.
+Each figure is written as PDF and PNG.
 """
 
 import argparse
@@ -14,6 +15,7 @@ from pathlib import Path
 import matplotlib
 
 matplotlib.use("Agg")
+import matplotlib.legend_handler  # noqa: E402
 import matplotlib.patches  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 import matplotlib.ticker  # noqa: E402
@@ -90,7 +92,7 @@ def legends(fig, models: list, y: float = 1.0) -> None:
 
 def rej_by_teacher(r: Results, a: dict, out: Path) -> list[Path]:
     """Background rejection of every student without a teacher and from each teacher, with the
-    teacher's own rejection as a black bar."""
+    teacher's own rejection as a black bar on a grey band of its standard deviation over runs."""
     groups = [None, *TEACHERS]
     fig, axes = plt.subplots(2, 1, figsize=(7.6, 7.0), sharex=True)
     for ax, m, eps in ((axes[0], "rej50", "0.5"), (axes[1], "rej30", "0.3")):
@@ -98,12 +100,14 @@ def rej_by_teacher(r: Results, a: dict, out: Path) -> list[Path]:
             if g > 0:
                 ax.axvline(g - 0.5, color="#DDDDDD", lw=0.8, zorder=0)
             if t is not None:
-                tv = r.teacher(t)[m]
+                tv, ts = r.teacher(t)[m], r.teacher(t)[f"{m}_sd"]
+                ax.fill_between([g - 0.42, g + 0.42], tv - ts, tv + ts, color="#9a9a9a", alpha=0.22, lw=0, zorder=1)
                 ax.plot([g - 0.42, g + 0.42], [tv, tv], color="#0b0b0b", lw=1.8, zorder=2, solid_capstyle="butt")
             for i, (s, _, color, marker) in enumerate(STUDENTS):
-                c = r.cell(s, t)
-                ax.errorbar(g + (i - 2) * 0.15, c[m], yerr=c[f"{m}_sd"], color=color, marker=marker, ms=6.5,
-                            mec="white", mew=0.6, lw=0, elinewidth=1.0, capsize=0, zorder=3)
+                c, x = r.cell(s, t), g + (i - 2) * 0.15
+                ax.plot(x, c[m], color=color, marker=marker, ms=5.6, mec="white", mew=0.6, lw=0, zorder=3)
+                # bars above the markers, so that no marker hides half of a bar
+                ax.errorbar(x, c[m], yerr=c[f"{m}_sd"], color=color, lw=0, elinewidth=1.1, capsize=0, zorder=4)
         ax.set_ylabel(rf"$1/\epsilon_B$ at $\epsilon_S={eps}$")
         ax.spines[["top", "right"]].set_visible(False)
         ax.set_xlim(-0.5, len(groups) - 0.5)
@@ -112,10 +116,13 @@ def rej_by_teacher(r: Results, a: dict, out: Path) -> list[Path]:
     axes[1].set_xticks(range(len(groups)))
     axes[1].set_xticklabels(["No teacher", *NAMES.values()], rotation=25, ha="right", rotation_mode="anchor")
     axes[1].set_xlabel("Teacher")
-    handles = [Line2D([], [], color=c, marker=mk, ms=6.5, lw=0, label=lb) for _, lb, c, mk in STUDENTS]
-    handles.append(Line2D([], [], color="#0b0b0b", lw=1.8, label="teacher"))
-    fig.legend(handles=handles, loc="upper center", ncol=6, frameon=False, fontsize=10.5, handlelength=1.4,
-               columnspacing=1.2, bbox_to_anchor=(0.5, 1.0))
+    handles = [Line2D([], [], color=c, marker=mk, ms=5.6, lw=0) for _, _, c, mk in STUDENTS]
+    handles.append((matplotlib.patches.Patch(facecolor="#9a9a9a", alpha=0.22, lw=0),
+                    Line2D([], [], color="#0b0b0b", lw=1.8)))
+    fig.legend(handles, [lb for _, lb, _, _ in STUDENTS] + ["teacher"],
+               handler_map={tuple: matplotlib.legend_handler.HandlerTuple(ndivide=1, pad=0)},
+               loc="upper center", ncol=6, frameon=False, fontsize=10.5, handlelength=1.4, columnspacing=1.2,
+               bbox_to_anchor=(0.5, 1.0))
     fig.tight_layout(rect=(0, 0, 1, 0.95))
     return save(fig, out / "rej_by_teacher.pdf")
 
@@ -441,6 +448,185 @@ def analysis_accepted(r: Results, a: dict, out: Path) -> list[Path]:
     return save(fig, out / "analysis_accepted.pdf")
 
 
+# ---------------------------------------------------------------- Section 7
+
+# model families of the cost figures, Deep Sets + GNN of arXiv:2609.26899 in grey
+COST_FAMILIES = [
+    (["transformer_deep_2k", "transformer_deep_20k", "transformer_deep_200k", "transformer_200k"],
+     "Transformer", "#2a78d6", "o"),
+    (["lorentznet_200k"], "LorentzNet*", "#eb6834", "v"),
+    (["part_200k", "part", "part_pretrained"], "ParT", "#1baf7a", "s"),
+    (["mipart_200k", "mipart"], "MIParT", "#eda100", "^"),
+    (["lgatr_slim_deep_2k", "lgatr_slim_deep_20k", "lgatr_slim_deep_200k", "lgatr_slim_200k", "lgatr_slim"],
+     "L-GATr-slim*", "#e87ba4", "D"),
+    (["lgatr"], "L-GATr*", "#008300", "P"),
+    (["omnilearned_s"], "OmniLearned-S\u2020", "#6250d6", "X"),
+    (["deepsets_mp"], "Deep Sets + GNN", "#7A7A7A", "h"),
+]
+DEEPSETS_GNN_REJ = {"rej50": 450, "rej30": 1980}   # as published
+COST_PERF_SKIP = {"transformer_deep_2k"}   # far below the others in performance
+COST_SIZES = {"transformer_deep_20k": "16k", "transformer_deep_200k": "84k", "transformer_200k": "188k",
+              "lgatr_slim_deep_2k": "1.8k", "lgatr_slim_deep_20k": "20k", "lgatr_slim_deep_200k": "181k",
+              "lgatr_slim_200k": "202k"}
+
+
+def cost_points(r: Results) -> dict[str, dict]:
+    """Parameters, operations per median jet and the timings on real jets of every cost-figure model."""
+    out = {}
+    for names, *_ in COST_FAMILIES:
+        for m in names:
+            g, c = r.timings.get((m, "cuda", "real")), r.timings.get((m, "cpu", "real"))
+            out[m] = dict(params=r.flops[m]["parameters"] if m == "deepsets_mp" else params(m),
+                          flops=r.flops[m]["flops_median"] if m in r.flops else None,
+                          gpu=g["batch_size"] / (g["median_ms"] / 1e3) if g else None,
+                          mem=g.get("peak_mb") if g else None,
+                          cpu=c["median_ms"] if c else None)
+    return out
+
+
+def cost_params(r: Results, a: dict, out: Path) -> list[Path]:
+    """Operations per jet, GPU throughput and peak memory at a batch of 512 and CPU latency for one jet
+    against parameters, real test jets, fastest 32-bit setting."""
+    pts = cost_points(r)
+    plt.rcParams.update({"font.size": 10, "axes.labelsize": 10.5, "legend.fontsize": 8})
+    fig, axes = plt.subplots(2, 2, figsize=(5.6, 5.0), sharex=True)
+    panels = [("flops", "Operations per jet (FLOP)"), ("gpu", "GPU throughput (jets/s)"),
+              ("mem", "GPU peak memory (MB)"), ("cpu", "CPU latency (ms per jet)")]
+    for ax, (key, ylabel) in zip(axes.flat, panels, strict=True):
+        for names, _, color, marker in COST_FAMILIES:
+            xy = sorted((pts[m]["params"], pts[m][key]) for m in names if pts[m][key] is not None)
+            if xy:
+                ax.plot(*zip(*xy, strict=True), color=color, marker=marker, ms=5.5, mec="white", mew=0.5, lw=0,
+                        zorder=3)
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+        ax.set_ylabel(ylabel)
+        ax.spines[["top", "right"]].set_visible(False)
+        ax.grid(True, which="major", color="#e4e4e4", lw=0.6)
+        ax.set_axisbelow(True)
+        if key in ("gpu", "cpu"):   # under two decades: label 2 and 5 as well
+            ticks = [5e3, 1e4, 2e4, 5e4, 1e5] if key == "gpu" else [2, 5, 10, 20, 50]
+            ax.set_yticks(ticks)
+            ax.set_yticklabels([f"{t / 1e3:.0f}k" for t in ticks] if key == "gpu" else [f"{t:g}" for t in ticks])
+            ax.yaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
+    for ax in axes[1]:
+        ax.set_xlabel("Number of parameters")
+    fig.legend(handles=[Line2D([], [], color=c, marker=mk, ms=5.5, mec="white", mew=0.5, lw=0, label=lb)
+                        for _, lb, c, mk in COST_FAMILIES],
+               loc="upper center", ncol=4, frameon=False, fontsize=8, handlelength=1.6, columnspacing=1.0,
+               bbox_to_anchor=(0.5, 1.0))
+    fig.tight_layout(rect=(0, 0, 1, 0.91), h_pad=0.6, w_pad=1.0)
+    return save(fig, out / "cost_params.pdf")
+
+
+def cost_perf(r: Results, a: dict, out: Path) -> list[Path]:
+    """Rejection at eps_S = 0.5 (left) and 0.3 (right) against GPU time per jet, CPU latency and
+    operations per jet: students distilled from ParT-f.t. filled, teacher models hollow (ParT-f.t. a
+    star), a faint dotted line through the width-study students of each architecture."""
+    pts = cost_points(r)
+    chains = [["transformer_deep_20k", "transformer_deep_200k", "transformer_200k"],
+              ["lgatr_slim_deep_2k", "lgatr_slim_deep_20k", "lgatr_slim_deep_200k"]]
+    marks = []   # (model, role, cell, colour, marker)
+    for names, _, color, marker in COST_FAMILIES:
+        for m in names:
+            if m in COST_PERF_SKIP:
+                continue
+            if m in TEACHERS:
+                cell, role = r.teacher(m), "teacher"
+            elif m == "deepsets_mp":
+                cell, role = DEEPSETS_GNN_REJ, "other"
+            else:
+                cell, role = r.cell(m, "part_pretrained"), "distilled"
+            marks.append((m, role, cell, color, "*" if m == "part_pretrained" else marker))
+
+    def look(role: str, color: str, mk: str) -> dict:
+        big = 1.6 if mk == "*" else 1.0
+        if role == "teacher":   # hollow, with a thick edge in the model's colour
+            return dict(color=color, marker=mk, ms=6.2 * big, mfc="white", mec=color, mew=1.5)
+        return dict(color=color, marker=mk, ms=4.5, mec=color, mew=0.6)
+
+    plt.rcParams.update({"font.size": 9.5, "axes.labelsize": 10, "legend.fontsize": 8})
+    fig, axes = plt.subplots(3, 2, figsize=(5.6, 6.2), sharex="row", sharey="col")
+    allpts, sizes = {}, {}
+    panels = [("gpu", r"GPU time per jet ($\mu$s)", lambda v: 1e6 / v, [10, 20, 50, 100, 200]),
+              ("cpu", "CPU latency (ms per jet)", lambda v: v, [2, 5, 10, 20, 50]),
+              ("flops", "Operations per jet (FLOP)", lambda v: v, None)]
+    for row, (key, xlabel, f, ticks) in enumerate(panels):
+        for col, (metric, eps) in enumerate((("rej50", "0.5"), ("rej30", "0.3"))):
+            ax = axes[row, col]
+            for chain in chains:
+                xy = sorted((f(pts[m][key]), cell[metric]) for m, _, cell, _, _ in marks if m in chain)
+                color = [c for m, _, _, c, _ in marks if m == chain[0]][0]
+                ax.plot(*zip(*xy, strict=True), color=color, lw=0.9, ls=(0, (1, 2)), alpha=0.6, zorder=1)
+            for m, role, cell, color, mk in marks:
+                if pts[m][key] is None:
+                    continue
+                x, y = f(pts[m][key]), cell[metric]
+                ax.errorbar(x, y, yerr=cell.get(f"{metric}_sd", 0), color=color, lw=0, elinewidth=0.7, capsize=0,
+                            zorder=2)
+                ax.plot(x, y, lw=0, zorder=4 if role == "teacher" else 3, **look(role, color, mk))
+                if key == "flops":   # student sizes, in this row only
+                    allpts.setdefault(ax, []).append((x, y))
+                    if m in COST_SIZES:
+                        sizes.setdefault(ax, []).append((x, y, COST_SIZES[m], color))
+            ax.set_xscale("log")
+            xs = [f(pts[m][key]) for m, *_ in marks if pts[m][key] is not None]
+            ax.set_xlim(min(xs) / 1.35, max(xs) * 1.35)
+            if ticks:
+                ax.set_xticks(ticks)
+                ax.set_xticklabels([f"{t:g}" for t in ticks])
+                ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
+            ax.tick_params(labelbottom=True, labelsize=8)
+            ax.spines[["top", "right"]].set_visible(False)
+            ax.grid(True, which="major", color="#e4e4e4", lw=0.6)
+            ax.set_axisbelow(True)
+            ax.set_xlabel(xlabel)   # reserves the space; one label per row below
+            if row == 0:
+                ax.set_title(rf"$\epsilon_S={eps}$", fontsize=10)
+            if col == 0:
+                ax.set_ylabel(r"$1/\epsilon_B$")
+    models = [Line2D([], [], lw=0, label=lb, **look("distilled", c, mk)) for _, lb, c, mk in COST_FAMILIES]
+    models.append(Line2D([], [], lw=0, label=NAMES["part_pretrained"], **look("teacher", "#1baf7a", "*")))
+    fig.legend(handles=models, loc="upper center", ncol=5, frameon=False, fontsize=8, handlelength=1.2,
+               columnspacing=1.0, bbox_to_anchor=(0.5, 1.0))
+    key = [Line2D([], [], lw=0, label=f"distilled from {NAMES['part_pretrained']}",
+                  **look("distilled", "#0b0b0b", "o")),
+           Line2D([], [], lw=0, label="teacher models", **look("teacher", "#0b0b0b", "o"))]
+    fig.legend(handles=key, loc="upper center", ncol=2, frameon=False, fontsize=8, handlelength=1.2,
+               columnspacing=2.0, bbox_to_anchor=(0.5, 1.0 - 0.40 / fig.get_figheight()))
+    fig.tight_layout(rect=(0, 0, 1, 0.905), h_pad=0.6, w_pad=0.8)
+    fig.canvas.draw()   # one x label per row, centred under both panels
+    inv = fig.transFigure.inverted()
+    for row, (_, xlabel, *_) in enumerate(panels):
+        y = inv.transform(axes[row, 0].xaxis.label.get_window_extent().get_points().mean(0))[1]
+        for ax in axes[row]:
+            ax.xaxis.label.set_visible(False)
+        x = (axes[row, 0].get_position().x0 + axes[row, 1].get_position().x1) / 2
+        fig.text(x, y, xlabel, ha="center", va="center", fontsize=10)
+    rend = fig.canvas.get_renderer()
+    pad = 3.2 * fig.dpi / 72
+    for ax, items in sizes.items():   # each size next to its own point, at the first free spot
+        box = ax.get_window_extent(rend)
+        taken = [matplotlib.transforms.Bbox.from_bounds(px - pad, py - pad, 2 * pad, 2 * pad)
+                 for px, py in (ax.transData.transform(p) for p in allpts[ax])]
+        for x, y, text, color in items:
+            for dx, dy, ha, va in ((4, 0, "left", "center"), (-4, 0, "right", "center"),
+                                   (0, 4, "center", "bottom"), (0, -4, "center", "top"),
+                                   (3, 3, "left", "bottom"), (-3, 3, "right", "bottom"),
+                                   (3, -3, "left", "top"), (-3, -3, "right", "top")):
+                t = ax.annotate(text, (x, y), xytext=(dx, dy), textcoords="offset points", ha=ha, va=va,
+                                fontsize=5.5, color=color, zorder=5)
+                bb = t.get_window_extent(rend)
+                if (box.x0 <= bb.x0 and bb.x1 <= box.x1 and box.y0 <= bb.y0 and bb.y1 <= box.y1
+                        and not any(bb.overlaps(o) for o in taken)):
+                    taken.append(bb)
+                    break
+                t.remove()
+            else:
+                raise AssertionError(f"no free spot for the size label {text}")
+    return save(fig, out / "cost_perf.pdf")
+
+
 FIGURES = {
     "rej_by_teacher": rej_by_teacher,
     "strength": strength,
@@ -454,12 +640,16 @@ FIGURES = {
     "analysis_distinctive": analysis_distinctive,
     "analysis_accepted": analysis_accepted,
     "analysis_perjet": analysis_perjet,
+    "cost_perf": cost_perf,
+    "cost_params": cost_params,
 }
+NEEDS_TIMINGS = ("cost_perf", "cost_params")
 
 
-def figures(summary: dict, analysis_: dict, out: Path, names=FIGURES) -> list[Path]:
+def figures(summary: dict, analysis_: dict, out: Path, names=FIGURES, benchmark: dict | None = None,
+            flops: dict | None = None) -> list[Path]:
     out.mkdir(parents=True, exist_ok=True)
-    r, paths = Results(summary), []
+    r, paths = Results(summary, analysis_, benchmark, flops), []
     for name in names:
         with plt.rc_context(BASE):   # every figure from the same settings
             paths += FIGURES[name](r, analysis_, out)
@@ -471,12 +661,18 @@ def main() -> None:
     ap.add_argument("figures", nargs="*", help=f"default: all of {', '.join(FIGURES)}")
     ap.add_argument("--summary", default="results/summary.json")
     ap.add_argument("--analysis", default="results/analysis.json")
+    ap.add_argument("--benchmark", default="results/benchmark.json")
+    ap.add_argument("--flops", default="results/flops.json")
     ap.add_argument("--out", default="figures")
     args = ap.parse_args()
     if unknown := set(args.figures) - set(FIGURES):
         ap.error(f"unknown figures: {', '.join(sorted(unknown))}")
-    paths = figures(json.loads(Path(args.summary).read_text()), json.loads(Path(args.analysis).read_text()),
-                    Path(args.out), args.figures or FIGURES)
+    timings = Path(args.benchmark).is_file() and Path(args.flops).is_file()
+    names = args.figures or [f for f in FIGURES if timings or f not in NEEDS_TIMINGS]
+    if not timings and set(names) & set(NEEDS_TIMINGS):
+        ap.error(f"{', '.join(NEEDS_TIMINGS)} need {args.benchmark} and {args.flops}")
+    paths = figures(*(json.loads(Path(f).read_text()) for f in (args.summary, args.analysis)), Path(args.out),
+                    names, *(json.loads(Path(f).read_text()) if timings else None for f in (args.benchmark, args.flops)))
     print(f"wrote {len(paths)} figures to {args.out}")
 
 

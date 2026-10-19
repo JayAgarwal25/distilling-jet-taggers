@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-"""The paper's LaTeX tables from results/summary.json, results/analysis.json and the code.
+"""The paper's LaTeX tables from results/summary.json, results/analysis.json (scripts/summarize.py),
+results/benchmark.json (scripts/benchmark.py), results/flops.json (scripts/count_flops.py) and the code.
 
 The paper defines the macros \\std (seed spread, in grey), \\eqv (Lorentz-equivariant)
 and \\pre (pretrained).
 
-    python scripts/make_tables.py --summary results/summary.json --analysis results/analysis.json --out tables
+    python scripts/make_tables.py --out tables
 """
 
 import argparse
@@ -126,11 +127,15 @@ def student_header(lead: int) -> str:
 
 
 class Results:
-    """The summary, read by student and teacher (None for no teacher), and the analyses."""
+    """The summary, read by student and teacher (None for no teacher), the analyses, the timings
+    and the operation counts."""
 
-    def __init__(self, summary: dict, analysis: dict | None = None):
+    def __init__(self, summary: dict, analysis: dict | None = None, benchmark: dict | None = None,
+                 flops: dict | None = None):
         self.s = summary
         self.analysis = analysis
+        self.timings = {(t["model"], t["device"], t["regime"]): t for t in (benchmark or {}).get("rows", [])}
+        self.flops = (flops or {}).get("models", {})
 
     def cell(self, student: str, teacher: str | None) -> dict | None:
         return self.s["cells"].get(f"{student}|{teacher or 'scratch'}")
@@ -348,6 +353,115 @@ def accepted(r: Results) -> str:
     return sized("footnotesize", wrap("l" + "r" * (n - 1), head, rows), "3.4pt")
 
 
+# Deep Sets + GNN of arXiv:2609.26899 (Table 1), distilled from OmniLearned-L: performance as published,
+# cost measured by us
+DEEPSETS_GNN = {"model": "deepsets_mp", "label": "Deep Sets + GNN", "auc": 0.9859, "rej50": 450, "rej30": 1980}
+COST_HEAD = (r"\multicolumn{2}{c}{$1/\epsilon_B$}", r"\multicolumn{2}{c}{GPU} & CPU",
+             r"$\epsilon_S{=}0.5$ & $\epsilon_S{=}0.3$", r"jets/s & MB & ms/jet")
+ATTENTION = {"builtin": "built-in", "xformers": "xFormers", "flex": "Flex"}
+
+
+def cost_cells(r: Results, m: str, regime: str) -> str:
+    """GPU jets per second and peak memory at the batch of the measurement, CPU ms per jet."""
+    g, c = r.timings.get((m, "cuda", regime)), r.timings.get((m, "cpu", regime))
+    gpu = "--" if g is None else num(g["batch_size"] / (g["median_ms"] / 1e3))
+    mem = "--" if g is None or g.get("peak_mb") is None else num(g["peak_mb"])
+    return f"{gpu} & {mem} & {'--' if c is None else format(c['median_ms'], '.1f')}"
+
+
+def mflop(r: Results, m: str) -> str:
+    """Operations per median jet in millions, three significant digits."""
+    if m not in r.flops:
+        return "--"
+    x = r.flops[m]["flops_median"] / 1e6
+    return f"{x:.2f}" if x < 10 else f"{x:.1f}" if x < 100 else num(x)
+
+
+def perf(c: dict | None) -> str:
+    if c is None:
+        return "-- & -- & --"
+    if c is DEEPSETS_GNN:   # as published, no spread
+        return f"{c['auc']:.4f} & {num(c['rej50'])} & {num(c['rej30'])}"
+    return f"{c['auc']:.5f} & {rej(c, 'rej50')} & {rej(c, 'rej30')}"
+
+
+def cost_groups(r: Results, arm: str | None) -> list:
+    """(title, [(label, params, performance, model)]): the arm's teacher, the five students and the
+    width study where it was run."""
+    groups = [] if arm is None else [("Teacher", [(name(arm), millions(arm), r.teacher(arm), arm)])]
+    groups.append(("Students", [(name(s), f"{num(params(s) / 1e3)}k", r.cell(s, arm), s) for s in MATRIX_STUDENTS]))
+    width = [(name(m), short(params(m)), r.cell(m, arm), m) for f in WIDTH_FAMILIES for m in width_models(f)]
+    if any(c is not None for _, _, c, _ in width):
+        groups.append(("Width study", width))
+    return groups
+
+
+def cost_rows(r: Results, groups: list) -> str:
+    rows = []
+    for title, items in groups:
+        if rows:
+            rows.append(r"\midrule")
+        rows.append(r"\multicolumn{9}{l}{\textit{" + title + "}}")
+        rows += [f"{label} & {ptxt} & {perf(c)} & {mflop(r, m)} & {cost_cells(r, m, 'real')}"
+                 for label, ptxt, c, m in items]
+    header = (rf" & & & {COST_HEAD[0]} & & {COST_HEAD[1]} \\ \cmidrule(lr){{4-5}} \cmidrule(lr){{7-8}}" "\n"
+              rf"Model & Params & AUC & {COST_HEAD[2]} & MFLOP & {COST_HEAD[3]}")
+    return "{\\small\\setlength{\\tabcolsep}{4pt}\n" + wrap("lrrrrrrrr", header, rows) + "}\n"
+
+
+def cost(r: Results) -> str:
+    """Performance, operations per median jet and inference cost on real test jets: every teacher,
+    the students distilled from ParT-f.t. and Deep Sets + GNN."""
+    t = "part_pretrained"
+    groups = [("Teachers", [(name(x), millions(x), r.teacher(x), x) for x in TEACHERS])]
+    groups += [(f"{title}, distilled from {name(t)}", items) for title, items in cost_groups(r, t)[1:]]
+    groups.append((f"Distilled from OmniLearned-L{PRE}",
+                   [(DEEPSETS_GNN["label"], short(r.flops[DEEPSETS_GNN["model"]]["parameters"]), DEEPSETS_GNN,
+                     DEEPSETS_GNN["model"])]))
+    return cost_rows(r, groups)
+
+
+def cost_rnd50(r: Results) -> str:
+    """The cost on jets of exactly 50 particles with random momenta, the setting of arXiv:2608.02735."""
+    entries = [("Teachers", [(name(t), millions(t), t) for t in TEACHERS]),
+               ("Students", [(name(s), f"{num(params(s) / 1e3)}k", s) for s in MATRIX_STUDENTS]),
+               ("Width study", [(name(m), short(params(m)), m) for f in WIDTH_FAMILIES for m in width_models(f)]),
+               (f"Distilled from OmniLearned-L{PRE}",
+                [(DEEPSETS_GNN["label"], short(r.flops[DEEPSETS_GNN["model"]]["parameters"]), DEEPSETS_GNN["model"])])]
+    rows = []
+    for title, items in entries:
+        if rows:
+            rows.append(r"\midrule")
+        rows.append(r"\multicolumn{5}{l}{\textit{" + title + "}}")
+        rows += [f"{label} & {ptxt} & {cost_cells(r, m, 'rnd50')}" for label, ptxt, m in items]
+    header = (r" & & \multicolumn{2}{c}{GPU} & CPU \\ \cmidrule(lr){3-4}" "\n"
+              r"Model & Params & jets/s & MB & ms/jet")
+    return sized("small", wrap("lrrrr", header, rows))
+
+
+def execution_settings(r: Results) -> str:
+    """The settings timed for every model on real jets and the fastest on each device."""
+    def word(setting: str) -> str:
+        lists, compiled, attention = setting.split(",")
+        return f"{lists}, {compiled}, {ATTENTION[attention]}"
+
+    entries = [(name(t), t) for t in TEACHERS]
+    entries += [(f"{name(s)} {num(params(s) / 1e3)}k", s) for s in MATRIX_STUDENTS]
+    entries += [(f"{name(m)} {short(params(m))}", m) for f in WIDTH_FAMILIES for m in width_models(f)]
+    entries.append((DEEPSETS_GNN["label"], DEEPSETS_GNN["model"]))
+    rows = []
+    for label, m in entries:
+        g, c = r.timings[(m, "cuda", "real")], r.timings[(m, "cpu", "real")]
+        tried = [x.split(",") for x in (*g["settings"], *c["settings"])]
+        lists = [x for x in ("packed", "padded") if any(t[0] == x for t in tried)]
+        attention = [ATTENTION[x] for x in ATTENTION if any(t.split(",")[2] == x for t in g["settings"])]
+        rows.append(f"{label} & {', '.join(lists)} & {', '.join(attention)} & {word(g['selected'])} & "
+                    f"{word(c['selected'])}")
+    header = (r" & & & \multicolumn{2}{c}{Fastest setting} \\ \cmidrule(lr){4-5}" "\n"
+              r"Model & Particle lists & Attention & GPU & CPU")
+    return sized("footnotesize", wrap("lllll", header, rows))
+
+
 TABLES = {
     "teachers": teachers, "teacher_ensembles": teacher_ensembles, "students": students,
     "matrix_auc": matrix_auc, "matrix_rej": matrix_rej, "ens_students": ens_students,
@@ -357,24 +471,37 @@ TABLES = {
     "depth_other": lambda r: scaling(r, "depth", ("lgatr", "omnilearned_s")),
     "recipes": lambda r: recipes(), "architectures": lambda r: architectures(),
     "accepted": accepted,
+    "cost": cost, "cost_rnd50": cost_rnd50, "settings": execution_settings,
+    **{f"cost_{a or 'scratch'}": (lambda r, a=a: cost_rows(r, cost_groups(r, a)))
+       for a in (None, "part", "mipart", "lgatr", "lgatr_slim", "omnilearned_s")},
 }
 NEEDS_ANALYSIS = ("accepted",)
+NEEDS_TIMINGS = ("cost", "cost_rnd50", "settings", *(f"cost_{a}" for a in
+                                                     ("scratch", "part", "mipart", "lgatr", "lgatr_slim", "omnilearned_s")))
 
 
-def tables(summary: dict, analysis: dict) -> dict[str, str]:
-    r = Results(summary, analysis)
-    return {name: make(r) for name, make in TABLES.items()}
+def tables(summary: dict, analysis: dict, benchmark: dict | None = None, flops: dict | None = None,
+           names=TABLES) -> dict[str, str]:
+    r = Results(summary, analysis, benchmark, flops)
+    return {name: TABLES[name](r) for name in names}
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     ap.add_argument("--summary", default="results/summary.json")
     ap.add_argument("--analysis", default="results/analysis.json")
+    ap.add_argument("--benchmark", default="results/benchmark.json")
+    ap.add_argument("--flops", default="results/flops.json")
     ap.add_argument("--out", default="tables")
     args = ap.parse_args()
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    written = tables(json.loads(Path(args.summary).read_text()), json.loads(Path(args.analysis).read_text()))
+    timings = Path(args.benchmark).is_file() and Path(args.flops).is_file()
+    if not timings:
+        print(f"no {args.benchmark} or {args.flops}: the cost tables are left out")
+    written = tables(*(json.loads(Path(f).read_text()) for f in (args.summary, args.analysis)),
+                     *(json.loads(Path(f).read_text()) if timings else None for f in (args.benchmark, args.flops)),
+                     names=[t for t in TABLES if timings or t not in NEEDS_TIMINGS])
     for t, tex in written.items():
         (out / f"{t}.tex").write_text("% generated by scripts/make_tables.py; do not edit\n" + tex)
     print(f"wrote {len(written)} tables to {out}")
