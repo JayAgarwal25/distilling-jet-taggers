@@ -13,6 +13,7 @@ from jetkd.models.deepsets import DeepSetsTagger
 from jetkd.models.lgatr import LGATrSlimTagger, LGATrTagger
 from jetkd.models.lorentznet import LorentzNetTagger
 from jetkd.models.mipart import MIParTTagger
+from jetkd.models.omnilearned import OmniLearnedS
 from jetkd.models.part import ParTTagger
 from jetkd.models.particle_transformer import ParTTeacher
 from jetkd.models.transformer import TransformerTagger
@@ -54,9 +55,12 @@ MODELS = {
 }
 
 
-# never trained here: the Deep Sets students of arXiv:2609.26899, with and without message
-# passing, for operation counts and timing
+# never trained here, for operation counts and timing: the Deep Sets students of arXiv:2609.26899,
+# with and without message passing, OmniLearned-S (needs the omnilearned package) and pretrained ParT,
+# counted and timed as the architecture of our ParT teacher
 REFERENCE_MODELS = {
+    "omnilearned_s": OmniLearnedS,
+    "part_pretrained": ParTTeacher,
     "deepsets": DeepSetsTagger,
     "deepsets_mp": partial(DeepSetsTagger, message_passing=True),
 }

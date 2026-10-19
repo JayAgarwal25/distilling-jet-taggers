@@ -6,7 +6,8 @@
   summary, the analyses of Section 6 (`analysis.py`), the run list (`study.py`) and the
   reference files (`reference.py`).
 - `scripts/`: command-line entry points (`get_data`, `get_checkpoints`, `train`, `teacher_logits`,
-  `import_logits`, `summarize`, `make_tables`, `make_figures`, `reproduce`, `count_flops`).
+  `import_logits`, `summarize`, `make_tables`, `make_figures`, `reproduce`, `count_flops`,
+  `benchmark`). `paper/`: the paper's tables and our timing record, for comparison.
 - `configs/`, `docs/RUNS.md`: generated, see below. `teachers/`: how the teachers were trained.
 
 ## Commands

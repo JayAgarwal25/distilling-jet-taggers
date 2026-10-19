@@ -20,8 +20,11 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from make_figures import figures
-from make_tables import NEEDS_ANALYSIS, TABLES, Results
+from count_flops import MODELS as COUNTED
+from count_flops import count_all
+from make_figures import FIGURES, figures
+from make_figures import NEEDS_TIMINGS as FIGURES_NEED_TIMINGS
+from make_tables import NEEDS_ANALYSIS, NEEDS_TIMINGS, TABLES, Results
 
 from jetkd.analysis import analyze
 from jetkd.data import TopTaggingSplit
@@ -32,7 +35,7 @@ from jetkd.summary import summarize
 from jetkd.teachers import ENSEMBLES, logits_path, model_logits, save_logits
 
 # tables that print teacher metrics, from all three runs of every teacher
-WITH_TEACHERS = ("teachers", "teacher_ensembles")
+WITH_TEACHERS = ("teachers", "teacher_ensembles", *NEEDS_TIMINGS)
 
 
 def table_runs(table: str):
@@ -138,6 +141,9 @@ def main() -> None:
     ap.add_argument("--teachers", default="data/teachers", help="released teacher logits")
     ap.add_argument("--data", default="data/toptagging_full.npz")
     ap.add_argument("--paper", default="paper/tables", help="the paper's tables")
+    ap.add_argument("--benchmark", default="results/benchmark.json",
+                    help="timings for the cost tables: yours from scripts/benchmark.py, or ours, "
+                         "paper/benchmark.json")
     ap.add_argument("--out", default="reproduced")
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--batch-size", type=int,
@@ -151,12 +157,26 @@ def main() -> None:
         print("\n".join(jobs(args.table)))
         return
     torch.set_float32_matmul_precision("highest")   # as in training
-    summary, analysis = results(args.table, args)
-    r = Results(summary, analysis)
     names = sorted(TABLES) if args.table == "all" else [args.table]
+    timed = Path(args.benchmark).is_file()
+    if not timed and set(names) & set(NEEDS_TIMINGS):
+        if args.table != "all":
+            ap.error(f"{args.table} needs {args.benchmark}: run scripts/benchmark.py or pass --benchmark")
+        names = [t for t in names if t not in NEEDS_TIMINGS]
+        print(f"no {args.benchmark}: the cost tables and figures are left out")
+    summary, analysis = results(args.table, args)
+    benchmark = flops = None
+    if timed and set(names) & set(NEEDS_TIMINGS):
+        benchmark = json.loads(Path(args.benchmark).read_text())
+        path = Path(args.out) / "flops.json"
+        if not path.is_file():
+            path.write_text(json.dumps(count_all(COUNTED, args.data), indent=1))
+        flops = json.loads(path.read_text())
+    r = Results(summary, analysis, benchmark, flops)
     same = [compare(t, TABLES[t](r), args) for t in names]
     if args.table == "all":
-        paths = figures(summary, analysis, Path(args.out) / "figures")
+        paths = figures(summary, analysis, Path(args.out) / "figures",
+                        [f for f in FIGURES if benchmark or f not in FIGURES_NEED_TIMINGS], benchmark, flops)
         print(f"{len(paths)} figures in {Path(args.out) / 'figures'}")
     raise SystemExit(0 if all(same) else 1)
 

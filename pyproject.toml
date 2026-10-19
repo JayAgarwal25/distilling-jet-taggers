@@ -36,7 +36,7 @@ dependencies = [
 
 [project.optional-dependencies]
 xformers = ["xformers"]
-benchmark = ["psutil", "omnilearned"]
+benchmark = ["omnilearned==0.2.0"]
 teachers = ["uproot", "h5py"]
 paper = ["matplotlib"]
 dev = ["pytest", "ruff"]

@@ -21,9 +21,10 @@ from torch.utils.flop_counter import FlopCounterMode, register_flop_formula, sdp
 from jetkd.data import JetBatch, TopTaggingSplit, particle_mask
 from jetkd.models import build
 
-MODELS = ["deepsets", "deepsets_mp",
-          *(f"{f}_deep_{s}" for s in ("2k", "20k", "200k") for f in ("transformer", "lgatr_slim")),
-          "transformer_200k", "lgatr_slim_200k", "part", "mipart", "lgatr", "lgatr_slim"]
+# the models of the paper's cost tables
+MODELS = ["part", "mipart", "lgatr", "lgatr_slim", "omnilearned_s", "part_pretrained",
+          "transformer_200k", "lorentznet_200k", "part_200k", "mipart_200k", "lgatr_slim_200k",
+          *(f"{f}_deep_{s}" for f in ("transformer", "lgatr_slim") for s in ("200k", "20k", "2k")), "deepsets_mp"]
 
 
 # torch has no formula for the CPU flash-attention kernel that L-GATr-slim calls
@@ -50,21 +51,31 @@ def uncounted(model, batch) -> list[str]:
                   and op not in fc.flop_registry)
 
 
+# OmniLearned-S looks up its 10 nearest neighbours, so it cannot run a jet of fewer than 11 particles
+# (2 of the first 300). These jets have the fewest operations; counted as -inf they leave the median exact.
+MIN_PARTICLES = {"omnilearned_s": 11}
+
+
 @torch.no_grad()
 def count(name: str, jets: list[JetBatch]) -> dict:
     model = build(name).eval()
     for p in model.parameters():   # the counter's module tracker trips on ParT otherwise
         p.requires_grad_(False)
-    if missing := uncounted(model, jets[0]):
+    fits = [len(jet.p4[0]) >= MIN_PARTICLES.get(name, 0) for jet in jets]
+    if missing := uncounted(model, jets[fits.index(True)]):
         raise SystemExit(f"{name}: the counter cannot see {missing}")
     flops = []
-    for jet in jets:
+    for jet, ok in zip(jets, fits, strict=True):
+        if not ok:
+            flops.append(-np.inf)
+            continue
         counter = FlopCounterMode(display=False)
         with counter:
             model(jet)
         flops.append(counter.get_total_flops())
+    flops = np.asarray(flops, dtype=float)
     return {"parameters": sum(p.numel() for p in model.parameters()),
-            "flops_mean": float(np.mean(flops)), "flops_median": float(np.median(flops))}
+            "flops_mean": float(flops[np.isfinite(flops)].mean()), "flops_median": float(np.median(flops))}
 
 
 def count_all(models: list[str], data: str, n_jets: int = 300) -> dict:

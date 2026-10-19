@@ -41,6 +41,10 @@ python scripts/get_checkpoints.py   # runs/, data/teachers/ and data/external_te
 | Table 11, width study with L-GATr and OmniLearned-S | `size_other` | 36 |
 | Tables 12 and 13, depth study | `depth_main`, `depth_other` | 32, 32 |
 | Table 14, background jets accepted with and without distillation | `accepted` | 105 and the 12 teacher runs they distil from |
+| Tables 5 and 17 to 22, performance and inference cost | `cost`, `cost_<teacher>`, `cost_scratch` | as the matrix and width study, and all teacher runs |
+| Tables 15 and 16, execution settings and cost on 50-particle jets | `settings`, `cost_rnd50` | none |
+
+The cost tables also need timings (section 3).
 
 `python scripts/reproduce.py all` evaluates every model once, rebuilds all of these tables and
 writes every figure of Sections 4 to 6 and Appendices C to E to `reproduced/figures/`.
@@ -82,11 +86,30 @@ dense mask whose size grows with the square of the number of particles in the ba
 The teacher metrics come from the teacher checkpoints, except for pretrained ParT and
 OmniLearned-S, whose test logits are released in `data/teachers/`.
 
-## Operations per jet
+## 3. Inference cost
 
 ```bash
-python scripts/count_flops.py
+pip install -e ".[benchmark]"
+python scripts/count_flops.py                     # results/flops.json
+python scripts/benchmark.py --device cuda         # results/benchmark.json
+python scripts/benchmark.py --device cpu --core 2
 ```
 
-counts the floating-point operations per jet of our models on the first 300 test jets. The counts
-do not depend on the hardware and equal ours exactly.
+`count_flops.py` counts the floating-point operations per jet of the 18 models of the cost tables
+on the first 300 test jets. The counts do not depend on the hardware and equal ours exactly.
+
+`benchmark.py` times the same models on your hardware: the GPU with a batch of 512 jets, the CPU
+with one jet on one core. Each measurement runs in a fresh process with 100 warm-up and 100 timed
+calls of the whole forward pass, from four-momenta in CPU memory to logits, in full 32-bit
+precision. Every model runs packed or padded where it accepts both, eager and compiled, on test jets
+and on random 50-particle jets, three times. The fastest setting by the median of its three runs
+is reported. A full pass takes a few hours per device. Timings depend on the GPU, the CPU and the
+software versions. Orderings and rough ratios carry over to other machines; the numbers themselves do not.
+
+`reproduce.py` builds the cost tables from your timings. Our own measurements, on one RTX 6000 Ada
+and one Xeon Platinum 8352Y core with the versions in `requirements.txt`, are in
+`paper/benchmark.json`; with `--benchmark paper/benchmark.json` the tables come out as printed in
+the paper. In our measurements the GPU setting was chosen by one run of every setting and then
+timed three times, and FlexAttention was also tried for L-GATr and L-GATr-slim; it was never the
+fastest, and `benchmark.py` leaves it out. Pretrained ParT is timed in the architecture of our ParT
+teacher and OmniLearned-S in that of its pretrained model, both with random weights.

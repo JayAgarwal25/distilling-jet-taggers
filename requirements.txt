@@ -13,5 +13,5 @@ pytorch-optimizer==3.10.1
 xformers==0.0.35
 h5py==3.16.0
 uproot==5.7.6
-psutil==7.2.2
 matplotlib==3.10.8
+omnilearned==0.2.0
