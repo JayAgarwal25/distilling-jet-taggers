@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-"""Reproduce a table of the paper.
+"""Reproduce a table of the paper, or all tables and figures.
 
     python scripts/reproduce.py matrix_auc --print-jobs   # every training command behind it
     python scripts/reproduce.py matrix_auc                # rebuild it from the trained models
+    python scripts/reproduce.py all                       # every table and figure
 
 The first form lists the commands that train the table's teachers, write their logits and
 train its students. The second evaluates each model's `runs/<id>/best.pt` on the test set
@@ -19,8 +20,10 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from make_tables import TABLES, Results
+from make_figures import figures
+from make_tables import NEEDS_ANALYSIS, TABLES, Results
 
+from jetkd.analysis import analyze
 from jetkd.data import TopTaggingSplit
 from jetkd.models import build
 from jetkd.recipes import recipe_for
@@ -33,11 +36,11 @@ WITH_TEACHERS = ("teachers", "teacher_ensembles")
 
 
 def table_runs(table: str):
-    return [r for r in paper_runs() if table in r.tables]
+    return [r for r in paper_runs() if table == "all" or table in r.tables]
 
 
 def teachers_needed(table: str) -> list[tuple[str, int]]:
-    if table in WITH_TEACHERS:
+    if table in (*WITH_TEACHERS, "all"):
         return [(t, s) for t in TEACHERS for s in SEEDS]
     return sorted({(r.teacher, r.teacher_seed) for r in table_runs(table) if r.teacher})
 
@@ -70,7 +73,8 @@ def test_logits(model: str, checkpoint: Path, test, args) -> tuple[np.ndarray, n
     return model_logits(net, "test", test, args.device, batch_size, args.workers)
 
 
-def rebuild(table: str, args) -> str:
+def evaluate(table: str, args) -> tuple[Path, Path]:
+    """Test logits of every model behind `table`, under args.out."""
     out = Path(args.out)
     runs_out, teachers_out = out / "runs", out / "teachers"
     teachers_out.mkdir(parents=True, exist_ok=True)
@@ -84,7 +88,7 @@ def rebuild(table: str, args) -> str:
         path.parent.mkdir(parents=True, exist_ok=True)
         np.savez_compressed(path, logits=z, labels=y)
         print(f"{r.id}: done", flush=True)
-    for t, s in teachers_needed(table) if table in WITH_TEACHERS else []:
+    for t, s in teachers_needed(table) if table in (*WITH_TEACHERS, *NEEDS_ANALYSIS, "all") else []:
         path = logits_path(teachers_out, t, s, "test")
         if path.is_file():
             continue
@@ -96,10 +100,30 @@ def rebuild(table: str, args) -> str:
                 z, y = f["logits"][: args.limit], f["labels"][: args.limit]
         save_logits(path, z, y)
         print(f"{t} run {s}: done", flush=True)
+    return runs_out, teachers_out
 
+
+def results(table: str, args) -> tuple[dict, dict | None]:
+    """Summary and, where needed, analysis of the models behind `table`, written as JSON."""
+    runs_out, teachers_out = evaluate(table, args)
     summary = summarize(runs_out, teachers_out, table_runs(table))
+    analysis = analyze(runs_out, teachers_out) if table in (*NEEDS_ANALYSIS, "all") else None
+    out = Path(args.out)
     (out / f"summary_{table}.json").write_text(json.dumps(summary, indent=1))
-    return TABLES[table](Results(summary))
+    if analysis:
+        (out / f"analysis_{table}.json").write_text(json.dumps(analysis, indent=1))
+    return summary, analysis
+
+
+def compare(table: str, tex: str, args) -> bool:
+    """Write the reproduced table and print its difference to the paper's."""
+    path = Path(args.out) / "tables" / f"{table}.tex"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(tex)
+    diff = list(difflib.unified_diff(body((Path(args.paper) / f"{table}.tex").read_text()),
+                                     body(tex), "paper", "reproduced", lineterm=""))
+    print("\n".join(diff) if diff else f"{path}: identical to the paper's table")
+    return not diff
 
 
 def body(tex: str) -> list[str]:
@@ -108,7 +132,7 @@ def body(tex: str) -> list[str]:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    ap.add_argument("table", choices=sorted(TABLES))
+    ap.add_argument("table", choices=[*sorted(TABLES), "all"])
     ap.add_argument("--print-jobs", action="store_true", help="print the training commands and stop")
     ap.add_argument("--runs", default="runs", help="run directories with best.pt")
     ap.add_argument("--teachers", default="data/teachers", help="released teacher logits")
@@ -127,14 +151,14 @@ def main() -> None:
         print("\n".join(jobs(args.table)))
         return
     torch.set_float32_matmul_precision("highest")   # as in training
-    tex = rebuild(args.table, args)
-    path = Path(args.out) / "tables" / f"{args.table}.tex"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(tex)
-    diff = list(difflib.unified_diff(body((Path(args.paper) / f"{args.table}.tex").read_text()),
-                                     body(tex), "paper", "reproduced", lineterm=""))
-    print("\n".join(diff) if diff else f"{path}: identical to the paper's table")
-    raise SystemExit(1 if diff else 0)
+    summary, analysis = results(args.table, args)
+    r = Results(summary, analysis)
+    names = sorted(TABLES) if args.table == "all" else [args.table]
+    same = [compare(t, TABLES[t](r), args) for t in names]
+    if args.table == "all":
+        paths = figures(summary, analysis, Path(args.out) / "figures")
+        print(f"{len(paths)} figures in {Path(args.out) / 'figures'}")
+    raise SystemExit(0 if all(same) else 1)
 
 
 if __name__ == "__main__":

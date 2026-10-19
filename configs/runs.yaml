@@ -6,49 +6,49 @@ runs:
   teacher_seed: null
   seed: 1001
   recipe: size_200k
-  tables: [cost_scratch, depth_main, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, depth_main, matrix_auc, matrix_rej, students]
 - id: transformer_200k__kd_part_t1001__s1001
   student: transformer_200k
   teacher: part
   teacher_seed: 1001
   seed: 1001
   recipe: size_200k
-  tables: [cost_part, matrix_auc, matrix_rej]
+  tables: [accepted, cost_part, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_mipart_t1001__s1001
   student: transformer_200k
   teacher: mipart
   teacher_seed: 1001
   seed: 1001
   recipe: size_200k
-  tables: [cost_mipart, matrix_auc, matrix_rej]
+  tables: [accepted, cost_mipart, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_lgatr_t1001__s1001
   student: transformer_200k
   teacher: lgatr
   teacher_seed: 1001
   seed: 1001
   recipe: size_200k
-  tables: [cost_lgatr, depth_other, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr, depth_other, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_lgatr_slim_t1001__s1001
   student: transformer_200k
   teacher: lgatr_slim
   teacher_seed: 1001
   seed: 1001
   recipe: size_200k
-  tables: [cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_omnilearned_s_t1001__s1001
   student: transformer_200k
   teacher: omnilearned_s
   teacher_seed: 1001
   seed: 1001
   recipe: size_200k
-  tables: [cost_omnilearned_s, depth_other, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_omnilearned_s, depth_other, ens_students, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_part_pretrained_t1001__s1001
   student: transformer_200k
   teacher: part_pretrained
   teacher_seed: 1001
   seed: 1001
   recipe: size_200k
-  tables: [cost, depth_main, matrix_auc, matrix_rej]
+  tables: [accepted, cost, depth_main, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_lgatr_slim_ens_t1001__s1001
   student: transformer_200k
   teacher: lgatr_slim_ens
@@ -62,49 +62,49 @@ runs:
   teacher_seed: null
   seed: 1002
   recipe: size_200k
-  tables: [cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
 - id: transformer_200k__kd_part_t1002__s1002
   student: transformer_200k
   teacher: part
   teacher_seed: 1002
   seed: 1002
   recipe: size_200k
-  tables: [cost_part, matrix_auc, matrix_rej]
+  tables: [accepted, cost_part, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_mipart_t1001__s1002
   student: transformer_200k
   teacher: mipart
   teacher_seed: 1001
   seed: 1002
   recipe: size_200k
-  tables: [cost_mipart, matrix_auc, matrix_rej]
+  tables: [accepted, cost_mipart, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_lgatr_t1002__s1002
   student: transformer_200k
   teacher: lgatr
   teacher_seed: 1002
   seed: 1002
   recipe: size_200k
-  tables: [cost_lgatr, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_lgatr_slim_t1002__s1002
   student: transformer_200k
   teacher: lgatr_slim
   teacher_seed: 1002
   seed: 1002
   recipe: size_200k
-  tables: [cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_omnilearned_s_t1001__s1002
   student: transformer_200k
   teacher: omnilearned_s
   teacher_seed: 1001
   seed: 1002
   recipe: size_200k
-  tables: [cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_part_pretrained_t1001__s1002
   student: transformer_200k
   teacher: part_pretrained
   teacher_seed: 1001
   seed: 1002
   recipe: size_200k
-  tables: [cost, matrix_auc, matrix_rej]
+  tables: [accepted, cost, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_lgatr_slim_ens_t1001__s1002
   student: transformer_200k
   teacher: lgatr_slim_ens
@@ -118,49 +118,49 @@ runs:
   teacher_seed: null
   seed: 1003
   recipe: size_200k
-  tables: [cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
 - id: transformer_200k__kd_part_t1003__s1003
   student: transformer_200k
   teacher: part
   teacher_seed: 1003
   seed: 1003
   recipe: size_200k
-  tables: [cost_part, matrix_auc, matrix_rej]
+  tables: [accepted, cost_part, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_mipart_t1001__s1003
   student: transformer_200k
   teacher: mipart
   teacher_seed: 1001
   seed: 1003
   recipe: size_200k
-  tables: [cost_mipart, matrix_auc, matrix_rej]
+  tables: [accepted, cost_mipart, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_lgatr_t1003__s1003
   student: transformer_200k
   teacher: lgatr
   teacher_seed: 1003
   seed: 1003
   recipe: size_200k
-  tables: [cost_lgatr, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_lgatr_slim_t1003__s1003
   student: transformer_200k
   teacher: lgatr_slim
   teacher_seed: 1003
   seed: 1003
   recipe: size_200k
-  tables: [cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_omnilearned_s_t1001__s1003
   student: transformer_200k
   teacher: omnilearned_s
   teacher_seed: 1001
   seed: 1003
   recipe: size_200k
-  tables: [cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_part_pretrained_t1001__s1003
   student: transformer_200k
   teacher: part_pretrained
   teacher_seed: 1001
   seed: 1003
   recipe: size_200k
-  tables: [cost, matrix_auc, matrix_rej]
+  tables: [accepted, cost, matrix_auc, matrix_rej]
 - id: transformer_200k__kd_lgatr_slim_ens_t1001__s1003
   student: transformer_200k
   teacher: lgatr_slim_ens
@@ -174,49 +174,49 @@ runs:
   teacher_seed: null
   seed: 1001
   recipe: lorentznet
-  tables: [cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
 - id: lorentznet_200k__kd_part_t1001__s1001
   student: lorentznet_200k
   teacher: part
   teacher_seed: 1001
   seed: 1001
   recipe: lorentznet
-  tables: [cost_part, matrix_auc, matrix_rej]
+  tables: [accepted, cost_part, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_mipart_t1001__s1001
   student: lorentznet_200k
   teacher: mipart
   teacher_seed: 1001
   seed: 1001
   recipe: lorentznet
-  tables: [cost_mipart, matrix_auc, matrix_rej]
+  tables: [accepted, cost_mipart, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_lgatr_t1001__s1001
   student: lorentznet_200k
   teacher: lgatr
   teacher_seed: 1001
   seed: 1001
   recipe: lorentznet
-  tables: [cost_lgatr, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_lgatr_slim_t1001__s1001
   student: lorentznet_200k
   teacher: lgatr_slim
   teacher_seed: 1001
   seed: 1001
   recipe: lorentznet
-  tables: [cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_omnilearned_s_t1001__s1001
   student: lorentznet_200k
   teacher: omnilearned_s
   teacher_seed: 1001
   seed: 1001
   recipe: lorentznet
-  tables: [cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_part_pretrained_t1001__s1001
   student: lorentznet_200k
   teacher: part_pretrained
   teacher_seed: 1001
   seed: 1001
   recipe: lorentznet
-  tables: [cost, matrix_auc, matrix_rej]
+  tables: [accepted, cost, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_lgatr_slim_ens_t1001__s1001
   student: lorentznet_200k
   teacher: lgatr_slim_ens
@@ -230,49 +230,49 @@ runs:
   teacher_seed: null
   seed: 1002
   recipe: lorentznet
-  tables: [cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
 - id: lorentznet_200k__kd_part_t1002__s1002
   student: lorentznet_200k
   teacher: part
   teacher_seed: 1002
   seed: 1002
   recipe: lorentznet
-  tables: [cost_part, matrix_auc, matrix_rej]
+  tables: [accepted, cost_part, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_mipart_t1001__s1002
   student: lorentznet_200k
   teacher: mipart
   teacher_seed: 1001
   seed: 1002
   recipe: lorentznet
-  tables: [cost_mipart, matrix_auc, matrix_rej]
+  tables: [accepted, cost_mipart, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_lgatr_t1002__s1002
   student: lorentznet_200k
   teacher: lgatr
   teacher_seed: 1002
   seed: 1002
   recipe: lorentznet
-  tables: [cost_lgatr, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_lgatr_slim_t1002__s1002
   student: lorentznet_200k
   teacher: lgatr_slim
   teacher_seed: 1002
   seed: 1002
   recipe: lorentznet
-  tables: [cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_omnilearned_s_t1001__s1002
   student: lorentznet_200k
   teacher: omnilearned_s
   teacher_seed: 1001
   seed: 1002
   recipe: lorentznet
-  tables: [cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_part_pretrained_t1001__s1002
   student: lorentznet_200k
   teacher: part_pretrained
   teacher_seed: 1001
   seed: 1002
   recipe: lorentznet
-  tables: [cost, matrix_auc, matrix_rej]
+  tables: [accepted, cost, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_lgatr_slim_ens_t1001__s1002
   student: lorentznet_200k
   teacher: lgatr_slim_ens
@@ -286,49 +286,49 @@ runs:
   teacher_seed: null
   seed: 1003
   recipe: lorentznet
-  tables: [cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
 - id: lorentznet_200k__kd_part_t1003__s1003
   student: lorentznet_200k
   teacher: part
   teacher_seed: 1003
   seed: 1003
   recipe: lorentznet
-  tables: [cost_part, matrix_auc, matrix_rej]
+  tables: [accepted, cost_part, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_mipart_t1001__s1003
   student: lorentznet_200k
   teacher: mipart
   teacher_seed: 1001
   seed: 1003
   recipe: lorentznet
-  tables: [cost_mipart, matrix_auc, matrix_rej]
+  tables: [accepted, cost_mipart, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_lgatr_t1003__s1003
   student: lorentznet_200k
   teacher: lgatr
   teacher_seed: 1003
   seed: 1003
   recipe: lorentznet
-  tables: [cost_lgatr, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_lgatr_slim_t1003__s1003
   student: lorentznet_200k
   teacher: lgatr_slim
   teacher_seed: 1003
   seed: 1003
   recipe: lorentznet
-  tables: [cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_omnilearned_s_t1001__s1003
   student: lorentznet_200k
   teacher: omnilearned_s
   teacher_seed: 1001
   seed: 1003
   recipe: lorentznet
-  tables: [cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_part_pretrained_t1001__s1003
   student: lorentznet_200k
   teacher: part_pretrained
   teacher_seed: 1001
   seed: 1003
   recipe: lorentznet
-  tables: [cost, matrix_auc, matrix_rej]
+  tables: [accepted, cost, matrix_auc, matrix_rej]
 - id: lorentznet_200k__kd_lgatr_slim_ens_t1001__s1003
   student: lorentznet_200k
   teacher: lgatr_slim_ens
@@ -342,49 +342,49 @@ runs:
   teacher_seed: null
   seed: 1001
   recipe: part
-  tables: [cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
 - id: part_200k__kd_part_t1001__s1001
   student: part_200k
   teacher: part
   teacher_seed: 1001
   seed: 1001
   recipe: part
-  tables: [cost_part, matrix_auc, matrix_rej]
+  tables: [accepted, cost_part, matrix_auc, matrix_rej]
 - id: part_200k__kd_mipart_t1001__s1001
   student: part_200k
   teacher: mipart
   teacher_seed: 1001
   seed: 1001
   recipe: part
-  tables: [cost_mipart, matrix_auc, matrix_rej]
+  tables: [accepted, cost_mipart, matrix_auc, matrix_rej]
 - id: part_200k__kd_lgatr_t1001__s1001
   student: part_200k
   teacher: lgatr
   teacher_seed: 1001
   seed: 1001
   recipe: part
-  tables: [cost_lgatr, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr, matrix_auc, matrix_rej]
 - id: part_200k__kd_lgatr_slim_t1001__s1001
   student: part_200k
   teacher: lgatr_slim
   teacher_seed: 1001
   seed: 1001
   recipe: part
-  tables: [cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
 - id: part_200k__kd_omnilearned_s_t1001__s1001
   student: part_200k
   teacher: omnilearned_s
   teacher_seed: 1001
   seed: 1001
   recipe: part
-  tables: [cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
 - id: part_200k__kd_part_pretrained_t1001__s1001
   student: part_200k
   teacher: part_pretrained
   teacher_seed: 1001
   seed: 1001
   recipe: part
-  tables: [cost, matrix_auc, matrix_rej]
+  tables: [accepted, cost, matrix_auc, matrix_rej]
 - id: part_200k__kd_lgatr_slim_ens_t1001__s1001
   student: part_200k
   teacher: lgatr_slim_ens
@@ -398,49 +398,49 @@ runs:
   teacher_seed: null
   seed: 1002
   recipe: part
-  tables: [cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
 - id: part_200k__kd_part_t1002__s1002
   student: part_200k
   teacher: part
   teacher_seed: 1002
   seed: 1002
   recipe: part
-  tables: [cost_part, matrix_auc, matrix_rej]
+  tables: [accepted, cost_part, matrix_auc, matrix_rej]
 - id: part_200k__kd_mipart_t1001__s1002
   student: part_200k
   teacher: mipart
   teacher_seed: 1001
   seed: 1002
   recipe: part
-  tables: [cost_mipart, matrix_auc, matrix_rej]
+  tables: [accepted, cost_mipart, matrix_auc, matrix_rej]
 - id: part_200k__kd_lgatr_t1002__s1002
   student: part_200k
   teacher: lgatr
   teacher_seed: 1002
   seed: 1002
   recipe: part
-  tables: [cost_lgatr, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr, matrix_auc, matrix_rej]
 - id: part_200k__kd_lgatr_slim_t1002__s1002
   student: part_200k
   teacher: lgatr_slim
   teacher_seed: 1002
   seed: 1002
   recipe: part
-  tables: [cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
 - id: part_200k__kd_omnilearned_s_t1001__s1002
   student: part_200k
   teacher: omnilearned_s
   teacher_seed: 1001
   seed: 1002
   recipe: part
-  tables: [cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
 - id: part_200k__kd_part_pretrained_t1001__s1002
   student: part_200k
   teacher: part_pretrained
   teacher_seed: 1001
   seed: 1002
   recipe: part
-  tables: [cost, matrix_auc, matrix_rej]
+  tables: [accepted, cost, matrix_auc, matrix_rej]
 - id: part_200k__kd_lgatr_slim_ens_t1001__s1002
   student: part_200k
   teacher: lgatr_slim_ens
@@ -454,49 +454,49 @@ runs:
   teacher_seed: null
   seed: 1003
   recipe: part
-  tables: [cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
 - id: part_200k__kd_part_t1003__s1003
   student: part_200k
   teacher: part
   teacher_seed: 1003
   seed: 1003
   recipe: part
-  tables: [cost_part, matrix_auc, matrix_rej]
+  tables: [accepted, cost_part, matrix_auc, matrix_rej]
 - id: part_200k__kd_mipart_t1001__s1003
   student: part_200k
   teacher: mipart
   teacher_seed: 1001
   seed: 1003
   recipe: part
-  tables: [cost_mipart, matrix_auc, matrix_rej]
+  tables: [accepted, cost_mipart, matrix_auc, matrix_rej]
 - id: part_200k__kd_lgatr_t1003__s1003
   student: part_200k
   teacher: lgatr
   teacher_seed: 1003
   seed: 1003
   recipe: part
-  tables: [cost_lgatr, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr, matrix_auc, matrix_rej]
 - id: part_200k__kd_lgatr_slim_t1003__s1003
   student: part_200k
   teacher: lgatr_slim
   teacher_seed: 1003
   seed: 1003
   recipe: part
-  tables: [cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
 - id: part_200k__kd_omnilearned_s_t1001__s1003
   student: part_200k
   teacher: omnilearned_s
   teacher_seed: 1001
   seed: 1003
   recipe: part
-  tables: [cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
 - id: part_200k__kd_part_pretrained_t1001__s1003
   student: part_200k
   teacher: part_pretrained
   teacher_seed: 1001
   seed: 1003
   recipe: part
-  tables: [cost, matrix_auc, matrix_rej]
+  tables: [accepted, cost, matrix_auc, matrix_rej]
 - id: part_200k__kd_lgatr_slim_ens_t1001__s1003
   student: part_200k
   teacher: lgatr_slim_ens
@@ -510,49 +510,49 @@ runs:
   teacher_seed: null
   seed: 1001
   recipe: mipart
-  tables: [cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
 - id: mipart_200k__kd_part_t1001__s1001
   student: mipart_200k
   teacher: part
   teacher_seed: 1001
   seed: 1001
   recipe: mipart
-  tables: [cost_part, matrix_auc, matrix_rej]
+  tables: [accepted, cost_part, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_mipart_t1001__s1001
   student: mipart_200k
   teacher: mipart
   teacher_seed: 1001
   seed: 1001
   recipe: mipart
-  tables: [cost_mipart, matrix_auc, matrix_rej]
+  tables: [accepted, cost_mipart, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_lgatr_t1001__s1001
   student: mipart_200k
   teacher: lgatr
   teacher_seed: 1001
   seed: 1001
   recipe: mipart
-  tables: [cost_lgatr, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_lgatr_slim_t1001__s1001
   student: mipart_200k
   teacher: lgatr_slim
   teacher_seed: 1001
   seed: 1001
   recipe: mipart
-  tables: [cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_omnilearned_s_t1001__s1001
   student: mipart_200k
   teacher: omnilearned_s
   teacher_seed: 1001
   seed: 1001
   recipe: mipart
-  tables: [cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_part_pretrained_t1001__s1001
   student: mipart_200k
   teacher: part_pretrained
   teacher_seed: 1001
   seed: 1001
   recipe: mipart
-  tables: [cost, matrix_auc, matrix_rej]
+  tables: [accepted, cost, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_lgatr_slim_ens_t1001__s1001
   student: mipart_200k
   teacher: lgatr_slim_ens
@@ -566,49 +566,49 @@ runs:
   teacher_seed: null
   seed: 1002
   recipe: mipart
-  tables: [cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
 - id: mipart_200k__kd_part_t1002__s1002
   student: mipart_200k
   teacher: part
   teacher_seed: 1002
   seed: 1002
   recipe: mipart
-  tables: [cost_part, matrix_auc, matrix_rej]
+  tables: [accepted, cost_part, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_mipart_t1001__s1002
   student: mipart_200k
   teacher: mipart
   teacher_seed: 1001
   seed: 1002
   recipe: mipart
-  tables: [cost_mipart, matrix_auc, matrix_rej]
+  tables: [accepted, cost_mipart, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_lgatr_t1002__s1002
   student: mipart_200k
   teacher: lgatr
   teacher_seed: 1002
   seed: 1002
   recipe: mipart
-  tables: [cost_lgatr, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_lgatr_slim_t1002__s1002
   student: mipart_200k
   teacher: lgatr_slim
   teacher_seed: 1002
   seed: 1002
   recipe: mipart
-  tables: [cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_omnilearned_s_t1001__s1002
   student: mipart_200k
   teacher: omnilearned_s
   teacher_seed: 1001
   seed: 1002
   recipe: mipart
-  tables: [cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_part_pretrained_t1001__s1002
   student: mipart_200k
   teacher: part_pretrained
   teacher_seed: 1001
   seed: 1002
   recipe: mipart
-  tables: [cost, matrix_auc, matrix_rej]
+  tables: [accepted, cost, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_lgatr_slim_ens_t1001__s1002
   student: mipart_200k
   teacher: lgatr_slim_ens
@@ -622,49 +622,49 @@ runs:
   teacher_seed: null
   seed: 1003
   recipe: mipart
-  tables: [cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
 - id: mipart_200k__kd_part_t1003__s1003
   student: mipart_200k
   teacher: part
   teacher_seed: 1003
   seed: 1003
   recipe: mipart
-  tables: [cost_part, matrix_auc, matrix_rej]
+  tables: [accepted, cost_part, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_mipart_t1001__s1003
   student: mipart_200k
   teacher: mipart
   teacher_seed: 1001
   seed: 1003
   recipe: mipart
-  tables: [cost_mipart, matrix_auc, matrix_rej]
+  tables: [accepted, cost_mipart, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_lgatr_t1003__s1003
   student: mipart_200k
   teacher: lgatr
   teacher_seed: 1003
   seed: 1003
   recipe: mipart
-  tables: [cost_lgatr, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_lgatr_slim_t1003__s1003
   student: mipart_200k
   teacher: lgatr_slim
   teacher_seed: 1003
   seed: 1003
   recipe: mipart
-  tables: [cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_omnilearned_s_t1001__s1003
   student: mipart_200k
   teacher: omnilearned_s
   teacher_seed: 1001
   seed: 1003
   recipe: mipart
-  tables: [cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_part_pretrained_t1001__s1003
   student: mipart_200k
   teacher: part_pretrained
   teacher_seed: 1001
   seed: 1003
   recipe: mipart
-  tables: [cost, matrix_auc, matrix_rej]
+  tables: [accepted, cost, matrix_auc, matrix_rej]
 - id: mipart_200k__kd_lgatr_slim_ens_t1001__s1003
   student: mipart_200k
   teacher: lgatr_slim_ens
@@ -678,49 +678,49 @@ runs:
   teacher_seed: null
   seed: 1001
   recipe: lgatr_slim
-  tables: [cost_scratch, depth_main, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, depth_main, matrix_auc, matrix_rej, students]
 - id: lgatr_slim_200k__kd_part_t1001__s1001
   student: lgatr_slim_200k
   teacher: part
   teacher_seed: 1001
   seed: 1001
   recipe: lgatr_slim
-  tables: [cost_part, matrix_auc, matrix_rej]
+  tables: [accepted, cost_part, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_mipart_t1001__s1001
   student: lgatr_slim_200k
   teacher: mipart
   teacher_seed: 1001
   seed: 1001
   recipe: lgatr_slim
-  tables: [cost_mipart, matrix_auc, matrix_rej]
+  tables: [accepted, cost_mipart, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_lgatr_t1001__s1001
   student: lgatr_slim_200k
   teacher: lgatr
   teacher_seed: 1001
   seed: 1001
   recipe: lgatr_slim
-  tables: [cost_lgatr, depth_other, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr, depth_other, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_lgatr_slim_t1001__s1001
   student: lgatr_slim_200k
   teacher: lgatr_slim
   teacher_seed: 1001
   seed: 1001
   recipe: lgatr_slim
-  tables: [cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_omnilearned_s_t1001__s1001
   student: lgatr_slim_200k
   teacher: omnilearned_s
   teacher_seed: 1001
   seed: 1001
   recipe: lgatr_slim
-  tables: [cost_omnilearned_s, depth_other, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_omnilearned_s, depth_other, ens_students, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_part_pretrained_t1001__s1001
   student: lgatr_slim_200k
   teacher: part_pretrained
   teacher_seed: 1001
   seed: 1001
   recipe: lgatr_slim
-  tables: [cost, depth_main, matrix_auc, matrix_rej]
+  tables: [accepted, cost, depth_main, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_lgatr_slim_ens_t1001__s1001
   student: lgatr_slim_200k
   teacher: lgatr_slim_ens
@@ -734,49 +734,49 @@ runs:
   teacher_seed: null
   seed: 1002
   recipe: lgatr_slim
-  tables: [cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
 - id: lgatr_slim_200k__kd_part_t1002__s1002
   student: lgatr_slim_200k
   teacher: part
   teacher_seed: 1002
   seed: 1002
   recipe: lgatr_slim
-  tables: [cost_part, matrix_auc, matrix_rej]
+  tables: [accepted, cost_part, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_mipart_t1001__s1002
   student: lgatr_slim_200k
   teacher: mipart
   teacher_seed: 1001
   seed: 1002
   recipe: lgatr_slim
-  tables: [cost_mipart, matrix_auc, matrix_rej]
+  tables: [accepted, cost_mipart, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_lgatr_t1002__s1002
   student: lgatr_slim_200k
   teacher: lgatr
   teacher_seed: 1002
   seed: 1002
   recipe: lgatr_slim
-  tables: [cost_lgatr, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_lgatr_slim_t1002__s1002
   student: lgatr_slim_200k
   teacher: lgatr_slim
   teacher_seed: 1002
   seed: 1002
   recipe: lgatr_slim
-  tables: [cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_omnilearned_s_t1001__s1002
   student: lgatr_slim_200k
   teacher: omnilearned_s
   teacher_seed: 1001
   seed: 1002
   recipe: lgatr_slim
-  tables: [cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_part_pretrained_t1001__s1002
   student: lgatr_slim_200k
   teacher: part_pretrained
   teacher_seed: 1001
   seed: 1002
   recipe: lgatr_slim
-  tables: [cost, matrix_auc, matrix_rej]
+  tables: [accepted, cost, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_lgatr_slim_ens_t1001__s1002
   student: lgatr_slim_200k
   teacher: lgatr_slim_ens
@@ -790,49 +790,49 @@ runs:
   teacher_seed: null
   seed: 1003
   recipe: lgatr_slim
-  tables: [cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
 - id: lgatr_slim_200k__kd_part_t1003__s1003
   student: lgatr_slim_200k
   teacher: part
   teacher_seed: 1003
   seed: 1003
   recipe: lgatr_slim
-  tables: [cost_part, matrix_auc, matrix_rej]
+  tables: [accepted, cost_part, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_mipart_t1001__s1003
   student: lgatr_slim_200k
   teacher: mipart
   teacher_seed: 1001
   seed: 1003
   recipe: lgatr_slim
-  tables: [cost_mipart, matrix_auc, matrix_rej]
+  tables: [accepted, cost_mipart, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_lgatr_t1003__s1003
   student: lgatr_slim_200k
   teacher: lgatr
   teacher_seed: 1003
   seed: 1003
   recipe: lgatr_slim
-  tables: [cost_lgatr, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_lgatr_slim_t1003__s1003
   student: lgatr_slim_200k
   teacher: lgatr_slim
   teacher_seed: 1003
   seed: 1003
   recipe: lgatr_slim
-  tables: [cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_lgatr_slim, ens_students, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_omnilearned_s_t1001__s1003
   student: lgatr_slim_200k
   teacher: omnilearned_s
   teacher_seed: 1001
   seed: 1003
   recipe: lgatr_slim
-  tables: [cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
+  tables: [accepted, cost_omnilearned_s, ens_students, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_part_pretrained_t1001__s1003
   student: lgatr_slim_200k
   teacher: part_pretrained
   teacher_seed: 1001
   seed: 1003
   recipe: lgatr_slim
-  tables: [cost, matrix_auc, matrix_rej]
+  tables: [accepted, cost, matrix_auc, matrix_rej]
 - id: lgatr_slim_200k__kd_lgatr_slim_ens_t1001__s1003
   student: lgatr_slim_200k
   teacher: lgatr_slim_ens

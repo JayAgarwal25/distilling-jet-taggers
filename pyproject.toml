@@ -38,6 +38,7 @@ dependencies = [
 xformers = ["xformers"]
 benchmark = ["psutil", "omnilearned"]
 teachers = ["uproot", "h5py"]
+paper = ["matplotlib"]
 dev = ["pytest", "ruff"]
 
 [project.urls]

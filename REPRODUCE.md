@@ -1,7 +1,9 @@
 # Reproducing the paper
 
-Every table in the paper is built by `scripts/make_tables.py` from trained models. You can
-retrain those models yourself, or check that our released models give the paper's numbers.
+Every table and figure in the paper is built from the test predictions of trained models, by
+`scripts/make_tables.py` and `scripts/make_figures.py`. You can retrain those models yourself, or check
+that our released models give the paper's numbers. The inference cost tables and figures come from
+`scripts/benchmark.py` on your own hardware (see below).
 
 ## What to expect
 
@@ -20,7 +22,7 @@ then change in its last printed digit.
 ## Setup
 
 ```bash
-pip install -e ".[xformers]"
+pip install -e ".[xformers,paper]"
 python scripts/get_data.py          # data/toptagging_full.npz
 python scripts/get_checkpoints.py   # runs/, data/teachers/ and data/external_teachers/, checked by sha256
 ```
@@ -38,6 +40,12 @@ python scripts/get_checkpoints.py   # runs/, data/teachers/ and data/external_te
 | Table 9, students of the L-GATr-slim ensemble | `ens_students` | 45 |
 | Table 11, width study with L-GATr and OmniLearned-S | `size_other` | 36 |
 | Tables 12 and 13, depth study | `depth_main`, `depth_other` | 32, 32 |
+| Table 14, background jets accepted with and without distillation | `accepted` | 105 and the 12 teacher runs they distil from |
+
+`python scripts/reproduce.py all` evaluates every model once, rebuilds all of these tables and
+writes every figure of Sections 4 to 6 and Appendices C to E to `reproduced/figures/`.
+`scripts/summarize.py` writes the summary and the analyses of Section 6 (`jetkd/analysis.py`) as
+JSON, and `scripts/make_figures.py` draws the figures from them.
 
 ## 1. Retrain
 

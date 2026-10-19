@@ -61,10 +61,10 @@ def paper_runs() -> list[Run]:
 
     for st in MATRIX_STUDENTS:
         for seed in SEEDS:
-            use(st, seed, None, {"students", "matrix_auc", "matrix_rej"} | cost(None))
+            use(st, seed, None, {"students", "matrix_auc", "matrix_rej", "accepted"} | cost(None))
             for t in TEACHERS:
                 ens = {"ens_students"} if t in ("lgatr_slim", "omnilearned_s") else set()
-                use(st, seed, t, {"matrix_auc", "matrix_rej"} | cost(t) | ens)
+                use(st, seed, t, {"matrix_auc", "matrix_rej", "accepted"} | cost(t) | ens)
             use(st, seed, ENSEMBLE, {"ens_students"})
 
     for st in WIDTH_STUDENTS:
