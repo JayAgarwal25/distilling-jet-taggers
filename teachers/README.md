@@ -70,6 +70,17 @@ python scripts/import_logits.py --name omnilearned_s --seed 1001 --format omnile
   --file outputs/top_s_run1_{split}.npz
 ```
 
+## Ensemble of the L-GATr-slim runs
+
+The teacher `lgatr_slim_ens` is the mean logit of the three L-GATr-slim runs. Its logits are computed
+from those of the runs, so it has no files of its own:
+
+```bash
+python scripts/teacher_logits.py --model lgatr_slim_ens --seed 1001
+```
+
+The seed 1001 only labels the ensemble in run ids such as `transformer_200k__kd_lgatr_slim_ens_t1001__s1002`.
+
 ## Any other model
 
 Save its logits and labels for each split as `.npz` with keys `logits` and `labels`, in the
