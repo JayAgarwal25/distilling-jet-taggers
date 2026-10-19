@@ -40,15 +40,28 @@ def safe_log(x: torch.Tensor) -> torch.Tensor:
     return torch.log(torch.where(x > 0, x, 1.0))
 
 
+# the pair features keep fm-distillation's operations (get_mass, get_dr, get_kt), so they time the same
+def log_mass(xi, xj, mask):
+    m2 = (2 * torch.exp(xi[..., 2]) * torch.exp(xj[..., 2])
+          * (torch.cosh(xi[..., 0] - xj[..., 0]) - torch.cos(xi[..., 1] - xj[..., 1])))
+    return safe_log(m2).unsqueeze(-1) * mask
+
+
+def delta_r(xi, xj, mask, log: bool):
+    dr2 = (xi[..., 0] - xj[..., 0]).square() + (xi[..., 1] - xj[..., 1]).square()
+    return (0.5 * safe_log(dr2) if log else torch.sqrt(dr2)).unsqueeze(-1) * mask
+
+
+def log_kt(xi, xj, mask):
+    kt = torch.min(torch.stack([torch.exp(xi[..., 2:3]), torch.exp(xj[..., 2:3])], -1), -1)[0]
+    return safe_log(kt * delta_r(xi, xj, mask, log=False)) * mask
+
+
 def pair_features(x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
     """ln m^2, ln dR and ln kT of every pair, from (d eta, d phi, ln pT, ln E) per particle."""
-    xi, xj = x.unsqueeze(2), x.unsqueeze(1)
-    deta, dphi = xi[..., 0] - xj[..., 0], xi[..., 1] - xj[..., 1]
-    pti, ptj = xi[..., 2].exp(), xj[..., 2].exp()
-    m2 = 2 * pti * ptj * (torch.cosh(deta) - torch.cos(dphi))
-    dr2 = deta.square() + dphi.square()
-    kt = torch.minimum(pti, ptj) * dr2.sqrt()
-    return torch.stack([safe_log(m2), 0.5 * safe_log(dr2), safe_log(kt)], -1) * mask
+    n = x.shape[1]
+    xi, xj = x.unsqueeze(2).expand(-1, -1, n, -1), x.unsqueeze(1).expand(-1, n, -1, -1)
+    return torch.cat([log_mass(xi, xj, mask), delta_r(xi, xj, mask, log=True), log_kt(xi, xj, mask)], -1)
 
 
 class DeepSetsInteraction(nn.Module):
@@ -121,9 +134,9 @@ def omnilearned_features(p4: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
     p = p4.double()
     m = mask.unsqueeze(-1).double()
     e, px, py, pz = p.unbind(-1)
-    pt = torch.hypot(px, py).clamp(min=1e-12)
+    pt = torch.sqrt(px.square() + py.square()).clamp(min=1e-12)
     jet = (p * m).sum(1)
-    jet_pt = torch.hypot(jet[:, 1], jet[:, 2]).clamp(min=1e-12)
+    jet_pt = torch.sqrt(jet[:, 1].square() + jet[:, 2].square()).clamp(min=1e-12)
     deta = torch.asinh(pz / pt) - torch.asinh(jet[:, 3] / jet_pt)[:, None]
     dphi = torch.atan2(py, px) - torch.atan2(jet[:, 2], jet[:, 1])[:, None]
     dphi = (dphi + math.pi) % (2 * math.pi) - math.pi
