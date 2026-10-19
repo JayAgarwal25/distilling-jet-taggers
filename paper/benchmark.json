@@ -1230,14 +1230,14 @@
    "regime": "real",
    "batch_size": 512,
    "settings": {
-    "packed,eager,builtin": {
+    "padded,eager,builtin": {
      "runs_ms": [
       25.275856018066406
      ],
      "median_ms": 25.275856018066406,
      "peak_mb": 2152.24267578125
     },
-    "packed,compiled,builtin": {
+    "padded,compiled,builtin": {
      "runs_ms": [
       19.89076805114746
      ],
@@ -1245,7 +1245,7 @@
      "peak_mb": 2165.7177734375
     }
    },
-   "selected": "packed,compiled,builtin",
+   "selected": "padded,compiled,builtin",
    "runs_ms": [
     19.828783988952637,
     19.482624053955078,
@@ -1261,7 +1261,7 @@
    "batch_size": 1,
    "threads": 1,
    "settings": {
-    "packed,eager,builtin": {
+    "padded,eager,builtin": {
      "runs_ms": [
       2.7902625,
       2.8107205,
@@ -1269,7 +1269,7 @@
      ],
      "median_ms": 2.8107205
     },
-    "packed,compiled,builtin": {
+    "padded,compiled,builtin": {
      "runs_ms": [
       2.444845,
       2.4154085,
@@ -1278,7 +1278,7 @@
      "median_ms": 2.444845
     }
    },
-   "selected": "packed,compiled,builtin",
+   "selected": "padded,compiled,builtin",
    "runs_ms": [
     2.444845,
     2.4154085,
@@ -1292,14 +1292,14 @@
    "regime": "rnd50",
    "batch_size": 512,
    "settings": {
-    "packed,eager,builtin": {
+    "padded,eager,builtin": {
      "runs_ms": [
       6.948863983154297
      ],
      "median_ms": 6.948863983154297,
      "peak_mb": 372.53125
     },
-    "packed,compiled,builtin": {
+    "padded,compiled,builtin": {
      "runs_ms": [
       6.211568117141724
      ],
@@ -1307,7 +1307,7 @@
      "peak_mb": 378.783203125
     }
    },
-   "selected": "packed,compiled,builtin",
+   "selected": "padded,compiled,builtin",
    "runs_ms": [
     6.211568117141724
    ],
@@ -1321,7 +1321,7 @@
    "batch_size": 1,
    "threads": 1,
    "settings": {
-    "packed,eager,builtin": {
+    "padded,eager,builtin": {
      "runs_ms": [
       2.73902,
       2.7531255,
@@ -1329,7 +1329,7 @@
      ],
      "median_ms": 2.7531255
     },
-    "packed,compiled,builtin": {
+    "padded,compiled,builtin": {
      "runs_ms": [
       2.4054385,
       2.389341,
@@ -1338,7 +1338,7 @@
      "median_ms": 2.389341
     }
    },
-   "selected": "packed,compiled,builtin",
+   "selected": "padded,compiled,builtin",
    "runs_ms": [
     2.4054385,
     2.389341,
@@ -2844,14 +2844,14 @@
    "regime": "real",
    "batch_size": 512,
    "settings": {
-    "packed,eager,builtin": {
+    "padded,eager,builtin": {
      "runs_ms": [
       13.280256271362305
      ],
      "median_ms": 13.280256271362305,
      "peak_mb": 1613.65234375
     },
-    "packed,compiled,builtin": {
+    "padded,compiled,builtin": {
      "runs_ms": [
       8.046655654907227
      ],
@@ -2859,7 +2859,7 @@
      "peak_mb": 1073.779296875
     }
    },
-   "selected": "packed,compiled,builtin",
+   "selected": "padded,compiled,builtin",
    "runs_ms": [
     7.9928319454193115,
     8.015408039093018,
@@ -2875,7 +2875,7 @@
    "batch_size": 1,
    "threads": 1,
    "settings": {
-    "packed,eager,builtin": {
+    "padded,eager,builtin": {
      "runs_ms": [
       1.5733355,
       1.5652629999999998,
@@ -2883,7 +2883,7 @@
      ],
      "median_ms": 1.5733355
     },
-    "packed,compiled,builtin": {
+    "padded,compiled,builtin": {
      "runs_ms": [
       1.5053424999999998,
       1.4221949999999999,
@@ -2892,7 +2892,7 @@
      "median_ms": 1.4364439999999998
     }
    },
-   "selected": "packed,compiled,builtin",
+   "selected": "padded,compiled,builtin",
    "runs_ms": [
     1.5053424999999998,
     1.4221949999999999,
@@ -2906,14 +2906,14 @@
    "regime": "rnd50",
    "batch_size": 512,
    "settings": {
-    "packed,eager,builtin": {
+    "padded,eager,builtin": {
      "runs_ms": [
       8.436736106872559
      ],
      "median_ms": 8.436736106872559,
      "peak_mb": 989.6796875
     },
-    "packed,compiled,builtin": {
+    "padded,compiled,builtin": {
      "runs_ms": [
       6.924287796020508
      ],
@@ -2921,7 +2921,7 @@
      "peak_mb": 658.763671875
     }
    },
-   "selected": "packed,compiled,builtin",
+   "selected": "padded,compiled,builtin",
    "runs_ms": [
     6.924287796020508
    ],
@@ -2935,7 +2935,7 @@
    "batch_size": 1,
    "threads": 1,
    "settings": {
-    "packed,eager,builtin": {
+    "padded,eager,builtin": {
      "runs_ms": [
       1.5391024999999998,
       1.521884,
@@ -2943,7 +2943,7 @@
      ],
      "median_ms": 1.521884
     },
-    "packed,compiled,builtin": {
+    "padded,compiled,builtin": {
      "runs_ms": [
       1.3502125,
       1.356697,
@@ -2952,7 +2952,7 @@
      "median_ms": 1.3502125
     }
    },
-   "selected": "packed,compiled,builtin",
+   "selected": "padded,compiled,builtin",
    "runs_ms": [
     1.3502125,
     1.356697,
