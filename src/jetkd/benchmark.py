@@ -1,7 +1,8 @@
 """Inference cost of a model: time per batch on the GPU and per jet on one CPU core.
 
 A setting names the particle lists (packed or padded), compilation (eager or compiled) and the
-attention (built-in or xformers). One measurement times a model in one setting on one kind of jets (regime):
+attention (built-in or xformers). Compiled means the network is compiled and the inputs are built eager,
+as tagging-guide's `compile` option does. One measurement times a model in one setting on one kind of jets (regime):
 100 warm-up and 100 timed calls of the whole forward, from four-momenta in CPU memory to logits.
 `summarize` turns repeated measurements into one row per model, device and regime: every setting with
 its runs, and the fastest setting by the median of its runs.
@@ -37,6 +38,14 @@ def settings(model: str) -> list[str]:
     """Every setting of a model: its particle lists, eager and compiled."""
     attention = "xformers" if len(lists(model)) == 2 else "builtin"
     return [f"{p},{c},{attention}" for p in lists(model) for c in ("eager", "compiled")]
+
+
+def compile_network(model: torch.nn.Module) -> None:
+    """Compile the network of a model in place; the inputs stay eager."""
+    if hasattr(model, "net"):
+        model.net.forward = torch.compile(model.net.forward, dynamic=True)
+    else:   # ParT 205k
+        model.body = torch.compile(model.body, dynamic=True)
 
 
 def random_momenta(n: int, particles: int = 50, seed: int = 42) -> torch.Tensor:
@@ -97,7 +106,8 @@ def measure(model: str, device: str, regime: str, setting: str, data: str,
     net = build(model).eval().to(device)
     if hasattr(net, "padded"):
         net.padded = padded == "padded"
-    call = torch.compile(net, dynamic=True) if compiled == "compiled" else net
+    if compiled == "compiled":
+        compile_network(net)
     bs = BATCH_SIZE[device]
     pool = batches(regime, bs, data)
 
@@ -106,12 +116,12 @@ def measure(model: str, device: str, regime: str, setting: str, data: str,
             start, end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
             torch.cuda.synchronize()
             start.record()
-            call(batch.to(device))
+            net(batch.to(device))
             end.record()
             end.synchronize()
             return start.elapsed_time(end)
         t0 = time.perf_counter_ns()
-        call(batch.to(device))
+        net(batch.to(device))
         return (time.perf_counter_ns() - t0) * 1e-6
 
     times = []

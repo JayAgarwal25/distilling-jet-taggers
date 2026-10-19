@@ -67,8 +67,11 @@ class ParTTagger(nn.Module):
     def forward(self, batch: JetBatch) -> torch.Tensor:
         n = int(batch.mask.sum(dim=1).max())
         p4, mask = batch.p4[:, :n], batch.mask[:, :n]
-        x = self.input_proj(dense_tagging_features(p4, mask))
-        pair, pair_mask = pairwise_features(p4, mask)
+        return self.body(dense_tagging_features(p4, mask), *pairwise_features(p4, mask), mask)
+
+    def body(self, features, pair, pair_mask, mask) -> torch.Tensor:
+        """The network on the particle and pair features."""
+        x = self.input_proj(features)
         bias = self.pair_mlp(pair).permute(0, 3, 1, 2).masked_fill(~pair_mask.unsqueeze(1), 0.0)
         for block in self.blocks:
             x = block(x, bias, ~mask)
