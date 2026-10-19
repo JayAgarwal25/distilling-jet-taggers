@@ -1,9 +1,10 @@
-# Distilling Foundation Models for High-Energy Physics into Fast Jet Taggers
+# How Far Can Foundation Models Be Distilled for Efficient Jet Tagging?
 
-Code, run definitions and results for the paper by Jay Agarwal, Siddharth Khare and Dhruv Kumar.
+Code and run definitions for the paper by Jay Agarwal, Siddharth Khare and Dhruv Kumar.
 We distill large top taggers (L-GATr, L-GATr-slim, ParT, MIParT, pretrained ParT and
 OmniLearned-S) into students of about 200k parameters (Transformer, ParT, MIParT,
-L-GATr-slim and LorentzNet), and study how distillation depends on student width and depth.
+L-GATr-slim and LorentzNet). We study how distillation depends on student width and depth, what
+the students take from their teachers, and what the students cost at inference.
 
 The package is `jetkd`. It trains every model in the paper, from scratch or distilled from a
 teacher's logits, and it can distill any teacher you provide.
@@ -59,8 +60,8 @@ OmniLearned-S.
 
 ## Reproducing the paper
 
-[`REPRODUCE.md`](REPRODUCE.md) gives one command block per table: from the released
-predictions (exact), from the released checkpoints, or by retraining.
+[`REPRODUCE.md`](REPRODUCE.md) gives the commands behind every table and figure: retraining every
+model, evaluating the released checkpoints and timing the models on your own hardware.
 
 ## Credits
 
@@ -79,7 +80,8 @@ and the width ladders are those of the Economical Jet Taggers
 ([paper](https://arxiv.org/abs/2512.17011), [code](https://github.com/heidelberg-hepml/tagger-quantization)). The pretrained ParT teacher comes
 from [particle_transformer](https://github.com/jet-universe/particle_transformer) with
 [weaver-core](https://github.com/hqucms/weaver-core), and OmniLearned-S from
-[OmniLearned](https://github.com/ViniciusMikuni/OmniLearned). `models/deepsets.py` adapts the
+[OmniLearned](https://github.com/ViniciusMikuni/OmniLearned), whose package also builds it for
+timing (`models/omnilearned.py`, in the setting of tagging-guide). `models/deepsets.py` adapts the
 Deep Sets students of [fm-distillation](https://github.com/stanford-ai4physics/fm-distillation),
 which we use only to count operations and time them. We thank their authors.
 
@@ -87,7 +89,7 @@ which we use only to count operations and time them. We thank their authors.
 
 ```bibtex
 @article{agarwal2026distilling,
-  title  = {Distilling Foundation Models for High-Energy Physics into Fast Jet Taggers},
+  title  = {How Far Can Foundation Models Be Distilled for Efficient Jet Tagging?},
   author = {Agarwal, Jay and Khare, Siddharth and Kumar, Dhruv},
   year   = {2026},
 }
