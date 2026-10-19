@@ -63,7 +63,9 @@ def runs_md(summary: dict | None = None) -> str:
     out += ["", "## Distillation", "",
             f"alpha = {kd['alpha']}, T = {kd['temperature']} for every distilled run "
             "(`jetkd/distillation.py`). Gradients are clipped at norm 1; the checkpoint with the "
-            "lowest validation BCE is kept.", "", "## Runs", ""]
+            "lowest validation BCE is kept.", "",
+            "The teacher `lgatr_slim_ens` is the mean logit of the three `lgatr_slim` runs; its "
+            "teacher seed 1001 only labels it.", "", "## Runs", ""]
     metrics = (summary or {}).get("runs", {})
     head = "| run | model | teacher | teacher seed | seed | recipe |"
     if metrics:

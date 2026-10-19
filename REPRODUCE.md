@@ -31,13 +31,13 @@ python scripts/get_checkpoints.py   # runs/, data/teachers/ and data/external_te
 |---|---|---|
 | Table 1, teachers | `teachers` | 18 teacher runs |
 | Table 2, students without a teacher | `students` | 15 |
-| Tables 3 and 4, students and teachers | `matrix_auc`, `matrix_rej` | 105 student runs and all teachers |
-| Width study | `size` | 36 |
-| Depth study | `depth` | 32 |
-| Operations per jet, against Deep Sets | `operations` | 24 and all teachers; counts operations on 300 test jets (`scripts/count_flops.py`) |
-| Architectures and recipes | `architectures`, `recipes` | none, from the code |
-| Appendix: gains, every matrix cell | `gains`, `complete` | as `matrix_auc` |
-| Appendix: depth and width with every teacher | `depth_transformer`, `depth_slim`, `size_full` | 32, 32, 72 |
+| Tables 3 and 10, students and teachers | `matrix_auc`, `matrix_rej` | 105 |
+| Table 4, width study | `size_short` | 36 |
+| Tables 6 and 7, architectures and recipes | `architectures`, `recipes` | none, from the code |
+| Table 8, teacher ensembles | `teacher_ensembles` | 18 teacher runs |
+| Table 9, students of the L-GATr-slim ensemble | `ens_students` | 45 |
+| Table 11, width study with L-GATr and OmniLearned-S | `size_other` | 36 |
+| Tables 12 and 13, depth study | `depth_main`, `depth_other` | 32, 32 |
 
 ## 1. Retrain
 
@@ -80,5 +80,5 @@ OmniLearned-S, whose test logits are released in `data/teachers/`.
 python scripts/count_flops.py
 ```
 
-counts the floating-point operations of every model in the `operations` table on the first 300 test
-jets. The counts do not depend on the hardware and equal ours exactly.
+counts the floating-point operations per jet of our models on the first 300 test jets. The counts
+do not depend on the hardware and equal ours exactly.

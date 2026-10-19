@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import torch
 
-from jetkd.teachers import check_rows, from_probabilities, save_logits
+from jetkd.teachers import check_rows, ensemble_logits, from_probabilities, logits_path, save_logits
 from jetkd.train import load_teacher_logits
 
 
@@ -23,6 +23,18 @@ def test_saved_logits_load_for_training(tmp_path):
     assert z.shape == (25,) and z.dtype == np.float32
     with pytest.raises(ValueError):
         load_teacher_logits(tmp_path / "t.npz", torch.from_numpy(1 - labels))
+
+
+def test_ensemble_is_the_mean_member_logit(tmp_path):
+    labels = (np.arange(10) % 2).astype(np.float32)
+    zs = np.random.default_rng(0).normal(size=(3, 10)).astype(np.float32)
+    for s, z in zip((1001, 1002, 1003), zs, strict=True):
+        save_logits(logits_path(tmp_path, "lgatr_slim", s, "val"), z, labels)
+    z, y = ensemble_logits(tmp_path, "lgatr_slim_ens", "val")
+    assert z.dtype == np.float32 and np.allclose(z, zs.mean(0)) and np.array_equal(y, labels)
+    save_logits(logits_path(tmp_path, "lgatr_slim", 1003, "val"), zs[2], 1 - labels)
+    with pytest.raises(ValueError):
+        ensemble_logits(tmp_path, "lgatr_slim_ens", "val")
 
 
 def test_logits_from_saturated_probabilities():

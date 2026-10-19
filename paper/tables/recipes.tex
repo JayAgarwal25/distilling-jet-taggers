@@ -5,13 +5,17 @@
 Model & Optimizer & Learning rate & Weight decay & Batch & Steps & Schedule \\
 \midrule
 Transformer & AdamW & $10^{-3}$ & 0.1 & 256 & 200{,}000 & cosine \\
+LorentzNet\eqv{} & AdamW & $10^{-3}$ & $10^{-2}$ & 128 & 336{,}000 & cosine \\
 ParT & Ranger & $10^{-3}$ & $10^{-2}$ & 512 & 48{,}000 & flat, then decay \\
 MIParT & Ranger & $10^{-3}$ & $10^{-2}$ & 256 & 72{,}000 & flat, then decay \\
-L-GATr-slim\eqv & Lion & $3\times10^{-5}$ & 2 & 128 & 200{,}000 & cosine \\
-LorentzNet\eqv & AdamW & $10^{-3}$ & $10^{-2}$ & 128 & 336{,}000 & cosine \\
-Width study, 200k & AdamW & $10^{-3}$ & 0.1 & 256 & 200{,}000 & cosine \\
-Width study, 20k & AdamW & $3\times10^{-3}$ & 0 & 512 & 200{,}000 & cosine \\
-Width study, 2k & AdamW & $10^{-2}$ & 0 & 4{,}096 & 200{,}000 & cosine \\
+L-GATr-slim\eqv{} & Lion & $3\times10^{-5}$ & 2 & 128 & 200{,}000 & cosine \\
+\midrule
+Transformer 84k & AdamW & $10^{-3}$ & 0.1 & 256 & 200{,}000 & cosine \\
+Transformer 16k & AdamW & $3\times10^{-3}$ & 0 & 512 & 200{,}000 & cosine \\
+Transformer 1.2k & AdamW & $10^{-2}$ & 0 & 4{,}096 & 200{,}000 & cosine \\
+L-GATr-slim\eqv{} 181k & AdamW & $10^{-3}$ & 0.1 & 256 & 200{,}000 & cosine \\
+L-GATr-slim\eqv{} 20k & AdamW & $3\times10^{-3}$ & 0 & 512 & 200{,}000 & cosine \\
+L-GATr-slim\eqv{} 1.8k & AdamW & $10^{-2}$ & 0 & 4{,}096 & 200{,}000 & cosine \\
 \bottomrule
 \end{tabular}
 }

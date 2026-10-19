@@ -7,25 +7,25 @@ Model & Width & Heads & Blocks & Read-out & Params \\
 \multicolumn{6}{l}{\textit{Teachers}} \\
 ParT & 128 & 8 & 8 + 2 & class token & 2{,}141{,}005 \\
 MIParT & 64 & 8 & 5 + 5 + 2 & class token & 656{,}949 \\
-L-GATr\eqv & 16 mv, 32 s & 8 & 12 & global token & 1{,}077{,}474 \\
-L-GATr-slim\eqv & 32 v, 96 s & 8 & 12 & global token & 2{,}030{,}817 \\
-OmniLearned-S & 128 & 8 & 8 + 2 & 4 class tokens & 2{,}708{,}149 \\
-ParT (pretrained) & \multicolumn{4}{l}{as ParT, built by the ParT authors' code} & 2{,}141{,}562 \\
+L-GATr\eqv{} & 16 mv, 32 s & 8 & 12 & global token & 1{,}077{,}474 \\
+L-GATr-slim\eqv{} & 32 v, 96 s & 8 & 12 & global token & 2{,}030{,}817 \\
+OmniLearned-S\pre{} & 128 & 8 & 8 + 2 & 4 class tokens & 2{,}708{,}149 \\
+ParT-f.t.\pre{} & 128 & 8 & 8 + 2 & class token & 2{,}141{,}562 \\
 \midrule
 \multicolumn{6}{l}{\textit{Students}} \\
 Transformer & 48 & 6 & 10 & mean & 188{,}113 \\
 ParT & 64 & 4 & 4 & mean & 205{,}093 \\
 MIParT & 32 & 8 & 6 + 8 + 2 & class token & 199{,}837 \\
-L-GATr-slim\eqv & 12 v, 48 s & 4 & 5 & global token & 202{,}213 \\
-LorentzNet\eqv & 68 & -- & 6 & mean & 202{,}511 \\
+L-GATr-slim\eqv{} & 12 v, 48 s & 4 & 5 & global token & 202{,}213 \\
+LorentzNet\eqv{} & 68 & -- & 6 & mean & 202{,}511 \\
 \midrule
 \multicolumn{6}{l}{\textit{Width study}} \\
 Transformer & 32 & 4 & 10 & mean & 84{,}449 \\
 Transformer & 16 & 2 & 10 & mean & 16{,}465 \\
 Transformer & 4 & 1 & 10 & mean & 1{,}237 \\
-L-GATr-slim\eqv & 8 v, 32 s & 4 & 10 & global token & 180{,}969 \\
-L-GATr-slim\eqv & 4 v, 16 s & 2 & 10 & global token & 20{,}405 \\
-L-GATr-slim\eqv & 2 v, 4 s & 1 & 10 & global token & 1{,}763 \\
+L-GATr-slim\eqv{} & 8 v, 32 s & 4 & 10 & global token & 180{,}969 \\
+L-GATr-slim\eqv{} & 4 v, 16 s & 2 & 10 & global token & 20{,}405 \\
+L-GATr-slim\eqv{} & 2 v, 4 s & 1 & 10 & global token & 1{,}763 \\
 \bottomrule
 \end{tabular}
 }

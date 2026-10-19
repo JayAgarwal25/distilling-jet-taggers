@@ -13,8 +13,8 @@ def test_runs_yaml_is_current():
 
 def test_run_counts():
     runs = study.paper_runs()
-    # matrix, width, depth, trained teachers
-    assert len({r.id for r in runs}) == len(runs) == 105 + 72 + 56 + 12
+    # matrix, students of the ensemble, width, depth, trained teachers
+    assert len({r.id for r in runs}) == len(runs) == 105 + 15 + 72 + 56 + 12
 
 
 def test_teacher_seeds():
@@ -24,7 +24,7 @@ def test_teacher_seeds():
 
 
 def test_every_matrix_cell_has_three_seeds():
-    cells = Counter((r.student, r.teacher) for r in study.paper_runs() if "complete" in r.tables)
+    cells = Counter((r.student, r.teacher) for r in study.paper_runs() if "matrix_auc" in r.tables)
     assert len(cells) == 5 * 7 and set(cells.values()) == {3}
 
 

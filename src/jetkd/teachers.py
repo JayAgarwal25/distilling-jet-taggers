@@ -17,9 +17,25 @@ from torch.utils.data import DataLoader, Dataset
 
 from jetkd.data import TopTaggingSplit, collate
 
+# ensemble teachers: the mean logit of several runs of one model; run ids give them seed 1001
+ENSEMBLES = {"lgatr_slim_ens": ("lgatr_slim", (1001, 1002, 1003))}
+
 
 def logits_path(directory: str | Path, teacher: str, seed: int, split: str) -> Path:
     return Path(directory) / f"{teacher}_s{seed}_{split}.npz"
+
+
+def ensemble_logits(directory: str | Path, name: str, split: str) -> tuple[np.ndarray, np.ndarray]:
+    """Logits and labels of ensemble `name` from its members' logits in `directory`."""
+    member, seeds = ENSEMBLES[name]
+    zs, labels = [], None
+    for s in seeds:
+        with np.load(logits_path(directory, member, s, split)) as f:
+            if labels is not None and not np.array_equal(f["labels"], labels):
+                raise ValueError(f"{member} run {s}, {split}: labels differ between members")
+            zs.append(f["logits"].astype(np.float64))
+            labels = f["labels"]
+    return np.mean(zs, axis=0).astype(np.float32), labels
 
 
 def save_logits(path: str | Path, logits: np.ndarray, labels: np.ndarray) -> None:

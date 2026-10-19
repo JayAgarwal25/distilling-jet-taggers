@@ -55,6 +55,8 @@ Counts are iterations. Biases get no weight decay.
 
 alpha = 0.7, T = 2.0 for every distilled run (`jetkd/distillation.py`). Gradients are clipped at norm 1; the checkpoint with the lowest validation BCE is kept.
 
+The teacher `lgatr_slim_ens` is the mean logit of the three `lgatr_slim` runs; its teacher seed 1001 only labels it.
+
 ## Runs
 
 | run | model | teacher | teacher seed | seed | recipe |
@@ -66,6 +68,7 @@ alpha = 0.7, T = 2.0 for every distilled run (`jetkd/distillation.py`). Gradient
 | `transformer_200k__kd_lgatr_slim_t1001__s1001` | `transformer_200k` | lgatr_slim | 1001 | 1001 | `size_200k` |
 | `transformer_200k__kd_omnilearned_s_t1001__s1001` | `transformer_200k` | omnilearned_s | 1001 | 1001 | `size_200k` |
 | `transformer_200k__kd_part_pretrained_t1001__s1001` | `transformer_200k` | part_pretrained | 1001 | 1001 | `size_200k` |
+| `transformer_200k__kd_lgatr_slim_ens_t1001__s1001` | `transformer_200k` | lgatr_slim_ens | 1001 | 1001 | `size_200k` |
 | `transformer_200k__scratch__s1002` | `transformer_200k` | none |  | 1002 | `size_200k` |
 | `transformer_200k__kd_part_t1002__s1002` | `transformer_200k` | part | 1002 | 1002 | `size_200k` |
 | `transformer_200k__kd_mipart_t1001__s1002` | `transformer_200k` | mipart | 1001 | 1002 | `size_200k` |
@@ -73,6 +76,7 @@ alpha = 0.7, T = 2.0 for every distilled run (`jetkd/distillation.py`). Gradient
 | `transformer_200k__kd_lgatr_slim_t1002__s1002` | `transformer_200k` | lgatr_slim | 1002 | 1002 | `size_200k` |
 | `transformer_200k__kd_omnilearned_s_t1001__s1002` | `transformer_200k` | omnilearned_s | 1001 | 1002 | `size_200k` |
 | `transformer_200k__kd_part_pretrained_t1001__s1002` | `transformer_200k` | part_pretrained | 1001 | 1002 | `size_200k` |
+| `transformer_200k__kd_lgatr_slim_ens_t1001__s1002` | `transformer_200k` | lgatr_slim_ens | 1001 | 1002 | `size_200k` |
 | `transformer_200k__scratch__s1003` | `transformer_200k` | none |  | 1003 | `size_200k` |
 | `transformer_200k__kd_part_t1003__s1003` | `transformer_200k` | part | 1003 | 1003 | `size_200k` |
 | `transformer_200k__kd_mipart_t1001__s1003` | `transformer_200k` | mipart | 1001 | 1003 | `size_200k` |
@@ -80,69 +84,7 @@ alpha = 0.7, T = 2.0 for every distilled run (`jetkd/distillation.py`). Gradient
 | `transformer_200k__kd_lgatr_slim_t1003__s1003` | `transformer_200k` | lgatr_slim | 1003 | 1003 | `size_200k` |
 | `transformer_200k__kd_omnilearned_s_t1001__s1003` | `transformer_200k` | omnilearned_s | 1001 | 1003 | `size_200k` |
 | `transformer_200k__kd_part_pretrained_t1001__s1003` | `transformer_200k` | part_pretrained | 1001 | 1003 | `size_200k` |
-| `part_200k__scratch__s1001` | `part_200k` | none |  | 1001 | `part` |
-| `part_200k__kd_part_t1001__s1001` | `part_200k` | part | 1001 | 1001 | `part` |
-| `part_200k__kd_mipart_t1001__s1001` | `part_200k` | mipart | 1001 | 1001 | `part` |
-| `part_200k__kd_lgatr_t1001__s1001` | `part_200k` | lgatr | 1001 | 1001 | `part` |
-| `part_200k__kd_lgatr_slim_t1001__s1001` | `part_200k` | lgatr_slim | 1001 | 1001 | `part` |
-| `part_200k__kd_omnilearned_s_t1001__s1001` | `part_200k` | omnilearned_s | 1001 | 1001 | `part` |
-| `part_200k__kd_part_pretrained_t1001__s1001` | `part_200k` | part_pretrained | 1001 | 1001 | `part` |
-| `part_200k__scratch__s1002` | `part_200k` | none |  | 1002 | `part` |
-| `part_200k__kd_part_t1002__s1002` | `part_200k` | part | 1002 | 1002 | `part` |
-| `part_200k__kd_mipart_t1001__s1002` | `part_200k` | mipart | 1001 | 1002 | `part` |
-| `part_200k__kd_lgatr_t1002__s1002` | `part_200k` | lgatr | 1002 | 1002 | `part` |
-| `part_200k__kd_lgatr_slim_t1002__s1002` | `part_200k` | lgatr_slim | 1002 | 1002 | `part` |
-| `part_200k__kd_omnilearned_s_t1001__s1002` | `part_200k` | omnilearned_s | 1001 | 1002 | `part` |
-| `part_200k__kd_part_pretrained_t1001__s1002` | `part_200k` | part_pretrained | 1001 | 1002 | `part` |
-| `part_200k__scratch__s1003` | `part_200k` | none |  | 1003 | `part` |
-| `part_200k__kd_part_t1003__s1003` | `part_200k` | part | 1003 | 1003 | `part` |
-| `part_200k__kd_mipart_t1001__s1003` | `part_200k` | mipart | 1001 | 1003 | `part` |
-| `part_200k__kd_lgatr_t1003__s1003` | `part_200k` | lgatr | 1003 | 1003 | `part` |
-| `part_200k__kd_lgatr_slim_t1003__s1003` | `part_200k` | lgatr_slim | 1003 | 1003 | `part` |
-| `part_200k__kd_omnilearned_s_t1001__s1003` | `part_200k` | omnilearned_s | 1001 | 1003 | `part` |
-| `part_200k__kd_part_pretrained_t1001__s1003` | `part_200k` | part_pretrained | 1001 | 1003 | `part` |
-| `mipart_200k__scratch__s1001` | `mipart_200k` | none |  | 1001 | `mipart` |
-| `mipart_200k__kd_part_t1001__s1001` | `mipart_200k` | part | 1001 | 1001 | `mipart` |
-| `mipart_200k__kd_mipart_t1001__s1001` | `mipart_200k` | mipart | 1001 | 1001 | `mipart` |
-| `mipart_200k__kd_lgatr_t1001__s1001` | `mipart_200k` | lgatr | 1001 | 1001 | `mipart` |
-| `mipart_200k__kd_lgatr_slim_t1001__s1001` | `mipart_200k` | lgatr_slim | 1001 | 1001 | `mipart` |
-| `mipart_200k__kd_omnilearned_s_t1001__s1001` | `mipart_200k` | omnilearned_s | 1001 | 1001 | `mipart` |
-| `mipart_200k__kd_part_pretrained_t1001__s1001` | `mipart_200k` | part_pretrained | 1001 | 1001 | `mipart` |
-| `mipart_200k__scratch__s1002` | `mipart_200k` | none |  | 1002 | `mipart` |
-| `mipart_200k__kd_part_t1002__s1002` | `mipart_200k` | part | 1002 | 1002 | `mipart` |
-| `mipart_200k__kd_mipart_t1001__s1002` | `mipart_200k` | mipart | 1001 | 1002 | `mipart` |
-| `mipart_200k__kd_lgatr_t1002__s1002` | `mipart_200k` | lgatr | 1002 | 1002 | `mipart` |
-| `mipart_200k__kd_lgatr_slim_t1002__s1002` | `mipart_200k` | lgatr_slim | 1002 | 1002 | `mipart` |
-| `mipart_200k__kd_omnilearned_s_t1001__s1002` | `mipart_200k` | omnilearned_s | 1001 | 1002 | `mipart` |
-| `mipart_200k__kd_part_pretrained_t1001__s1002` | `mipart_200k` | part_pretrained | 1001 | 1002 | `mipart` |
-| `mipart_200k__scratch__s1003` | `mipart_200k` | none |  | 1003 | `mipart` |
-| `mipart_200k__kd_part_t1003__s1003` | `mipart_200k` | part | 1003 | 1003 | `mipart` |
-| `mipart_200k__kd_mipart_t1001__s1003` | `mipart_200k` | mipart | 1001 | 1003 | `mipart` |
-| `mipart_200k__kd_lgatr_t1003__s1003` | `mipart_200k` | lgatr | 1003 | 1003 | `mipart` |
-| `mipart_200k__kd_lgatr_slim_t1003__s1003` | `mipart_200k` | lgatr_slim | 1003 | 1003 | `mipart` |
-| `mipart_200k__kd_omnilearned_s_t1001__s1003` | `mipart_200k` | omnilearned_s | 1001 | 1003 | `mipart` |
-| `mipart_200k__kd_part_pretrained_t1001__s1003` | `mipart_200k` | part_pretrained | 1001 | 1003 | `mipart` |
-| `lgatr_slim_200k__scratch__s1001` | `lgatr_slim_200k` | none |  | 1001 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_part_t1001__s1001` | `lgatr_slim_200k` | part | 1001 | 1001 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_mipart_t1001__s1001` | `lgatr_slim_200k` | mipart | 1001 | 1001 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_lgatr_t1001__s1001` | `lgatr_slim_200k` | lgatr | 1001 | 1001 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_lgatr_slim_t1001__s1001` | `lgatr_slim_200k` | lgatr_slim | 1001 | 1001 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_omnilearned_s_t1001__s1001` | `lgatr_slim_200k` | omnilearned_s | 1001 | 1001 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_part_pretrained_t1001__s1001` | `lgatr_slim_200k` | part_pretrained | 1001 | 1001 | `lgatr_slim` |
-| `lgatr_slim_200k__scratch__s1002` | `lgatr_slim_200k` | none |  | 1002 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_part_t1002__s1002` | `lgatr_slim_200k` | part | 1002 | 1002 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_mipart_t1001__s1002` | `lgatr_slim_200k` | mipart | 1001 | 1002 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_lgatr_t1002__s1002` | `lgatr_slim_200k` | lgatr | 1002 | 1002 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_lgatr_slim_t1002__s1002` | `lgatr_slim_200k` | lgatr_slim | 1002 | 1002 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_omnilearned_s_t1001__s1002` | `lgatr_slim_200k` | omnilearned_s | 1001 | 1002 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_part_pretrained_t1001__s1002` | `lgatr_slim_200k` | part_pretrained | 1001 | 1002 | `lgatr_slim` |
-| `lgatr_slim_200k__scratch__s1003` | `lgatr_slim_200k` | none |  | 1003 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_part_t1003__s1003` | `lgatr_slim_200k` | part | 1003 | 1003 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_mipart_t1001__s1003` | `lgatr_slim_200k` | mipart | 1001 | 1003 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_lgatr_t1003__s1003` | `lgatr_slim_200k` | lgatr | 1003 | 1003 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_lgatr_slim_t1003__s1003` | `lgatr_slim_200k` | lgatr_slim | 1003 | 1003 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_omnilearned_s_t1001__s1003` | `lgatr_slim_200k` | omnilearned_s | 1001 | 1003 | `lgatr_slim` |
-| `lgatr_slim_200k__kd_part_pretrained_t1001__s1003` | `lgatr_slim_200k` | part_pretrained | 1001 | 1003 | `lgatr_slim` |
+| `transformer_200k__kd_lgatr_slim_ens_t1001__s1003` | `transformer_200k` | lgatr_slim_ens | 1001 | 1003 | `size_200k` |
 | `lorentznet_200k__scratch__s1001` | `lorentznet_200k` | none |  | 1001 | `lorentznet` |
 | `lorentznet_200k__kd_part_t1001__s1001` | `lorentznet_200k` | part | 1001 | 1001 | `lorentznet` |
 | `lorentznet_200k__kd_mipart_t1001__s1001` | `lorentznet_200k` | mipart | 1001 | 1001 | `lorentznet` |
@@ -150,6 +92,7 @@ alpha = 0.7, T = 2.0 for every distilled run (`jetkd/distillation.py`). Gradient
 | `lorentznet_200k__kd_lgatr_slim_t1001__s1001` | `lorentznet_200k` | lgatr_slim | 1001 | 1001 | `lorentznet` |
 | `lorentznet_200k__kd_omnilearned_s_t1001__s1001` | `lorentznet_200k` | omnilearned_s | 1001 | 1001 | `lorentznet` |
 | `lorentznet_200k__kd_part_pretrained_t1001__s1001` | `lorentznet_200k` | part_pretrained | 1001 | 1001 | `lorentznet` |
+| `lorentznet_200k__kd_lgatr_slim_ens_t1001__s1001` | `lorentznet_200k` | lgatr_slim_ens | 1001 | 1001 | `lorentznet` |
 | `lorentznet_200k__scratch__s1002` | `lorentznet_200k` | none |  | 1002 | `lorentznet` |
 | `lorentznet_200k__kd_part_t1002__s1002` | `lorentznet_200k` | part | 1002 | 1002 | `lorentznet` |
 | `lorentznet_200k__kd_mipart_t1001__s1002` | `lorentznet_200k` | mipart | 1001 | 1002 | `lorentznet` |
@@ -157,6 +100,7 @@ alpha = 0.7, T = 2.0 for every distilled run (`jetkd/distillation.py`). Gradient
 | `lorentznet_200k__kd_lgatr_slim_t1002__s1002` | `lorentznet_200k` | lgatr_slim | 1002 | 1002 | `lorentznet` |
 | `lorentznet_200k__kd_omnilearned_s_t1001__s1002` | `lorentznet_200k` | omnilearned_s | 1001 | 1002 | `lorentznet` |
 | `lorentznet_200k__kd_part_pretrained_t1001__s1002` | `lorentznet_200k` | part_pretrained | 1001 | 1002 | `lorentznet` |
+| `lorentznet_200k__kd_lgatr_slim_ens_t1001__s1002` | `lorentznet_200k` | lgatr_slim_ens | 1001 | 1002 | `lorentznet` |
 | `lorentznet_200k__scratch__s1003` | `lorentznet_200k` | none |  | 1003 | `lorentznet` |
 | `lorentznet_200k__kd_part_t1003__s1003` | `lorentznet_200k` | part | 1003 | 1003 | `lorentznet` |
 | `lorentznet_200k__kd_mipart_t1001__s1003` | `lorentznet_200k` | mipart | 1001 | 1003 | `lorentznet` |
@@ -164,6 +108,79 @@ alpha = 0.7, T = 2.0 for every distilled run (`jetkd/distillation.py`). Gradient
 | `lorentznet_200k__kd_lgatr_slim_t1003__s1003` | `lorentznet_200k` | lgatr_slim | 1003 | 1003 | `lorentznet` |
 | `lorentznet_200k__kd_omnilearned_s_t1001__s1003` | `lorentznet_200k` | omnilearned_s | 1001 | 1003 | `lorentznet` |
 | `lorentznet_200k__kd_part_pretrained_t1001__s1003` | `lorentznet_200k` | part_pretrained | 1001 | 1003 | `lorentznet` |
+| `lorentznet_200k__kd_lgatr_slim_ens_t1001__s1003` | `lorentznet_200k` | lgatr_slim_ens | 1001 | 1003 | `lorentznet` |
+| `part_200k__scratch__s1001` | `part_200k` | none |  | 1001 | `part` |
+| `part_200k__kd_part_t1001__s1001` | `part_200k` | part | 1001 | 1001 | `part` |
+| `part_200k__kd_mipart_t1001__s1001` | `part_200k` | mipart | 1001 | 1001 | `part` |
+| `part_200k__kd_lgatr_t1001__s1001` | `part_200k` | lgatr | 1001 | 1001 | `part` |
+| `part_200k__kd_lgatr_slim_t1001__s1001` | `part_200k` | lgatr_slim | 1001 | 1001 | `part` |
+| `part_200k__kd_omnilearned_s_t1001__s1001` | `part_200k` | omnilearned_s | 1001 | 1001 | `part` |
+| `part_200k__kd_part_pretrained_t1001__s1001` | `part_200k` | part_pretrained | 1001 | 1001 | `part` |
+| `part_200k__kd_lgatr_slim_ens_t1001__s1001` | `part_200k` | lgatr_slim_ens | 1001 | 1001 | `part` |
+| `part_200k__scratch__s1002` | `part_200k` | none |  | 1002 | `part` |
+| `part_200k__kd_part_t1002__s1002` | `part_200k` | part | 1002 | 1002 | `part` |
+| `part_200k__kd_mipart_t1001__s1002` | `part_200k` | mipart | 1001 | 1002 | `part` |
+| `part_200k__kd_lgatr_t1002__s1002` | `part_200k` | lgatr | 1002 | 1002 | `part` |
+| `part_200k__kd_lgatr_slim_t1002__s1002` | `part_200k` | lgatr_slim | 1002 | 1002 | `part` |
+| `part_200k__kd_omnilearned_s_t1001__s1002` | `part_200k` | omnilearned_s | 1001 | 1002 | `part` |
+| `part_200k__kd_part_pretrained_t1001__s1002` | `part_200k` | part_pretrained | 1001 | 1002 | `part` |
+| `part_200k__kd_lgatr_slim_ens_t1001__s1002` | `part_200k` | lgatr_slim_ens | 1001 | 1002 | `part` |
+| `part_200k__scratch__s1003` | `part_200k` | none |  | 1003 | `part` |
+| `part_200k__kd_part_t1003__s1003` | `part_200k` | part | 1003 | 1003 | `part` |
+| `part_200k__kd_mipart_t1001__s1003` | `part_200k` | mipart | 1001 | 1003 | `part` |
+| `part_200k__kd_lgatr_t1003__s1003` | `part_200k` | lgatr | 1003 | 1003 | `part` |
+| `part_200k__kd_lgatr_slim_t1003__s1003` | `part_200k` | lgatr_slim | 1003 | 1003 | `part` |
+| `part_200k__kd_omnilearned_s_t1001__s1003` | `part_200k` | omnilearned_s | 1001 | 1003 | `part` |
+| `part_200k__kd_part_pretrained_t1001__s1003` | `part_200k` | part_pretrained | 1001 | 1003 | `part` |
+| `part_200k__kd_lgatr_slim_ens_t1001__s1003` | `part_200k` | lgatr_slim_ens | 1001 | 1003 | `part` |
+| `mipart_200k__scratch__s1001` | `mipart_200k` | none |  | 1001 | `mipart` |
+| `mipart_200k__kd_part_t1001__s1001` | `mipart_200k` | part | 1001 | 1001 | `mipart` |
+| `mipart_200k__kd_mipart_t1001__s1001` | `mipart_200k` | mipart | 1001 | 1001 | `mipart` |
+| `mipart_200k__kd_lgatr_t1001__s1001` | `mipart_200k` | lgatr | 1001 | 1001 | `mipart` |
+| `mipart_200k__kd_lgatr_slim_t1001__s1001` | `mipart_200k` | lgatr_slim | 1001 | 1001 | `mipart` |
+| `mipart_200k__kd_omnilearned_s_t1001__s1001` | `mipart_200k` | omnilearned_s | 1001 | 1001 | `mipart` |
+| `mipart_200k__kd_part_pretrained_t1001__s1001` | `mipart_200k` | part_pretrained | 1001 | 1001 | `mipart` |
+| `mipart_200k__kd_lgatr_slim_ens_t1001__s1001` | `mipart_200k` | lgatr_slim_ens | 1001 | 1001 | `mipart` |
+| `mipart_200k__scratch__s1002` | `mipart_200k` | none |  | 1002 | `mipart` |
+| `mipart_200k__kd_part_t1002__s1002` | `mipart_200k` | part | 1002 | 1002 | `mipart` |
+| `mipart_200k__kd_mipart_t1001__s1002` | `mipart_200k` | mipart | 1001 | 1002 | `mipart` |
+| `mipart_200k__kd_lgatr_t1002__s1002` | `mipart_200k` | lgatr | 1002 | 1002 | `mipart` |
+| `mipart_200k__kd_lgatr_slim_t1002__s1002` | `mipart_200k` | lgatr_slim | 1002 | 1002 | `mipart` |
+| `mipart_200k__kd_omnilearned_s_t1001__s1002` | `mipart_200k` | omnilearned_s | 1001 | 1002 | `mipart` |
+| `mipart_200k__kd_part_pretrained_t1001__s1002` | `mipart_200k` | part_pretrained | 1001 | 1002 | `mipart` |
+| `mipart_200k__kd_lgatr_slim_ens_t1001__s1002` | `mipart_200k` | lgatr_slim_ens | 1001 | 1002 | `mipart` |
+| `mipart_200k__scratch__s1003` | `mipart_200k` | none |  | 1003 | `mipart` |
+| `mipart_200k__kd_part_t1003__s1003` | `mipart_200k` | part | 1003 | 1003 | `mipart` |
+| `mipart_200k__kd_mipart_t1001__s1003` | `mipart_200k` | mipart | 1001 | 1003 | `mipart` |
+| `mipart_200k__kd_lgatr_t1003__s1003` | `mipart_200k` | lgatr | 1003 | 1003 | `mipart` |
+| `mipart_200k__kd_lgatr_slim_t1003__s1003` | `mipart_200k` | lgatr_slim | 1003 | 1003 | `mipart` |
+| `mipart_200k__kd_omnilearned_s_t1001__s1003` | `mipart_200k` | omnilearned_s | 1001 | 1003 | `mipart` |
+| `mipart_200k__kd_part_pretrained_t1001__s1003` | `mipart_200k` | part_pretrained | 1001 | 1003 | `mipart` |
+| `mipart_200k__kd_lgatr_slim_ens_t1001__s1003` | `mipart_200k` | lgatr_slim_ens | 1001 | 1003 | `mipart` |
+| `lgatr_slim_200k__scratch__s1001` | `lgatr_slim_200k` | none |  | 1001 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_part_t1001__s1001` | `lgatr_slim_200k` | part | 1001 | 1001 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_mipart_t1001__s1001` | `lgatr_slim_200k` | mipart | 1001 | 1001 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_lgatr_t1001__s1001` | `lgatr_slim_200k` | lgatr | 1001 | 1001 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_lgatr_slim_t1001__s1001` | `lgatr_slim_200k` | lgatr_slim | 1001 | 1001 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_omnilearned_s_t1001__s1001` | `lgatr_slim_200k` | omnilearned_s | 1001 | 1001 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_part_pretrained_t1001__s1001` | `lgatr_slim_200k` | part_pretrained | 1001 | 1001 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_lgatr_slim_ens_t1001__s1001` | `lgatr_slim_200k` | lgatr_slim_ens | 1001 | 1001 | `lgatr_slim` |
+| `lgatr_slim_200k__scratch__s1002` | `lgatr_slim_200k` | none |  | 1002 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_part_t1002__s1002` | `lgatr_slim_200k` | part | 1002 | 1002 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_mipart_t1001__s1002` | `lgatr_slim_200k` | mipart | 1001 | 1002 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_lgatr_t1002__s1002` | `lgatr_slim_200k` | lgatr | 1002 | 1002 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_lgatr_slim_t1002__s1002` | `lgatr_slim_200k` | lgatr_slim | 1002 | 1002 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_omnilearned_s_t1001__s1002` | `lgatr_slim_200k` | omnilearned_s | 1001 | 1002 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_part_pretrained_t1001__s1002` | `lgatr_slim_200k` | part_pretrained | 1001 | 1002 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_lgatr_slim_ens_t1001__s1002` | `lgatr_slim_200k` | lgatr_slim_ens | 1001 | 1002 | `lgatr_slim` |
+| `lgatr_slim_200k__scratch__s1003` | `lgatr_slim_200k` | none |  | 1003 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_part_t1003__s1003` | `lgatr_slim_200k` | part | 1003 | 1003 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_mipart_t1001__s1003` | `lgatr_slim_200k` | mipart | 1001 | 1003 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_lgatr_t1003__s1003` | `lgatr_slim_200k` | lgatr | 1003 | 1003 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_lgatr_slim_t1003__s1003` | `lgatr_slim_200k` | lgatr_slim | 1003 | 1003 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_omnilearned_s_t1001__s1003` | `lgatr_slim_200k` | omnilearned_s | 1001 | 1003 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_part_pretrained_t1001__s1003` | `lgatr_slim_200k` | part_pretrained | 1001 | 1003 | `lgatr_slim` |
+| `lgatr_slim_200k__kd_lgatr_slim_ens_t1001__s1003` | `lgatr_slim_200k` | lgatr_slim_ens | 1001 | 1003 | `lgatr_slim` |
 | `transformer_deep_200k__scratch__s1001` | `transformer_deep_200k` | none |  | 1001 | `size_200k` |
 | `transformer_deep_200k__kd_lgatr_t1001__s1001` | `transformer_deep_200k` | lgatr | 1001 | 1001 | `size_200k` |
 | `transformer_deep_200k__kd_part_pretrained_t1001__s1001` | `transformer_deep_200k` | part_pretrained | 1001 | 1001 | `size_200k` |

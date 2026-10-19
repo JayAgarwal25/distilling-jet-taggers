@@ -57,10 +57,19 @@ def summarize(runs_dir: str | Path = "runs", teachers_dir: str | Path = "data/te
             cell["gain_seeds"] = len(pairs)
         cells[f"{student}|{teacher or 'scratch'}"] = cell
 
-    teachers = defaultdict(list)
+    paths = defaultdict(list)
     for p in sorted(Path(teachers_dir).glob("*_s*_test.npz")):
-        teacher, seed = p.name.removesuffix("_test.npz").rsplit("_s", 1)
-        teachers[teacher].append({"seed": int(seed), **metrics_of(p)})
-    teachers = {t: {"seeds": [r["seed"] for r in rows], **mean_sd(rows)}
-                for t, rows in teachers.items()}
-    return {"runs": per_run, "cells": cells, "teachers": teachers}
+        paths[p.name.removesuffix("_test.npz").rsplit("_s", 1)[0]].append(p)
+    teachers, ensembles = {}, {}
+    for t, ps in paths.items():
+        rows = [{"seed": int(p.name.removesuffix("_test.npz").rsplit("_s", 1)[1]), **metrics_of(p)} for p in ps]
+        teachers[t] = {"seeds": [r["seed"] for r in rows], **mean_sd(rows)}
+        if len(ps) > 1:   # the ensemble of all runs: their mean logit
+            zs, y = [], None
+            for p in ps:
+                with np.load(p) as f:
+                    zs.append(f["logits"].astype(np.float64))
+                    y = f["labels"]
+            m = binary_metrics(np.mean(zs, axis=0), y)
+            ensembles[t] = {k: m[k] for k in METRICS}
+    return {"runs": per_run, "cells": cells, "teachers": teachers, "teacher_ensembles": ensembles}

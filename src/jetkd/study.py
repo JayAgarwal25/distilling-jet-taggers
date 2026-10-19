@@ -18,9 +18,11 @@ TEACHERS = ("part", "mipart", "lgatr", "lgatr_slim", "omnilearned_s", "part_pret
 PAIRED_TEACHERS = ("part", "lgatr", "lgatr_slim")   # teacher seed = student seed; others 1001
 SCALING_TEACHERS = ("lgatr", "part_pretrained", "omnilearned_s")
 TRAINED_TEACHERS = ("part", "mipart", "lgatr", "lgatr_slim")   # trained with jetkd's trainer
+ENSEMBLE = "lgatr_slim_ens"   # the mean logit of the three lgatr_slim runs (jetkd.teachers.ENSEMBLES)
 
+# in the paper's order: increasing AUC without a teacher
 MATRIX_STUDENTS = (
-    "transformer_200k", "part_200k", "mipart_200k", "lgatr_slim_200k", "lorentznet_200k",
+    "transformer_200k", "lorentznet_200k", "part_200k", "mipart_200k", "lgatr_slim_200k",
 )
 WIDTH_STUDENTS = tuple(f"{f}_deep_{s}" for f in ("transformer", "lgatr_slim")
                        for s in ("200k", "20k", "2k"))
@@ -54,36 +56,31 @@ def paper_runs() -> list[Run]:
         ts = (seed if teacher in PAIRED_TEACHERS else 1001) if teacher else None
         tables.setdefault((student, teacher, ts, seed), set()).update(names)
 
-    matrix = {"matrix_auc", "matrix_rej", "gains", "complete"}
+    def cost(teacher):   # Table 6 is the ParT-f.t. arm, the appendix has one table per other arm
+        return {"cost" if teacher == "part_pretrained" else f"cost_{teacher or 'scratch'}"}
+
     for st in MATRIX_STUDENTS:
         for seed in SEEDS:
-            use(st, seed, None, matrix | {"students", "cost_provisional"})
+            use(st, seed, None, {"students", "matrix_auc", "matrix_rej"} | cost(None))
             for t in TEACHERS:
-                extra = set()
-                if t == "part_pretrained":
-                    extra = {"cost_provisional"}
-                    if st in ("transformer_200k", "lgatr_slim_200k"):
-                        extra.add("operations")
-                use(st, seed, t, matrix | extra)
+                ens = {"ens_students"} if t in ("lgatr_slim", "omnilearned_s") else set()
+                use(st, seed, t, {"matrix_auc", "matrix_rej"} | cost(t) | ens)
+            use(st, seed, ENSEMBLE, {"ens_students"})
 
     for st in WIDTH_STUDENTS:
         for seed in SEEDS:
-            use(st, seed, None, {"size_full", "size", "cost_provisional"})
-            for t in SCALING_TEACHERS:
-                extra = {"size", "cost_provisional", "operations"} if t == "part_pretrained" else set()
-                use(st, seed, t, {"size_full"} | extra)
+            for t in (None, *SCALING_TEACHERS):
+                use(st, seed, t, {"size_short" if t in (None, "part_pretrained") else "size_other"} | cost(t))
 
     for t in TRAINED_TEACHERS:
         for seed in SEEDS:
-            use(t, seed, None, {"teachers"})
+            use(t, seed, None, {"teachers", "teacher_ensembles", "cost", f"cost_{t}"})
 
     for base, (depths, own) in DEPTHS.items():
-        table = "depth_transformer" if base == "transformer_200k" else "depth_slim"
         for n in depths:
             st = base if n == own else f"{base}_L{n}"
-            use(st, 1001, None, {table, "depth"})
-            for t in SCALING_TEACHERS:
-                use(st, 1001, t, {table, "depth"} if t == "part_pretrained" else {table})
+            for t in (None, *SCALING_TEACHERS):
+                use(st, 1001, t, {"depth_main" if t in (None, "part_pretrained") else "depth_other"})
 
     return [Run(st, t, ts, seed, recipe_for(st).name, tuple(sorted(names)))
             for (st, t, ts, seed), names in tables.items()]

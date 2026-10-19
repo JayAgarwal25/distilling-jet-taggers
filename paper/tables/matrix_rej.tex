@@ -3,25 +3,25 @@
 \begin{tabular}{lrrrrr}
 \toprule
 & \multicolumn{5}{c}{Student} \\ \cmidrule(lr){2-6}
-Teacher & Transformer & ParT & MIParT & L-GATr-slim\eqv & LorentzNet\eqv \\
+Teacher & Transformer & LorentzNet\eqv{} & ParT & MIParT & L-GATr-slim\eqv{} \\
 \midrule
 \multicolumn{6}{l}{\textit{$1/\epsilon_B$ at $\epsilon_S=0.5$}} \\
-No teacher & 394\std{5} & 384\std{7} & 410\std{5} & 425\std{20} & 413\std{16} \\
-ParT & 441\std{20} & 423\std{12} & 441\std{12} & 458\std{12} & 446\std{25} \\
-MIParT & 482\std{9} & 448\std{10} & 474\std{10} & 487\std{9} & 488\std{2} \\
-L-GATr\eqv & 537\std{14} & 512\std{8} & 522\std{9} & 533\std{24} & 528\std{10} \\
-L-GATr-slim\eqv & 546\std{10} & 513\std{11} & 535\std{20} & 542\std{21} & 539\std{6} \\
-OmniLearned-S & 512\std{13} & 481\std{14} & 507\std{4} & 509\std{9} & 511\std{15} \\
-ParT (pretrained) & \textbf{605}\std{35} & \textbf{525}\std{21} & \textbf{558}\std{19} & \textbf{568}\std{8} & \textbf{586}\std{5} \\
+No teacher & 393\std{5} & 413\std{16} & 384\std{7} & 410\std{5} & 425\std{20} \\
+ParT & 441\std{20} & 446\std{25} & 423\std{12} & 441\std{12} & 458\std{12} \\
+MIParT & 482\std{9} & 488\std{2} & 448\std{10} & 474\std{11} & 487\std{9} \\
+L-GATr\eqv{} & 537\std{14} & 527\std{9} & 512\std{8} & 523\std{9} & 533\std{24} \\
+L-GATr-slim\eqv{} & 546\std{10} & 539\std{6} & 513\std{11} & 535\std{20} & 542\std{21} \\
+OmniLearned-S\pre{} & 565\std{6} & 536\std{12} & 501\std{6} & \textbf{561}\std{9} & 558\std{18} \\
+ParT-f.t.\pre{} & \textbf{604}\std{35} & \textbf{586}\std{5} & \textbf{525}\std{21} & 558\std{19} & \textbf{568}\std{8} \\
 \midrule
 \multicolumn{6}{l}{\textit{$1/\epsilon_B$ at $\epsilon_S=0.3$}} \\
-No teacher & 1{,}615\std{126} & 1{,}603\std{76} & 1{,}767\std{83} & 1{,}704\std{80} & 1{,}717\std{87} \\
-ParT & 1{,}826\std{143} & 1{,}733\std{69} & 1{,}857\std{73} & 1{,}937\std{72} & 1{,}896\std{95} \\
-MIParT & 1{,}839\std{100} & 1{,}660\std{48} & 1{,}721\std{117} & 1{,}985\std{87} & 1{,}758\std{71} \\
-L-GATr\eqv & 2{,}294\std{166} & 2{,}141\std{26} & 2{,}173\std{79} & 2{,}181\std{77} & 2{,}252\std{29} \\
-L-GATr-slim\eqv & 2{,}369\std{108} & \textbf{2{,}171}\std{116} & 2{,}245\std{144} & 2{,}274\std{141} & 2{,}262\std{39} \\
-OmniLearned-S & 2{,}167\std{78} & 2{,}019\std{137} & 2{,}092\std{98} & 2{,}266\std{224} & 2{,}286\std{30} \\
-ParT (pretrained) & \textbf{2{,}496}\std{70} & 2{,}157\std{104} & \textbf{2{,}399}\std{176} & \textbf{2{,}672}\std{233} & \textbf{2{,}405}\std{77} \\
+No teacher & 1{,}612\std{121} & 1{,}714\std{83} & 1{,}603\std{76} & 1{,}767\std{83} & 1{,}704\std{80} \\
+ParT & 1{,}826\std{143} & 1{,}897\std{96} & 1{,}733\std{69} & 1{,}857\std{73} & 1{,}937\std{72} \\
+MIParT & 1{,}834\std{95} & 1{,}758\std{71} & 1{,}660\std{48} & 1{,}721\std{117} & 1{,}985\std{87} \\
+L-GATr\eqv{} & 2{,}294\std{166} & 2{,}260\std{37} & 2{,}141\std{26} & 2{,}173\std{79} & 2{,}181\std{77} \\
+L-GATr-slim\eqv{} & 2{,}374\std{103} & 2{,}261\std{38} & \textbf{2{,}171}\std{116} & 2{,}242\std{149} & 2{,}274\std{141} \\
+OmniLearned-S\pre{} & 2{,}325\std{121} & \textbf{2{,}483}\std{120} & 2{,}045\std{121} & 2{,}318\std{88} & 2{,}345\std{177} \\
+ParT-f.t.\pre{} & \textbf{2{,}493}\std{78} & 2{,}405\std{77} & 2{,}157\std{104} & \textbf{2{,}393}\std{172} & \textbf{2{,}672}\std{233} \\
 \bottomrule
 \end{tabular}
 }

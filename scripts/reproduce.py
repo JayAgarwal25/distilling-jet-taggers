@@ -19,19 +19,17 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from count_flops import MODELS as COUNTED
-from count_flops import count_all
-from make_tables import NEEDS_FLOPS, TABLES, Results
+from make_tables import TABLES, Results
 
 from jetkd.data import TopTaggingSplit
 from jetkd.models import build
 from jetkd.recipes import recipe_for
 from jetkd.study import SEEDS, TEACHERS, TRAINED_TEACHERS, paper_runs
 from jetkd.summary import summarize
-from jetkd.teachers import logits_path, model_logits, save_logits
+from jetkd.teachers import ENSEMBLES, logits_path, model_logits, save_logits
 
 # tables that print teacher metrics, from all three runs of every teacher
-WITH_TEACHERS = ("teachers", "matrix_auc", "operations")
+WITH_TEACHERS = ("teachers", "teacher_ensembles")
 
 
 def table_runs(table: str):
@@ -46,9 +44,14 @@ def teachers_needed(table: str) -> list[tuple[str, int]]:
 
 def jobs(table: str) -> list[str]:
     distilled_from = {(r.teacher, r.teacher_seed) for r in paper_runs() if r.teacher}
+    distilled_from |= {(m, s) for t in ENSEMBLES for m, seeds in [ENSEMBLES[t]] for s in seeds}
+    needed = set(teachers_needed(table))
+    needed |= {(m, s) for t, _ in needed if t in ENSEMBLES for m, seeds in [ENSEMBLES[t]] for s in seeds}
     lines = []
-    for t, s in teachers_needed(table):
-        if t in TRAINED_TEACHERS:
+    for t, s in sorted(needed, key=lambda ts: (ts[0] in ENSEMBLES, ts)):   # ensembles after their members
+        if t in ENSEMBLES:
+            lines.append(f"python scripts/teacher_logits.py --model {t} --seed {s}")
+        elif t in TRAINED_TEACHERS:
             splits = "" if (t, s) in distilled_from else " --splits test"   # teacher table only
             lines += [f"python scripts/train.py --run {t}__scratch__s{s}",
                       f"python scripts/teacher_logits.py --model {t} --seed {s} "
@@ -94,15 +97,9 @@ def rebuild(table: str, args) -> str:
         save_logits(path, z, y)
         print(f"{t} run {s}: done", flush=True)
 
-    flops = None
-    if table in NEEDS_FLOPS:
-        path = out / "flops.json"
-        if not path.is_file():
-            path.write_text(json.dumps(count_all(COUNTED, args.data), indent=1))
-        flops = json.loads(path.read_text())
     summary = summarize(runs_out, teachers_out, table_runs(table))
     (out / f"summary_{table}.json").write_text(json.dumps(summary, indent=1))
-    return TABLES[table](Results(summary, flops))
+    return TABLES[table](Results(summary))
 
 
 def body(tex: str) -> list[str]:
