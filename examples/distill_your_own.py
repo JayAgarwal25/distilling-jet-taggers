@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Distill your own teacher into your own student.
+"""Distil your own teacher into your own student.
 
 First save your teacher's logits for each split as .npz with keys `logits` and `labels`,
 in the row order of data/toptagging_full.npz, and import them (the import checks the rows):

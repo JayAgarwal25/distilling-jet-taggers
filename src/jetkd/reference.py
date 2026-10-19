@@ -1,7 +1,7 @@
 """Reference files: every model, recipe and run of the paper with its exact settings.
 
 `python -m jetkd.reference` writes configs/models.yaml, configs/recipes.yaml and
-docs/RUNS.md; with `--summary results/summary.json` the runs also get their test metrics.
+configs/RUNS.md; with `--summary results/summary.json` the runs also get their test metrics.
 """
 
 from __future__ import annotations
@@ -83,7 +83,7 @@ def runs_md(summary: dict | None = None) -> str:
 
 def files(summary: dict | None = None) -> dict[str, str]:
     return {"configs/models.yaml": models_yaml(), "configs/recipes.yaml": recipes_yaml(),
-            "docs/RUNS.md": runs_md(summary)}
+            "configs/RUNS.md": runs_md(summary)}
 
 
 if __name__ == "__main__":

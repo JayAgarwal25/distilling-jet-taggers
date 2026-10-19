@@ -8,7 +8,7 @@ Every model runs in every setting of `jetkd.benchmark.settings`, on test jets an
 50-particle jets, three times, each in a fresh process; repeats alternate the order. Measurements
 go to results/benchmark/<device>/, a finished one is skipped, and results/benchmark.json collects
 them for scripts/make_tables.py and scripts/make_figures.py. Timings depend on the hardware; orderings
-and rough ratios carry over to other machines. The paper's own measurements are in paper/benchmark.json.
+and rough ratios carry over to other machines. The paper's own measurements are in configs/benchmark.json.
 """
 
 import argparse

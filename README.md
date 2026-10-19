@@ -1,13 +1,21 @@
-# How Far Can Foundation Models Be Distilled for Efficient Jet Tagging?
+<div align="center">
 
-Code and run definitions for the paper by Jay Agarwal, Siddharth Khare and Dhruv Kumar.
-We distill large top taggers (L-GATr, L-GATr-slim, ParT, MIParT, pretrained ParT and
-OmniLearned-S) into students of about 200k parameters (Transformer, ParT, MIParT,
-L-GATr-slim and LorentzNet). We study how distillation depends on student width and depth, what
-the students take from their teachers, and what the students cost at inference.
+## How Far Can Foundation Models Be Distilled for Efficient Jet Tagging?
 
-The package is `jetkd`. It trains every model in the paper, from scratch or distilled from a
-teacher's logits, and it can distill any teacher you provide.
+[![pytorch](https://img.shields.io/badge/PyTorch_2.4+-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
+[![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
+</div>
+
+This repository contains the code for the paper *How Far Can Foundation Models Be Distilled for
+Efficient Jet Tagging?* by Jay Agarwal, Siddharth Khare and Dhruv Kumar. The package `jetkd` trains
+every model of the paper on the top tagging dataset, from scratch or distilled from a teacher's
+logits, and distils any teacher you provide into any of its students. We release the weights of all
+trained models and the logits of all teachers.
+
+How to reproduce every table and figure of the paper, from the released weights or by retraining,
+and how to time the models on your own hardware is explained in [REPRODUCE.md](REPRODUCE.md).
+If you work on the code with a coding agent, [AGENTS.md](AGENTS.md) gives it the layout, commands and rules.
 
 ## Install
 
@@ -41,7 +49,7 @@ python scripts/train.py --run part_200k__kd_lgatr_t1002__s1002
 A distilled run reads the teacher's logits from `data/teachers/`. Each model trains under the
 recipe its family was published with ([`jetkd/recipes.py`](src/jetkd/recipes.py)). The run
 writes its checkpoints, history, validation and test predictions and metrics to `runs/<id>/`.
-[`docs/RUNS.md`](docs/RUNS.md) lists every model with its exact settings and parameter count,
+[`configs/RUNS.md`](configs/RUNS.md) lists every model with its exact settings and parameter count,
 every recipe and every run.
 
 ## Distilling your own teacher
@@ -54,16 +62,15 @@ python scripts/import_logits.py --name my_teacher --format logits --file my_logi
 python scripts/train.py --model lgatr_slim_200k --teacher my_teacher --teacher-seed 1001
 ```
 
-The import checks that every row matches the dataset. [`teachers/`](teachers/) shows how our
-six teachers were trained, including the commands and patches for pretrained ParT and
-OmniLearned-S.
+The import checks that every row matches the dataset. [REPRODUCE.md](REPRODUCE.md#pretrained-part-and-omnilearned-s)
+shows how we did this for pretrained ParT and OmniLearned-S.
 
 ## Reproducing the paper
 
 [`REPRODUCE.md`](REPRODUCE.md) gives the commands behind every table and figure: retraining every
 model, evaluating the released checkpoints and timing the models on your own hardware.
 
-## Credits
+## Acknowledgements
 
 This work builds on public code. The networks of [lloca](https://github.com/heidelberg-hepml/lloca)
 (Transformer) and [lgatr](https://github.com/heidelberg-hepml/lgatr) (L-GATr, L-GATr-slim) are
@@ -87,6 +94,8 @@ which we use only to count operations and time them. We thank their authors.
 
 ## Citation
 
+If you find this code useful in your research, please cite our paper
+
 ```bibtex
 @article{agarwal2026distilling,
   title  = {How Far Can Foundation Models Be Distilled for Efficient Jet Tagging?},
@@ -94,7 +103,3 @@ which we use only to count operations and time them. We thank their authors.
   year   = {2026},
 }
 ```
-
-## License
-
-MIT, see [LICENSE](LICENSE).

@@ -7,8 +7,8 @@
   reference files (`reference.py`).
 - `scripts/`: command-line entry points (`get_data`, `get_checkpoints`, `train`, `teacher_logits`,
   `import_logits`, `summarize`, `make_tables`, `make_figures`, `reproduce`, `count_flops`,
-  `benchmark`). `paper/`: the paper's tables and our timing record, for comparison.
-- `configs/`, `docs/RUNS.md`: generated, see below. `teachers/`: how the teachers were trained.
+  `benchmark`).
+- `configs/`: generated, see below; `configs/benchmark.json` is our timing record.
 
 ## Commands
 
@@ -30,7 +30,7 @@ python scripts/train.py --run transformer_200k_L1__scratch__s1001 --device cpu -
 ## Rules
 
 - `configs/runs.yaml` is written by `python -m jetkd.study`; `configs/models.yaml`,
-  `configs/recipes.yaml` and `docs/RUNS.md` by `python -m jetkd.reference`. Never edit them by hand.
+  `configs/recipes.yaml` and `configs/RUNS.md` by `python -m jetkd.reference`. Never edit them by hand.
 - A run id fixes the model, teacher, teacher seed and seed; the recipe follows from the model.
 - Released checkpoints load with `strict=True`, so module and parameter names in
   `jetkd/models/` must not change. `tests/test_models.py` pins every parameter count.

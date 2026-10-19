@@ -33,5 +33,5 @@ def test_reference_files_are_current():
 
     root = RUNS_YAML.parents[1]
     for path, text in files().items():
-        if path != "docs/RUNS.md" or "| AUC |" not in (root / path).read_text():
+        if path != "configs/RUNS.md" or "| AUC |" not in (root / path).read_text():
             assert (root / path).read_text() == text, path

@@ -8,8 +8,9 @@
 The first form lists the commands that train the table's teachers, write their logits and
 train its students. The second evaluates each model's `runs/<id>/best.pt` on the test set
 (the released checkpoints, or your own after retraining), builds the table from these
-predictions and compares it with the paper's table in paper/tables/. Released checkpoints
-on a GPU give the paper's digits; retrained models agree within the seed spread.
+predictions and, given the tables/ folder of the paper's arXiv source (--paper), compares
+it with the paper's table. Released checkpoints on a GPU give the paper's digits; retrained
+models agree within the seed spread.
 Pretrained ParT and OmniLearned-S enter through their test logits in data/teachers/.
 """
 
@@ -63,7 +64,7 @@ def jobs(table: str) -> list[str]:
                       f"python scripts/teacher_logits.py --model {t} --seed {s} "
                       f"--checkpoint runs/{t}__scratch__s{s}/best.pt{splits}"]
         else:
-            lines.append(f"# {t} run {s}: train it and import its logits as in teachers/README.md")
+            lines.append(f"# {t} run {s}: train it and import its logits as in REPRODUCE.md")
     lines += [f"python scripts/train.py --run {r.id}" for r in table_runs(table) if r.student not in TEACHERS]
     return lines + [f"python scripts/reproduce.py {table}"]
 
@@ -123,6 +124,9 @@ def compare(table: str, tex: str, args) -> bool:
     path = Path(args.out) / "tables" / f"{table}.tex"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(tex)
+    if not args.paper:
+        print(path)
+        return True
     diff = list(difflib.unified_diff(body((Path(args.paper) / f"{table}.tex").read_text()),
                                      body(tex), "paper", "reproduced", lineterm=""))
     print("\n".join(diff) if diff else f"{path}: identical to the paper's table")
@@ -140,10 +144,10 @@ def main() -> None:
     ap.add_argument("--runs", default="runs", help="run directories with best.pt")
     ap.add_argument("--teachers", default="data/teachers", help="released teacher logits")
     ap.add_argument("--data", default="data/toptagging_full.npz")
-    ap.add_argument("--paper", default="paper/tables", help="the paper's tables")
+    ap.add_argument("--paper", help="the tables/ folder of the paper's arXiv source, to compare with")
     ap.add_argument("--benchmark", default="results/benchmark.json",
                     help="timings for the cost tables: yours from scripts/benchmark.py, or ours, "
-                         "paper/benchmark.json")
+                         "configs/benchmark.json")
     ap.add_argument("--out", default="reproduced")
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--batch-size", type=int,
