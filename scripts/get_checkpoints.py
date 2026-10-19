@@ -30,14 +30,16 @@ def sha256(path: Path) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    ap.add_argument("archives", nargs="*", choices=ARCHIVES, default=list(ARCHIVES))
+    ap.add_argument("archives", nargs="*", help=f"any of {', '.join(ARCHIVES)}; all by default")
     ap.add_argument("--url", default=URL)
     ap.add_argument("--out", default=".")
     ap.add_argument("--keep", action="store_true", help="keep the downloaded .tar files")
     args = ap.parse_args()
+    if set(args.archives) - set(ARCHIVES):
+        ap.error(f"archives are {', '.join(ARCHIVES)}")
 
     sums = dict(line.split()[::-1] for line in SUMS.read_text().splitlines() if line.strip())
-    for name in args.archives:
+    for name in args.archives or ARCHIVES:
         tar = Path(args.out) / f"{name}.tar"
         if not tar.is_file():
             print(f"downloading {tar.name}", flush=True)
