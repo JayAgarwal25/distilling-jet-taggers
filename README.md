@@ -2,9 +2,6 @@
 
 ## How Far Can Foundation Models Be Distilled for Efficient Jet Tagging?
 
-[![pytorch](https://img.shields.io/badge/PyTorch_2.4+-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
-[![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-
 </div>
 
 This repository contains the code for the paper *How Far Can Foundation Models Be Distilled for
