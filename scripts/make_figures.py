@@ -402,7 +402,7 @@ def analysis_distinctive(r: Results, a: dict, out: Path) -> list[Path]:
             ax.plot([min(means.values()), max(means.values())], [row, row], color="#d0d0d0", lw=1.0, zorder=1)
             for k, _, st in styles:   # no teacher underneath, so an equal value stays visible
                 ax.plot(means[k], row, marker="o", ms=6, lw=0, zorder=2 if k == "scratch" else 3, **st)
-        ax.set_yticks(range(len(order)), [NAMES[t].rstrip("*†") for t in order[::-1]], fontsize=8)
+        ax.set_yticks(range(len(order)), [NAMES[t] for t in order[::-1]], fontsize=8)
         ax.set_xlim(0, 70)
         ax.set_title(rf"$\epsilon_S={int(e) / 100}$", fontsize=9.5)
         ax.set_xlabel("Teacher's mistakes repeated (%)")
@@ -432,7 +432,7 @@ def analysis_accepted(r: Results, a: dict, out: Path) -> list[Path]:
         ax.spines[["top", "right"]].set_visible(False)
         ax.grid(True, color="#e4e4e4", lw=0.6)
         ax.set_axisbelow(True)
-        ax.set_xticks(range(len(order)), [NAMES[t].rstrip("*†") for t in order], rotation=55, ha="right",
+        ax.set_xticks(range(len(order)), [NAMES[t] for t in order], rotation=55, ha="right",
                       rotation_mode="anchor", fontsize=8)
     axes[0].set_ylim(bottom=0)
     axes[0].set_ylabel("Background jets accepted")
@@ -520,12 +520,10 @@ def cost_params(r: Results, a: dict, out: Path) -> list[Path]:
 
 
 def cost_perf(r: Results, a: dict, out: Path) -> list[Path]:
-    """Rejection at eps_S = 0.5 (left) and 0.3 (right) against GPU time per jet, CPU latency and
-    operations per jet: students distilled from ParT-f.t. filled, teacher models hollow (ParT-f.t. a
-    star), a faint dotted line through the width-study students of each architecture."""
+    """Rejection at eps_S = 0.5 (left) and 0.3 (right) against (a) GPU time per jet, (b) GPU peak memory,
+    (c) CPU latency and (d) operations per jet: students distilled from ParT-f.t. filled, teacher models
+    hollow (ParT-f.t. a star)."""
     pts = cost_points(r)
-    chains = [["transformer_deep_20k", "transformer_deep_200k", "transformer_200k"],
-              ["lgatr_slim_deep_2k", "lgatr_slim_deep_20k", "lgatr_slim_deep_200k"]]
     marks = []   # (model, role, cell, colour, marker)
     for names, _, color, marker in COST_FAMILIES:
         for m in names:
@@ -546,18 +544,15 @@ def cost_perf(r: Results, a: dict, out: Path) -> list[Path]:
         return dict(color=color, marker=mk, ms=4.5, mec=color, mew=0.6)
 
     plt.rcParams.update({"font.size": 9.5, "axes.labelsize": 10, "legend.fontsize": 8})
-    fig, axes = plt.subplots(3, 2, figsize=(5.6, 6.2), sharex="row", sharey="col")
+    fig, axes = plt.subplots(4, 2, figsize=(5.6, 8.1), sharex="row", sharey="col")
     allpts, sizes = {}, {}
     panels = [("gpu", r"GPU time per jet ($\mu$s)", lambda v: 1e6 / v, [10, 20, 50, 100, 200]),
+              ("mem", "GPU peak memory (MB)", lambda v: v, None),
               ("cpu", "CPU latency (ms per jet)", lambda v: v, [2, 5, 10, 20, 50]),
               ("flops", "Operations per jet (FLOP)", lambda v: v, None)]
     for row, (key, xlabel, f, ticks) in enumerate(panels):
         for col, (metric, eps) in enumerate((("rej50", "0.5"), ("rej30", "0.3"))):
             ax = axes[row, col]
-            for chain in chains:
-                xy = sorted((f(pts[m][key]), cell[metric]) for m, _, cell, _, _ in marks if m in chain)
-                color = [c for m, _, _, c, _ in marks if m == chain[0]][0]
-                ax.plot(*zip(*xy, strict=True), color=color, lw=0.9, ls=(0, (1, 2)), alpha=0.6, zorder=1)
             for m, role, cell, color, mk in marks:
                 if pts[m][key] is None:
                     continue
@@ -594,7 +589,7 @@ def cost_perf(r: Results, a: dict, out: Path) -> list[Path]:
            Line2D([], [], lw=0, label="teacher models", **look("teacher", "#0b0b0b", "o"))]
     fig.legend(handles=key, loc="upper center", ncol=2, frameon=False, fontsize=8, handlelength=1.2,
                columnspacing=2.0, bbox_to_anchor=(0.5, 1.0 - 0.40 / fig.get_figheight()))
-    fig.tight_layout(rect=(0, 0, 1, 0.905), h_pad=0.6, w_pad=0.8)
+    fig.tight_layout(rect=(0, 0, 1, 1 - 0.59 / fig.get_figheight()), h_pad=0.6, w_pad=0.8)
     fig.canvas.draw()   # one x label per row, centred under both panels
     inv = fig.transFigure.inverted()
     for row, (_, xlabel, *_) in enumerate(panels):
@@ -602,7 +597,7 @@ def cost_perf(r: Results, a: dict, out: Path) -> list[Path]:
         for ax in axes[row]:
             ax.xaxis.label.set_visible(False)
         x = (axes[row, 0].get_position().x0 + axes[row, 1].get_position().x1) / 2
-        fig.text(x, y, xlabel, ha="center", va="center", fontsize=10)
+        fig.text(x, y, f"({'abcd'[row]}) {xlabel}", ha="center", va="center", fontsize=10)
     rend = fig.canvas.get_renderer()
     pad = 3.2 * fig.dpi / 72
     for ax, items in sizes.items():   # each size next to its own point, at the first free spot

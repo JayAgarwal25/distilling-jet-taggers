@@ -340,12 +340,12 @@ def architectures() -> str:
                 "part_pretrained"),
             r"\midrule", r"\multicolumn{6}{l}{\textit{Students}}",
             transformer("transformer_200k"),
+            row(name("lorentznet_200k"), a("lorentznet_200k")["n_hidden"], "--", a("lorentznet_200k")["n_layers"],
+                "mean", "lorentznet_200k"),
             row("ParT", a("part_200k")["d_model"], a("part_200k")["num_heads"], a("part_200k")["num_blocks"],
                 "mean", "part_200k"),
             mipart("mipart_200k"),
             slim("lgatr_slim_200k"),
-            row(name("lorentznet_200k"), a("lorentznet_200k")["n_hidden"], "--", a("lorentznet_200k")["n_layers"],
-                "mean", "lorentznet_200k"),
             r"\midrule", r"\multicolumn{6}{l}{\textit{Width study}}"]
     rows += [transformer(m) for m in width_models("transformer")]
     rows += [slim(m) for m in width_models("lgatr_slim")]

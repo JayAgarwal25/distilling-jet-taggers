@@ -48,7 +48,7 @@ python scripts/get_checkpoints.py   # runs/, data/teachers/ and data/external_te
 The cost tables also need timings (section 3).
 
 `python scripts/reproduce.py all` evaluates every model once, rebuilds all of these tables and
-writes every figure of Sections 4 to 6 and Appendices C to E to `reproduced/figures/`.
+writes every figure of Sections 4 to 7 and Appendices D to F to `reproduced/figures/`.
 `scripts/summarize.py` writes the summary and the analyses of Section 6 (`jetkd/analysis.py`) as
 JSON, and `scripts/make_figures.py` draws the figures from them.
 
