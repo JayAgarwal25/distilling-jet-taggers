@@ -119,7 +119,7 @@ python scripts/import_logits.py --name omnilearned_s --seed 1001 --format omnile
 With the released checkpoints in `runs/`, the same command evaluates our models:
 
 ```bash
-python scripts/reproduce.py matrix_auc
+python scripts/reproduce.py matrix_auc --paper SOURCE/tables
 ```
 
 On a GPU this prints that the table is identical to the paper's. On a CPU pass
