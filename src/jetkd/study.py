@@ -56,12 +56,13 @@ def paper_runs() -> list[Run]:
         ts = (seed if teacher in PAIRED_TEACHERS else 1001) if teacher else None
         tables.setdefault((student, teacher, ts, seed), set()).update(names)
 
-    def cost(teacher):   # Table 6 is the ParT-f.t. arm, the appendix has one table per other arm
+    def cost(teacher):   # Table 5 is the ParT-f.t. arm, the appendix has one table per other arm
         return {"cost" if teacher == "part_pretrained" else f"cost_{teacher or 'scratch'}"}
 
     for st in MATRIX_STUDENTS:
         for seed in SEEDS:
-            use(st, seed, None, {"students", "matrix_auc", "matrix_rej", "accepted"} | cost(None))
+            own = {"published"} if st == "lorentznet_200k" else set()
+            use(st, seed, None, {"students", "matrix_auc", "matrix_rej", "accepted"} | cost(None) | own)
             for t in TEACHERS:
                 ens = {"ens_students"} if t in ("lgatr_slim", "omnilearned_s") else set()
                 use(st, seed, t, {"matrix_auc", "matrix_rej", "accepted"} | cost(t) | ens)
@@ -74,7 +75,7 @@ def paper_runs() -> list[Run]:
 
     for t in TRAINED_TEACHERS:
         for seed in SEEDS:
-            use(t, seed, None, {"teachers", "teacher_ensembles", "cost", f"cost_{t}"})
+            use(t, seed, None, {"teachers", "published", "teacher_ensembles", "cost", f"cost_{t}"})
 
     for base, (depths, own) in DEPTHS.items():
         for n in depths:

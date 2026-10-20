@@ -174,7 +174,7 @@ runs:
   teacher_seed: null
   seed: 1001
   recipe: lorentznet
-  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, published, students]
 - id: lorentznet_200k__kd_part_t1001__s1001
   student: lorentznet_200k
   teacher: part
@@ -230,7 +230,7 @@ runs:
   teacher_seed: null
   seed: 1002
   recipe: lorentznet
-  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, published, students]
 - id: lorentznet_200k__kd_part_t1002__s1002
   student: lorentznet_200k
   teacher: part
@@ -286,7 +286,7 @@ runs:
   teacher_seed: null
   seed: 1003
   recipe: lorentznet
-  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, students]
+  tables: [accepted, cost_scratch, matrix_auc, matrix_rej, published, students]
 - id: lorentznet_200k__kd_part_t1003__s1003
   student: lorentznet_200k
   teacher: part
@@ -1350,84 +1350,84 @@ runs:
   teacher_seed: null
   seed: 1001
   recipe: part
-  tables: [cost, cost_part, teacher_ensembles, teachers]
+  tables: [cost, cost_part, published, teacher_ensembles, teachers]
 - id: part__scratch__s1002
   student: part
   teacher: null
   teacher_seed: null
   seed: 1002
   recipe: part
-  tables: [cost, cost_part, teacher_ensembles, teachers]
+  tables: [cost, cost_part, published, teacher_ensembles, teachers]
 - id: part__scratch__s1003
   student: part
   teacher: null
   teacher_seed: null
   seed: 1003
   recipe: part
-  tables: [cost, cost_part, teacher_ensembles, teachers]
+  tables: [cost, cost_part, published, teacher_ensembles, teachers]
 - id: mipart__scratch__s1001
   student: mipart
   teacher: null
   teacher_seed: null
   seed: 1001
   recipe: mipart
-  tables: [cost, cost_mipart, teacher_ensembles, teachers]
+  tables: [cost, cost_mipart, published, teacher_ensembles, teachers]
 - id: mipart__scratch__s1002
   student: mipart
   teacher: null
   teacher_seed: null
   seed: 1002
   recipe: mipart
-  tables: [cost, cost_mipart, teacher_ensembles, teachers]
+  tables: [cost, cost_mipart, published, teacher_ensembles, teachers]
 - id: mipart__scratch__s1003
   student: mipart
   teacher: null
   teacher_seed: null
   seed: 1003
   recipe: mipart
-  tables: [cost, cost_mipart, teacher_ensembles, teachers]
+  tables: [cost, cost_mipart, published, teacher_ensembles, teachers]
 - id: lgatr__scratch__s1001
   student: lgatr
   teacher: null
   teacher_seed: null
   seed: 1001
   recipe: lgatr
-  tables: [cost, cost_lgatr, teacher_ensembles, teachers]
+  tables: [cost, cost_lgatr, published, teacher_ensembles, teachers]
 - id: lgatr__scratch__s1002
   student: lgatr
   teacher: null
   teacher_seed: null
   seed: 1002
   recipe: lgatr
-  tables: [cost, cost_lgatr, teacher_ensembles, teachers]
+  tables: [cost, cost_lgatr, published, teacher_ensembles, teachers]
 - id: lgatr__scratch__s1003
   student: lgatr
   teacher: null
   teacher_seed: null
   seed: 1003
   recipe: lgatr
-  tables: [cost, cost_lgatr, teacher_ensembles, teachers]
+  tables: [cost, cost_lgatr, published, teacher_ensembles, teachers]
 - id: lgatr_slim__scratch__s1001
   student: lgatr_slim
   teacher: null
   teacher_seed: null
   seed: 1001
   recipe: lgatr_slim
-  tables: [cost, cost_lgatr_slim, teacher_ensembles, teachers]
+  tables: [cost, cost_lgatr_slim, published, teacher_ensembles, teachers]
 - id: lgatr_slim__scratch__s1002
   student: lgatr_slim
   teacher: null
   teacher_seed: null
   seed: 1002
   recipe: lgatr_slim
-  tables: [cost, cost_lgatr_slim, teacher_ensembles, teachers]
+  tables: [cost, cost_lgatr_slim, published, teacher_ensembles, teachers]
 - id: lgatr_slim__scratch__s1003
   student: lgatr_slim
   teacher: null
   teacher_seed: null
   seed: 1003
   recipe: lgatr_slim
-  tables: [cost, cost_lgatr_slim, teacher_ensembles, teachers]
+  tables: [cost, cost_lgatr_slim, published, teacher_ensembles, teachers]
 - id: transformer_200k_L0__scratch__s1001
   student: transformer_200k_L0
   teacher: null

@@ -166,6 +166,42 @@ def teachers(r: Results) -> str:
     return wrap("lrlrr", "Teacher & Params & AUC & " + REJ, rows)
 
 
+# published performance of each teacher and of LorentzNet, from the papers that introduced them:
+# parameters, AUC and 1/eps_B at eps_S = 0.5 and 0.3
+PUBLISHED = {
+    "part": ("2.1M", "0.9858", r"413\std{16}", r"1{,}602\std{81}"),
+    "mipart": ("0.7M", "0.9868", r"505\std{8}", r"2{,}010\std{97}"),
+    "lgatr": ("1.1M", r"0.9870\std{0.0001}", r"540\std{20}", r"2{,}240\std{70}"),
+    "lgatr_slim": ("2.0M", r"0.9869\std{0.0001}", r"546\std{7}", r"2{,}264\std{93}"),
+    "omnilearned_s": ("3M", "0.9875", r"565\std{12}", r"2{,}637\std{128}"),
+    "part_pretrained": ("2.1M", "0.9877", r"691\std{15}", r"2{,}766\std{130}"),
+    "lorentznet_200k": ("224k", "0.9868", r"498\std{18}", r"2{,}195\std{173}"),
+}
+
+
+def published(r: Results) -> str:
+    """Our teachers and LorentzNet without a teacher next to their published performance."""
+    rows = []
+    for pretrained in (False, True):
+        if rows:
+            rows.append(r"\midrule")
+        for t in TEACHERS:
+            if (t in PRETRAINED) == pretrained:
+                c = r.teacher(t)
+                rows.append(f"{name(t)} & {millions(t)} & {auc(c)} & {rej(c, 'rej50')} & {rej(c, 'rej30')} & "
+                            + " & ".join(PUBLISHED[t]))
+    s = "lorentznet_200k"
+    c = r.cell(s, None)
+    rows += [r"\midrule", f"{name(s)} & {num(params(s) / 1e3)}k & {auc(c)} & {rej(c, 'rej50')} & "
+             f"{rej(c, 'rej30')} & " + " & ".join(PUBLISHED[s])]
+    head = (r"& \multicolumn{4}{c}{This work} & \multicolumn{4}{c}{Published} \\"
+            "\n\\cmidrule(lr){2-5} \\cmidrule(lr){6-9}\n"
+            r"& & & \multicolumn{2}{c}{$1/\epsilon_B$} & & & \multicolumn{2}{c}{$1/\epsilon_B$} \\"
+            "\n\\cmidrule(lr){4-5} \\cmidrule(lr){8-9}\n"
+            r"Model & Params & AUC & $\epsilon_S{=}0.5$ & $\epsilon_S{=}0.3$ & Params & AUC & $\epsilon_S{=}0.5$ & $\epsilon_S{=}0.3$")
+    return wrap("lrlrrrlrr", head, rows)
+
+
 def teacher_ensembles(r: Results) -> str:
     """Every teacher as a single run (mean and spread over its runs) and as their ensemble."""
     rows = []
@@ -415,7 +451,7 @@ def cost(r: Results) -> str:
     t = "part_pretrained"
     groups = [("Teachers", [(name(x), millions(x), r.teacher(x), x) for x in TEACHERS])]
     groups += [(f"{title}, distilled from {name(t)}", items) for title, items in cost_groups(r, t)[1:]]
-    groups.append((f"Distilled from OmniLearned-L{PRE}",
+    groups.append((f"Distilled from OmniLearned-L{PRE}" + r"~\citep{benyas2026accelerators}",
                    [(DEEPSETS_GNN["label"], short(r.flops[DEEPSETS_GNN["model"]]["parameters"]), DEEPSETS_GNN,
                      DEEPSETS_GNN["model"])]))
     return cost_rows(r, groups)
@@ -463,7 +499,7 @@ def execution_settings(r: Results) -> str:
 
 
 TABLES = {
-    "teachers": teachers, "teacher_ensembles": teacher_ensembles, "students": students,
+    "teachers": teachers, "published": published, "teacher_ensembles": teacher_ensembles, "students": students,
     "matrix_auc": matrix_auc, "matrix_rej": matrix_rej, "ens_students": ens_students,
     "size_short": lambda r: scaling(r, "width", (None, "part_pretrained")),
     "size_other": lambda r: scaling(r, "width", ("lgatr", "omnilearned_s")),
