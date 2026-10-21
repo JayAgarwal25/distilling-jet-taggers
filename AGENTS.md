@@ -3,6 +3,7 @@
 This repository reproduces the paper *How Far Can Foundation Models Be Distilled for Efficient Jet
 Tagging?* and lets others distil their own teachers and students. Two things must keep working
 through any change: the released checkpoints load, and the paper's tables come out the same.
+Refer to the paper if you are unclear about anything.
 
 ## Where things are
 
@@ -82,7 +83,6 @@ python scripts/train.py --run transformer_200k_L1__scratch__s1001 --device cpu -
   `runs/` replaces it. Train elsewhere with `--out`.
 - `scripts/reproduce.py` reuses test predictions already under its `--out` (default `reproduced/`).
   Rebuilding tables from other checkpoints needs a new `--out`, or it silently reports the old ones.
-- `matplotlib` is a core dependency because `scripts/reproduce.py` imports `make_figures.py`.
 
 ## Style
 
