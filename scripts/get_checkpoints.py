@@ -14,7 +14,7 @@ import tarfile
 import urllib.request
 from pathlib import Path
 
-URL = "https://zenodo.org/records/RECORD/files"   # the release record
+URL = "https://sandbox.zenodo.org/records/624034/files"   # the release record
 ARCHIVES = ("students", "teachers", "teacher_logits")
 
 
