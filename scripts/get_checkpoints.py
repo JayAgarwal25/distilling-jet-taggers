@@ -15,7 +15,7 @@ import tarfile
 import urllib.request
 from pathlib import Path
 
-URL = "https://sandbox.zenodo.org/records/624034/files"   # the release record
+URL = "https://github.com/JayAgarwal25/distilling-jet-taggers/releases/download/v1.0.0"   # the release assets
 ARCHIVES = ("students", "teachers", "teacher_logits")
 
 

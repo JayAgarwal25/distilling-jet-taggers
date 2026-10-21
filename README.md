@@ -8,7 +8,8 @@ This repository contains the code for the paper *How Far Can Foundation Models B
 Efficient Jet Tagging?* by Jay Agarwal, Siddharth Khare and Dhruv Kumar. The package `jetkd` trains
 every model of the paper on the top tagging dataset, from scratch or distilled from a teacher's
 logits, and distils any teacher you provide into any of its students. We release the weights of all
-trained models and the logits of all teachers on [Zenodo](https://sandbox.zenodo.org/records/624034).
+trained models and the logits of all teachers with the
+[v1.0.0 release](https://github.com/JayAgarwal25/distilling-jet-taggers/releases/tag/v1.0.0).
 
 This README covers installation and the released models, how to rebuild the paper's tables and figures
 from them and how to train the models yourself. [REPRODUCE.md](REPRODUCE.md) explains how to retrain every model of the paper.
@@ -37,7 +38,7 @@ versions behind the paper (Python 3.10, torch 2.11, CUDA 12.8). To run the tests
 ## Data
 
 ```bash
-python scripts/get_data.py    # data/toptagging_full.npz, 1.5 GB, checked by sha256
+python scripts/get_data.py    # data/toptagging_full.npz, 1.5 GB
 ```
 
 This is the top tagging reference sample of Kasieczka et al.
