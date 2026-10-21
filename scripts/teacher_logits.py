@@ -13,6 +13,7 @@ import argparse
 
 import torch
 
+from jetkd.log import log
 from jetkd.metrics import binary_metrics
 from jetkd.models import MODELS, build
 from jetkd.teachers import ENSEMBLES, ensemble_logits, logits_path, model_logits, save_logits
@@ -32,21 +33,26 @@ def main() -> None:
     ap.add_argument("--workers", type=int, default=4)
     args = ap.parse_args()
 
-    if args.model not in ENSEMBLES:
+    if args.model in ENSEMBLES:
+        members, seeds = ENSEMBLES[args.model]
+        log(f"{args.model}: mean logit of {members} runs {', '.join(map(str, seeds))} from {args.out}")
+    else:
         if not args.checkpoint:
             ap.error("--checkpoint is required")
         model = build(args.model)
         state = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
         model.load_state_dict(state.get("model", state))
+        log(f"{args.model} run {args.seed}: {args.checkpoint} on {args.device}, logits to {args.out}")
     for split in args.splits.split(","):
         if args.model in ENSEMBLES:
             z, y = ensemble_logits(args.out, args.model, split)
         else:
-            z, y = model_logits(model, split, args.data, args.device, args.batch_size, args.workers)
+            z, y = model_logits(model, split, args.data, args.device, args.batch_size, args.workers,
+                                progress=True)
         path = logits_path(args.out, args.model, args.seed, split)
         save_logits(path, z, y)
         m = binary_metrics(z, y)
-        print(f"{split}: AUC {m['auc']:.5f} rej50 {m['rej50']:.0f} rej30 {m['rej30']:.0f} -> {path}")
+        log(f"{split}: AUC {m['auc']:.5f} rej50 {m['rej50']:.0f} rej30 {m['rej30']:.0f} -> {path}")
 
 
 if __name__ == "__main__":

@@ -8,6 +8,7 @@ Before a file is written, `check_rows` makes sure its rows are the dataset's row
 from __future__ import annotations
 
 import os
+import time
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -16,6 +17,7 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 
 from jetkd.data import TopTaggingSplit, collate
+from jetkd.log import duration, log
 
 # ensemble teachers: the mean logit of several runs of one model; run ids give them seed 1001
 ENSEMBLES = {"lgatr_slim_ens": ("lgatr_slim", (1001, 1002, 1003))}
@@ -94,17 +96,26 @@ def deterministic():
 
 @torch.no_grad()
 def model_logits(model: torch.nn.Module, split: str, data: str | Path | Dataset,
-                 device: str = "cuda", batch_size: int = 512, workers: int = 4):
+                 device: str = "cuda", batch_size: int = 512, workers: int = 4,
+                 progress: bool = False):
     """Logits and labels of `model` on a whole split, in row order.
 
-    `data` is the dataset file or an already loaded `TopTaggingSplit` of `split`.
+    `data` is the dataset file or an already loaded `TopTaggingSplit` of `split`. With
+    `progress`, a line is printed after every tenth of the batches.
     """
     model.eval().to(device)
     dataset = data if isinstance(data, Dataset) else TopTaggingSplit(split, data)
     loader = DataLoader(dataset, batch_size=batch_size, num_workers=workers, collate_fn=collate)
+    if progress:
+        log(f"{split}: {len(dataset):,} jets in {len(loader):,} batches of {batch_size}")
     z, y = [], []
+    t0, every = time.time(), max(1, len(loader) // 10)
     with deterministic():
-        for batch in loader:
+        for i, batch in enumerate(loader, 1):
             z.append(model(batch.to(device)).float().cpu())
             y.append(batch.label)
+            if progress and (i % every == 0 or i == len(loader)):
+                spent = time.time() - t0
+                log(f"{split}: batch {i:,}/{len(loader):,} after {duration(spent)}, "
+                    f"time estimate {duration(spent / i * len(loader))}")
     return torch.cat(z).numpy(), torch.cat(y).numpy()

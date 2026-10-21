@@ -16,7 +16,7 @@ through any change: the released checkpoints load, and the paper's tables come o
 | teacher logits | `src/jetkd/teachers.py`, `scripts/teacher_logits.py`, `scripts/import_logits.py` |
 | the paper's runs | `src/jetkd/study.py`, written to `configs/runs.yaml` |
 | tables and figures | `scripts/summarize.py`, then `make_tables.py` and `make_figures.py`; `reproduce.py` runs all three |
-| training output | `Trainer.log` in `src/jetkd/train.py`: printed and appended to `runs/<id>/train.log` |
+| progress output | `src/jetkd/log.py` (`log`, `duration`), used by the trainer (also appended to `runs/<id>/train.log`), `model_logits(progress=True)` and the scripts |
 | user documentation | `README.md` (install, released models, rebuilding the paper from them, training), `REPRODUCE.md` (retraining, timing) |
 
 Run ids are `<model>__scratch__s<seed>` or `<model>__kd_<teacher>_t<teacher seed>__s<seed>`, for

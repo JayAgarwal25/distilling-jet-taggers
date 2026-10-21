@@ -1,13 +1,13 @@
 # Retraining the paper
 
 This guide retrains the models of the paper and rebuilds its tables and figures from them. To rebuild
-them from the released models instead, see the [README](README.md#reproducing-the-paper-from-the-released-models).
+them from the released models instead, see the [README](README.md#reproducing-the-paper).
 All commands run from the repository root, in the environment of the [README](README.md#installation),
 after `python scripts/get_data.py`.
 
 ## What to expect
 
-Retraining gives the same results in the scientific sense: each table cell lands within the spread of
+Retraining gives the same results (in the scientific sense): each table cell lands within the spread of
 its three runs and every conclusion of the paper holds. The digits differ from ours because training
 on a GPU is not bit-deterministic. Evaluation is deterministic, so evaluating the same checkpoint twice
 gives the same numbers.
@@ -62,7 +62,7 @@ python scripts/reproduce.py matrix_auc --print-jobs
 prints every command behind the table, in order: each teacher's training and logit commands, then
 every student, then the command that builds the table. A line starting with `#` names a teacher that is
 fine-tuned outside this repository (step 3). The table names are listed in the
-[README](README.md#reproducing-the-paper-from-the-released-models); `all` lists every run of the paper.
+[README](README.md#reproducing-the-paper); `all` lists every run of the paper.
 
 ## Step 2. Train the teachers and write their logits
 
@@ -196,7 +196,6 @@ versions: orderings and rough ratios carry over to other machines, the numbers t
 RTX 6000 Ada and one Xeon Platinum 8352Y core with the versions in `requirements.txt`, are in
 `configs/benchmark.json`; with `--benchmark configs/benchmark.json` the tables come out as printed in the
 paper. Our CPU timings are those of `benchmark.py --device cpu --core 10`. On the GPU, the setting was
-chosen by one run of every setting and then timed three times, and FlexAttention was also tried for
-L-GATr and L-GATr-slim; it was never the fastest, and `benchmark.py` leaves it out. Pretrained ParT is
+chosen by one run of every setting and then timed three times. Pretrained ParT is
 timed in the architecture of our ParT teacher and OmniLearned-S in that of its pretrained model, both
 with random weights.

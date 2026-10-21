@@ -11,9 +11,10 @@ logits, and distils any teacher you provide into any of its students. We release
 trained models and the logits of all teachers on [Zenodo](https://sandbox.zenodo.org/records/624034).
 
 This README covers installation and the released models, how to rebuild the paper's tables and figures
-from them and how to train. [REPRODUCE.md](REPRODUCE.md) explains how to retrain every model of the paper.
+from them and how to train the models yourself. [REPRODUCE.md](REPRODUCE.md) explains how to retrain every model of the paper.
 If you work on the code with a coding agent, [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) gives it
-the layout, commands and rules.
+the layout, commands and rules. You can adapt them to your own style.
+For any queries, see [Contact](#contact) below.
 
 ## Installation
 
@@ -80,7 +81,11 @@ The import checks that every row matches the dataset. [`examples/distill_your_ow
 trains a student of your own, and [REPRODUCE.md](REPRODUCE.md#step-3-pretrained-part-and-omnilearned-s) shows
 how we did this for pretrained ParT and OmniLearned-S.
 
-## Reproducing the paper from the released models
+We would love to see the results you get with your own set of runs. Further, if you are interested in distilling the models for any other downstream task apart from jet tagging, please contact us and we can work it out together.
+
+## Reproducing the paper
+
+[REPRODUCE.md](REPRODUCE.md) explains how to reproduce our work from scratch by training the models yourself. This section covers how to reproduce the paper with the released model weights.
 
 With the data and the released models in place, `scripts/reproduce.py` evaluates every model behind a
 table on the test set and rebuilds the table:
@@ -156,7 +161,7 @@ A run that stops resumes from `last.pt` when started again. For a quick check on
 
 ## Acknowledgements
 
-This work builds on public code. The networks of [lloca](https://github.com/heidelberg-hepml/lloca)
+This work builds on public code and wouldn't be possible without the HEPML community support. The networks of [lloca](https://github.com/heidelberg-hepml/lloca)
 (Transformer) and [lgatr](https://github.com/heidelberg-hepml/lgatr) (L-GATr, L-GATr-slim) are
 used as pip dependencies. Our Transformer and L-GATr wrappers and their input pipeline
 (`models/transformer.py`, `models/lgatr.py`, `models/inputs.py`) follow the top tagging
@@ -175,6 +180,13 @@ from [particle_transformer](https://github.com/jet-universe/particle_transformer
 timing (`models/omnilearned.py`, in the setting of tagging-guide). `models/deepsets.py` adapts the
 Deep Sets students of [fm-distillation](https://github.com/stanford-ai4physics/fm-distillation),
 which we use only to count operations and time them. We thank their authors.
+
+## Contact
+
+We want to give back to the HEPML community as much as we have learned from it, so we release everything we
+have: the code, the model weights and the teacher logits. If anything is unclear or you would like us to add
+something, please get in touch. Please report problems with the code as a GitHub issue. You can also
+reach us at jay25official@gmail.com.
 
 ## Citation
 

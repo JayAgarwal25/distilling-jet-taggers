@@ -22,6 +22,7 @@ from torch.utils.data import DataLoader, Sampler
 import jetkd
 from jetkd.data import TopTaggingSplit, collate
 from jetkd.distillation import KDConfig, kd_loss
+from jetkd.log import duration, log
 from jetkd.metrics import binary_metrics
 from jetkd.models import build
 from jetkd.recipes import Recipe, build_optimizer, build_scheduler, recipe_for
@@ -52,14 +53,6 @@ class RunConfig:
     def id(self) -> str:
         arm = f"kd_{self.teacher}_t{self.teacher_seed}" if self.teacher else "scratch"
         return f"{self.model}__{arm}__s{self.seed}"
-
-
-def duration(seconds: float) -> str:
-    """Seconds as `2h 05m`, `7m` or `12s`."""
-    if seconds < 60:
-        return f"{seconds:.0f}s"
-    m = round(seconds / 60)
-    return f"{m // 60}h {m % 60:02d}m" if m >= 60 else f"{m}m"
 
 
 def load_teacher_logits(path: str, labels: torch.Tensor) -> np.ndarray:
@@ -248,10 +241,7 @@ class Trainer:
 
     def log(self, message: str) -> None:
         """Print a line and append it to runs/<id>/train.log."""
-        line = f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {message}"
-        print(line, flush=True)
-        with (self.out / "train.log").open("a") as f:
-            f.write(line + "\n")
+        log(message, self.out / "train.log")
 
     def _log_start(self) -> None:
         r, cfg = self.recipe, self.cfg

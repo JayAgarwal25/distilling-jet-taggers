@@ -10,12 +10,25 @@ teacher_logits.tar to data/teachers/.
 """
 
 import argparse
+import sys
 import tarfile
 import urllib.request
 from pathlib import Path
 
 URL = "https://sandbox.zenodo.org/records/624034/files"   # the release record
 ARCHIVES = ("students", "teachers", "teacher_logits")
+
+
+def download(url: str, path: Path) -> None:
+    part = path.with_suffix(".part")
+    with urllib.request.urlopen(url) as r, open(part, "wb") as f:
+        size, done = int(r.headers.get("Content-Length", 0)), 0
+        while chunk := r.read(1 << 22):
+            f.write(chunk)
+            done += len(chunk)
+            print(f"\r{path.name}: {done / 1e6:.0f} / {size / 1e6:.0f} MB", end="", file=sys.stderr)
+    print(file=sys.stderr)
+    part.replace(path)
 
 
 def main() -> None:
@@ -31,8 +44,8 @@ def main() -> None:
     for name in args.archives or ARCHIVES:
         tar = Path(args.out) / f"{name}.tar"
         if not tar.is_file():
-            print(f"downloading {tar.name}", flush=True)
-            urllib.request.urlretrieve(f"{args.url}/{tar.name}", tar)
+            download(f"{args.url}/{tar.name}", tar)
+        print(f"{tar.name}: unpacking", flush=True)
         with tarfile.open(tar) as tf:
             tf.extractall(args.out, filter="data")
         if not args.keep:
