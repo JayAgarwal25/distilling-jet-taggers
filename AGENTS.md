@@ -16,10 +16,13 @@ through any change: the released checkpoints load, and the paper's tables come o
 | teacher logits | `src/jetkd/teachers.py`, `scripts/teacher_logits.py`, `scripts/import_logits.py` |
 | the paper's runs | `src/jetkd/study.py`, written to `configs/runs.yaml` |
 | tables and figures | `scripts/summarize.py`, then `make_tables.py` and `make_figures.py`; `reproduce.py` runs all three |
+| training output | `Trainer.log` in `src/jetkd/train.py`: printed and appended to `runs/<id>/train.log` |
+| user documentation | `README.md` (install, released models, rebuilding the paper from them, training), `REPRODUCE.md` (retraining, timing) |
 
 Run ids are `<model>__scratch__s<seed>` or `<model>__kd_<teacher>_t<teacher seed>__s<seed>`, for
 example `part_200k__kd_lgatr_t1002__s1002`. The paper uses seeds 1001, 1002 and 1003. The id fixes
-the model, teacher and seeds; the recipe follows from the model. Each run writes `runs/<id>/`.
+the model, teacher and seeds; the recipe follows from the model. Each run writes `runs/<id>/`
+(`train.log`, `config.json`, `history.json`, `best.pt`, `last.pt`, predictions and `results.json`).
 
 ## Commands
 
@@ -53,6 +56,9 @@ python scripts/train.py --run transformer_200k_L1__scratch__s1001 --device cpu -
   `RUNS.md` by `python -m jetkd.reference`. Never edit them by hand. `runs.yaml` lists the paper's
   runs only: train new experiments with `--model`, not by adding runs.
 - `lgatr` and `lloca` are pinned exactly in `pyproject.toml`, as the checkpoints were trained on them.
+- Logging only prints: it must not draw random numbers, move tensors or change the order of operations,
+  so that a run stays identical to one without it (`tests/test_train.py` checks an exact resume).
+- When a command, flag, output file or table name changes, update `README.md` and `REPRODUCE.md`.
 
 ## Common tasks
 
@@ -72,6 +78,11 @@ python scripts/train.py --run transformer_200k_L1__scratch__s1001 --device cpu -
   logit can move by more than one unit. Compare metrics across devices, not logits.
 - The pretrained ParT and OmniLearned-S teachers are fine-tuned in their own code bases (REPRODUCE.md),
   not with `scripts/train.py`.
+- `scripts/train.py` writes `runs/<id>/best.pt`, so training a run id whose released checkpoint is in
+  `runs/` replaces it. Train elsewhere with `--out`.
+- `scripts/reproduce.py` reuses test predictions already under its `--out` (default `reproduced/`).
+  Rebuilding tables from other checkpoints needs a new `--out`, or it silently reports the old ones.
+- `matplotlib` is a core dependency because `scripts/reproduce.py` imports `make_figures.py`.
 
 ## Style
 

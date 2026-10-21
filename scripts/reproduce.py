@@ -17,6 +17,7 @@ Pretrained ParT and OmniLearned-S enter through their test logits in data/teache
 import argparse
 import difflib
 import json
+import time
 from pathlib import Path
 
 import numpy as np
@@ -29,6 +30,7 @@ from make_tables import NEEDS_ANALYSIS, NEEDS_TIMINGS, TABLES, Results
 
 from jetkd.analysis import analyze
 from jetkd.data import TopTaggingSplit
+from jetkd.metrics import binary_metrics
 from jetkd.models import build
 from jetkd.recipes import recipe_for
 from jetkd.study import SEEDS, TEACHERS, TRAINED_TEACHERS, paper_runs
@@ -83,15 +85,19 @@ def evaluate(table: str, args) -> tuple[Path, Path]:
     runs_out, teachers_out = out / "runs", out / "teachers"
     teachers_out.mkdir(parents=True, exist_ok=True)
     test = None
-    for r in table_runs(table):
+    todo = [r for r in table_runs(table)
+            if r.student not in TEACHERS and not (runs_out / r.id / "predictions_test.npz").is_file()]
+    if todo:
+        print(f"evaluating {len(todo)} models on the test set, predictions in {runs_out}", flush=True)
+    for i, r in enumerate(todo, 1):
         path = runs_out / r.id / "predictions_test.npz"
-        if r.student in TEACHERS or path.is_file():
-            continue
         test = test or TopTaggingSplit("test", args.data, args.limit)
+        t0 = time.time()
         z, y = test_logits(r.student, Path(args.runs) / r.id / "best.pt", test, args)
         path.parent.mkdir(parents=True, exist_ok=True)
         np.savez_compressed(path, logits=z, labels=y)
-        print(f"{r.id}: done", flush=True)
+        print(f"[{i}/{len(todo)}] {r.id}: AUC {binary_metrics(z, y)['auc']:.5f} "
+              f"({time.time() - t0:.0f} s)", flush=True)
     for t, s in teachers_needed(table) if table in (*WITH_TEACHERS, *NEEDS_ANALYSIS, "all") else []:
         path = logits_path(teachers_out, t, s, "test")
         if path.is_file():
@@ -103,7 +109,7 @@ def evaluate(table: str, args) -> tuple[Path, Path]:
             with np.load(logits_path(args.teachers, t, s, "test")) as f:
                 z, y = f["logits"][: args.limit], f["labels"][: args.limit]
         save_logits(path, z, y)
-        print(f"{t} run {s}: done", flush=True)
+        print(f"teacher {t} run {s}: AUC {binary_metrics(z, y)['auc']:.5f}", flush=True)
     return runs_out, teachers_out
 
 

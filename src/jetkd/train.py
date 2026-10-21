@@ -54,6 +54,14 @@ class RunConfig:
         return f"{self.model}__{arm}__s{self.seed}"
 
 
+def duration(seconds: float) -> str:
+    """Seconds as `2h 05m`, `7m` or `12s`."""
+    if seconds < 60:
+        return f"{seconds:.0f}s"
+    m = round(seconds / 60)
+    return f"{m // 60}h {m % 60:02d}m" if m >= 60 else f"{m}m"
+
+
 def load_teacher_logits(path: str, labels: torch.Tensor) -> np.ndarray:
     """Teacher logits for the first len(labels) rows, after checking they line up with them."""
     with np.load(path) as f:
@@ -157,16 +165,26 @@ class Trainer:
     def fit(self, stop_after: int | None = None) -> dict:
         val_loader = self._loader("val", -1)
         self._write_config()
+        self._log_start()
         batches = self._batches(self.start_step)
         last = min(stop_after or self.recipe.iterations, self.recipe.iterations)
         window = {"loss": 0.0, "hard": 0.0, "soft": 0.0, "n": 0}
-        t0 = time.time()
+        t0 = t_start = time.time()
+        at = self.start_step
         for step in range(self.start_step, last):
             self.model.train()
             out = self._step(next(batches))
             for k in ("loss", "hard", "soft"):
                 window[k] += out[k] * out["n"]
             window["n"] += out["n"]
+            at = step + 1
+
+            done = at - self.start_step
+            if done in (1, 10, 100, 1000) or at % self.recipe.validate_every == 0:
+                spent = time.time() - t_start
+                estimate = spent / done * (self.recipe.iterations - self.start_step)
+                self.log(f"finished step {at:,} after {duration(spent)}, "
+                         f"training time estimate {duration(estimate)}")
 
             if (step + 1) % self.recipe.validate_every == 0:
                 val, *_ = self.evaluate("val", val_loader)
@@ -186,16 +204,18 @@ class Trainer:
                 self._save("last.pt", step + 1)
                 (self.out / "history.json").write_text(
                     json.dumps({"best": self.best, "history": self.history}, indent=2))
-                print(f"[{self.cfg.id}] step {step + 1} train {train['loss']:.5f} "
-                      f"val_bce {val['loss']:.5f} val_auc {val['auc']:.5f} "
-                      f"best@{self.best['step']}", flush=True)
+                self.log(f"validation at step {step + 1:,}: train loss {train['loss']:.5f} "
+                         f"val BCE {val['loss']:.5f} val AUC {val['auc']:.5f}, "
+                         f"best at step {self.best['step']:,}")
                 if self.patience > self.recipe.es_patience:
                     self.stopped_early = True
+                    self.log(f"stopped early: no better validation in {self.recipe.es_patience} checks")
                     break
 
             # weaver steps flat+decay at the start of each epoch, the first one included
             if self.cadence == "epoch" and step % self.batches_per_epoch == 0:
                 self.scheduler.step()
+        self.log(f"finished training at step {at:,} after {duration(time.time() - t_start)}")
         return self.best
 
     def _save(self, name: str, step: int) -> None:
@@ -224,7 +244,29 @@ class Trainer:
         torch.set_rng_state(state["torch_rng"].cpu())
         if state["cuda_rng"] is not None and self.device.type == "cuda":
             torch.cuda.set_rng_state(state["cuda_rng"].cpu(), self.device)
-        print(f"[{self.cfg.id}] resumed at step {self.start_step}", flush=True)
+        self.log(f"resumed at step {self.start_step:,}")
+
+    def log(self, message: str) -> None:
+        """Print a line and append it to runs/<id>/train.log."""
+        line = f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {message}"
+        print(line, flush=True)
+        with (self.out / "train.log").open("a") as f:
+            f.write(line + "\n")
+
+    def _log_start(self) -> None:
+        r, cfg = self.recipe, self.cfg
+        n = sum(p.numel() for p in self.model.parameters())
+        self.log(f"run {cfg.id}: {cfg.model} with {n:,} parameters on {self.device}, writing to {self.out}")
+        self.log(f"{len(self.data['train']):,} training and {len(self.data['val']):,} validation jets, "
+                 f"{self.batches_per_epoch:,} steps per epoch")
+        self.log(f"recipe {r.name}: {r.optimizer}, lr {r.lr:g}, weight decay {r.weight_decay:g}, "
+                 f"batch {r.batch_size}, {r.scheduler} schedule")
+        self.log(f"distilled from {cfg.teacher} run {cfg.teacher_seed} ({cfg.teacher_logits}), "
+                 f"alpha {cfg.kd.alpha:g}, temperature {cfg.kd.temperature:g}"
+                 if cfg.teacher else "trained from scratch")
+        self.log(f"starting to train for {r.iterations:,} steps = {r.iterations / self.batches_per_epoch:.1f} "
+                 f"epochs, validating every {r.validate_every:,} steps, early stopping after "
+                 f"{r.es_patience} validations without improvement")
 
     def _write_config(self) -> None:
         cfg = asdict(self.cfg)
@@ -240,16 +282,19 @@ def run(cfg: RunConfig, test: bool = True) -> dict:
     """Train, restore the selected checkpoint, then evaluate and save predictions."""
     trainer = Trainer(cfg)
     best = trainer.fit()
+    trainer.log(f"best checkpoint at step {best['step']:,}, val BCE {best['val_loss']:.5f}")
     state = torch.load(trainer.out / "best.pt", map_location=trainer.device, weights_only=False)
     trainer.model.load_state_dict(state["model"])
     results = {"best": best, "stopped_early": trainer.stopped_early,
                "recipe": trainer.recipe.as_record()}
     for split in ("val", "test") if test else ("val",):
+        trainer.log(f"evaluating the best checkpoint on the {split} split")
         with deterministic():
             metrics, z, y, sid = trainer.evaluate(split)
         results[split] = metrics
         np.savez_compressed(trainer.out / f"predictions_{split}.npz", logits=z, labels=y, sids=sid)
-        print(f"[{cfg.id}] {split}: AUC {metrics['auc']:.5f} rej50 {metrics['rej50']:.1f} "
-              f"rej30 {metrics['rej30']:.1f}", flush=True)
+        trainer.log(f"{split}: AUC {metrics['auc']:.5f} rej50 {metrics['rej50']:.1f} "
+                    f"rej30 {metrics['rej30']:.1f}")
     (trainer.out / "results.json").write_text(json.dumps(results, indent=2))
+    trainer.log(f"done: {trainer.out / 'results.json'}")
     return results

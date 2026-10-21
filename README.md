@@ -10,19 +10,28 @@ every model of the paper on the top tagging dataset, from scratch or distilled f
 logits, and distils any teacher you provide into any of its students. We release the weights of all
 trained models and the logits of all teachers on [Zenodo](https://sandbox.zenodo.org/records/624034).
 
-How to reproduce every table and figure of the paper, from the released weights or by retraining,
-and how to time the models on your own hardware is explained in [REPRODUCE.md](REPRODUCE.md).
-If you work on the code with a coding agent, [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) gives it the layout, commands and rules.
+This README covers installation and the released models, how to rebuild the paper's tables and figures
+from them and how to train. [REPRODUCE.md](REPRODUCE.md) explains how to retrain every model of the paper.
+If you work on the code with a coding agent, [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) gives it
+the layout, commands and rules.
 
-## Install
+## Installation
+
+Create a fresh environment with Python 3.10 (the paper's version; newer versions also work), then
+install torch for your hardware and the package:
 
 ```bash
-pip install torch --index-url https://download.pytorch.org/whl/cu128   # or the CPU build
-pip install -e .              # the package and its dependencies
-pip install -e ".[xformers]"  # GPU attention kernels, as used for training
+conda create -n jetkd python=3.10 && conda activate jetkd   # or: python3.10 -m venv .venv && source .venv/bin/activate
+git clone https://github.com/JayAgarwal25/distilling-jet-taggers.git && cd distilling-jet-taggers
+pip install torch --index-url https://download.pytorch.org/whl/cu128   # GPU; for CPU only: .../whl/cpu
+pip install -e .
+pip install -e ".[xformers]"   # optional, GPU only: the attention kernels used for training
 ```
 
-`requirements.txt` lists the exact versions behind the paper (Python 3.10, torch 2.11).
+xformers is optional because each release is built for one torch version: install it after torch, on a
+GPU machine. Without it the code builds the attention masks itself. `requirements.txt` lists the exact
+versions behind the paper (Python 3.10, torch 2.11, CUDA 12.8). To run the tests,
+`pip install -e ".[dev]"` and `pytest`.
 
 ## Data
 
@@ -34,20 +43,28 @@ This is the top tagging reference sample of Kasieczka et al.
 ([Zenodo 2603256](https://zenodo.org/records/2603256)) in the single-file layout of L-GATr and
 LLoCa: 1,211,000 training, 403,000 validation and 404,000 test jets.
 
-## Training
-
-Every run of the paper has an id in [`configs/runs.yaml`](configs/runs.yaml):
+## Released models
 
 ```bash
-python scripts/train.py --run transformer_200k__scratch__s1001
-python scripts/train.py --run part_200k__kd_lgatr_t1002__s1002
+python scripts/get_checkpoints.py                  # all of it, 840 MB
+python scripts/get_checkpoints.py teacher_logits   # only the teacher logits, 150 MB
 ```
 
-A distilled run reads the teacher's logits from `data/teachers/`. Each model trains under the
-recipe its family was published with ([`jetkd/recipes.py`](src/jetkd/recipes.py)). The run
-writes its checkpoints, history, validation and test predictions and metrics to `runs/<id>/`.
-[`configs/RUNS.md`](configs/RUNS.md) lists every model with its exact settings and parameter count,
-every recipe and every run.
+| Archive | Unpacks to | Contents |
+|---|---|---|
+| `students.tar` | `runs/<id>/best.pt` | the 248 student runs of the paper |
+| `teachers.tar` | `runs/<id>/best.pt`, `data/external_teachers/` | the 12 teachers we trained (ParT, MIParT, L-GATr and L-GATr-slim, three runs each) and the fine-tuned pretrained ParT and OmniLearned-S, three runs each |
+| `teacher_logits.tar` | `data/teachers/` | the logits of every teacher run on the training, validation and test jets |
+
+Each student checkpoint holds the weights and the full training state (optimizer, scheduler and
+history). Run ids are
+`<model>__scratch__s<seed>` or `<model>__kd_<teacher>_t<teacher seed>__s<seed>`;
+[`configs/RUNS.md`](configs/RUNS.md) lists every model, recipe and run. To tag jets with one of them:
+
+```bash
+python examples/tag_jets.py --model transformer_200k \
+    --checkpoint runs/transformer_200k__kd_part_pretrained_t1001__s1001/best.pt
+```
 
 ## Distilling your own teacher
 
@@ -59,13 +76,83 @@ python scripts/import_logits.py --name my_teacher --format logits --file my_logi
 python scripts/train.py --model lgatr_slim_200k --teacher my_teacher --teacher-seed 1001
 ```
 
-The import checks that every row matches the dataset. [REPRODUCE.md](REPRODUCE.md#pretrained-part-and-omnilearned-s)
-shows how we did this for pretrained ParT and OmniLearned-S.
+The import checks that every row matches the dataset. [`examples/distill_your_own.py`](examples/distill_your_own.py)
+trains a student of your own, and [REPRODUCE.md](REPRODUCE.md#step-3-pretrained-part-and-omnilearned-s) shows
+how we did this for pretrained ParT and OmniLearned-S.
 
-## Reproducing the paper
+## Reproducing the paper from the released models
 
-[`REPRODUCE.md`](REPRODUCE.md) gives the commands behind every table and figure: retraining every
-model, evaluating the released checkpoints and timing the models on your own hardware.
+With the data and the released models in place, `scripts/reproduce.py` evaluates every model behind a
+table on the test set and rebuilds the table:
+
+```bash
+python scripts/reproduce.py students                                     # one table
+python scripts/reproduce.py all --benchmark configs/benchmark.json       # every table and figure
+```
+
+It prints one line per model (`[3/15] <run id>: AUC 0.98...`), writes the test predictions to
+`reproduced/runs/` and the tables to `reproduced/tables/<table>.tex`; `all` also writes every figure
+to `reproduced/figures/`. Each model takes about 40 s on a GPU and `all` about three hours on one
+RTX 6000 Ada. Predictions already in `reproduced/` are reused, so an interrupted call continues where
+it stopped. To compare with the paper, download the paper's source from arXiv, unpack it and pass
+its `tables/` folder: `--paper <source>/tables` prints the difference to each table or reports it
+identical.
+
+| Paper | Table name | Models |
+|---|---|---|
+| Table 1, teachers | `teachers` | 18 teacher runs |
+| Table 2, students without a teacher | `students` | 15 |
+| Tables 3 and 11, students and teachers | `matrix_auc`, `matrix_rej` | 105 |
+| Table 4, width study | `size_short` | 36 |
+| Tables 6 and 7, architectures and recipes | `architectures`, `recipes` | none, from the code |
+| Table 8, teachers and LorentzNet against their published performance | `published` | 18 teacher runs and 3 |
+| Table 9, teacher ensembles | `teacher_ensembles` | 18 teacher runs |
+| Table 10, students of the L-GATr-slim ensemble | `ens_students` | 45 |
+| Table 12, width study with L-GATr and OmniLearned-S | `size_other` | 36 |
+| Tables 13 and 14, depth study | `depth_main`, `depth_other` | 32, 32 |
+| Table 15, background jets accepted with and without distillation | `accepted` | 105 and the 12 teacher runs they distil from |
+| Tables 5 and 18 to 23, performance and inference cost | `cost`, `cost_<teacher>`, `cost_scratch` | as the matrix and width study, and all teacher runs |
+| Tables 16 and 17, execution settings and cost on 50-particle jets | `settings`, `cost_rnd50` | none |
+
+The cost tables need timings: `--benchmark configs/benchmark.json` uses ours, and
+[REPRODUCE.md](REPRODUCE.md#timing-the-models) shows how to measure your own.
+
+On an RTX 6000 Ada with the versions in `requirements.txt`, the released checkpoints give the paper's
+numbers to the printed digits: evaluation uses torch's deterministic algorithms. Other GPUs and CPUs
+use other kernels, so their logits differ by float32 round-off, and a background rejection can change
+in its last printed digit. On a CPU pass `--device cpu --batch-size 100` (without xformers, attention
+over a batch of jets builds a dense mask that grows with the square of the particles in the batch);
+`--limit 2000` evaluates only the first test jets, for a quick check.
+
+## Training
+
+Every run of the paper has an id in [`configs/runs.yaml`](configs/runs.yaml):
+
+```bash
+python scripts/train.py --run transformer_200k__scratch__s1001
+python scripts/train.py --run part_200k__kd_lgatr_t1002__s1002    # needs data/teachers/lgatr_s1002_train.npz
+```
+
+A distilled run needs its teacher's logits on the training jets in `data/teachers/`. Download ours with
+`python scripts/get_checkpoints.py teacher_logits`, or train the teacher and write its logits yourself
+([REPRODUCE.md](REPRODUCE.md#step-2-train-the-teachers-and-write-their-logits)). Each model trains under the
+recipe its family was published with ([`jetkd/recipes.py`](src/jetkd/recipes.py)). The run prints its
+progress and appends it to `runs/<id>/train.log`. It starts with the model, data and recipe. After steps
+1, 10, 100 and 1,000 and at every validation it gives the elapsed time and an estimate of the training
+time, and at every validation the validation loss and AUC. It ends with the validation and test metrics
+of the best checkpoint. `runs/<id>/` then holds
+
+| File | Contents |
+|---|---|
+| `train.log` | the printed progress |
+| `config.json` | the full configuration, parameter count and versions |
+| `history.json` | training and validation metrics at every validation |
+| `best.pt`, `last.pt` | the checkpoint with the lowest validation loss and the latest one |
+| `predictions_val.npz`, `predictions_test.npz` | logits, labels and row indices of the best checkpoint |
+| `results.json` | validation and test metrics of the best checkpoint |
+
+A run that stops resumes from `last.pt` when started again. For a quick check on a CPU, add
+`--device cpu --workers 0 --limit 2048 --iterations 20`.
 
 ## Acknowledgements
 

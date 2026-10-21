@@ -32,14 +32,14 @@ dependencies = [
   "lloca==2.0.0",
   "torch-geometric>=2.7",
   "pytorch-optimizer>=3.10,<4",
+  "matplotlib>=3.8",
 ]
 
 [project.optional-dependencies]
 xformers = ["xformers"]
 benchmark = ["omnilearned==0.2.0"]
 teachers = ["uproot", "h5py"]
-paper = ["matplotlib"]
-dev = ["pytest", "ruff", "matplotlib"]
+dev = ["pytest", "ruff"]
 
 [project.urls]
 repository = "https://github.com/JayAgarwal25/distilling-jet-taggers"

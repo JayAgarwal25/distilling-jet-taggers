@@ -1,85 +1,98 @@
-# Reproducing the paper
+# Retraining the paper
 
-Every table and figure in the paper is built from the test predictions of trained models, by
-`scripts/make_tables.py` and `scripts/make_figures.py`. You can retrain those models yourself, or check
-that our released models give the paper's numbers. The inference cost tables and figures come from
-`scripts/benchmark.py` on your own hardware (see below).
+This guide retrains the models of the paper and rebuilds its tables and figures from them. To rebuild
+them from the released models instead, see the [README](README.md#reproducing-the-paper-from-the-released-models).
+All commands run from the repository root, in the environment of the [README](README.md#installation),
+after `python scripts/get_data.py`.
 
 ## What to expect
 
-Retraining gives the same results in the scientific sense. Each table cell lands within the
-spread of its runs, and every conclusion of the paper holds. The digits differ from ours because
-training on a GPU is not bit-deterministic.
+Retraining gives the same results in the scientific sense: each table cell lands within the spread of
+its three runs and every conclusion of the paper holds. The digits differ from ours because training
+on a GPU is not bit-deterministic. Evaluation is deterministic, so evaluating the same checkpoint twice
+gives the same numbers.
 
-Evaluation is deterministic: jetkd evaluates with torch's deterministic algorithms, and the paper's
-numbers come from such an evaluation of the released checkpoints. On an RTX 6000 Ada with the versions
-in `requirements.txt`, the checkpoints give the paper's numbers to the printed digits. Other GPUs and
-CPUs use other kernels, so their logits differ by float32 round-off. For the Transformers this is about
-1e-4. L-GATr-slim amplifies round-off in its layers, and ParT and MIParT in the masses of nearly
-collinear particle pairs, so a single logit can move by more than one unit. A background rejection can
-then change in its last printed digit.
+## Overview
 
-## Setup
+The paper's models are trained in four stages, each needing the one before:
 
-```bash
-pip install -e ".[xformers,paper]"
-python scripts/get_data.py          # data/toptagging_full.npz
-python scripts/get_checkpoints.py   # runs/, data/teachers/ and data/external_teachers/
-```
+1. **Teachers.** 12 are trained with jetkd (ParT, MIParT, L-GATr and L-GATr-slim, three seeds each).
+   Pretrained ParT and OmniLearned-S are fine-tuned in their own code bases, three runs each.
+2. **Teacher logits.** Each teacher's logits on the training, validation and test jets go to
+   `data/teachers/`. Students read them; they never run the teacher.
+3. **Students.** 248 runs, from scratch or distilled from one teacher's logits.
+4. **Tables and figures.** `scripts/reproduce.py` evaluates every model behind a table and builds it.
 
-## Tables
+The first two stages can be skipped: `python scripts/get_checkpoints.py teacher_logits` downloads the
+logits of every teacher run, and the students then train against our teachers (go to step 4).
 
-| Paper | Table name | Runs |
-|---|---|---|
-| Table 1, teachers | `teachers` | 18 teacher runs |
-| Table 2, students without a teacher | `students` | 15 |
-| Tables 3 and 11, students and teachers | `matrix_auc`, `matrix_rej` | 105 |
-| Table 4, width study | `size_short` | 36 |
-| Tables 6 and 7, architectures and recipes | `architectures`, `recipes` | none, from the code |
-| Table 8, teachers and LorentzNet against their published performance | `published` | 18 teacher runs and 3 |
-| Table 9, teacher ensembles | `teacher_ensembles` | 18 teacher runs |
-| Table 10, students of the L-GATr-slim ensemble | `ens_students` | 45 |
-| Table 12, width study with L-GATr and OmniLearned-S | `size_other` | 36 |
-| Tables 13 and 14, depth study | `depth_main`, `depth_other` | 32, 32 |
-| Table 15, background jets accepted with and without distillation | `accepted` | 105 and the 12 teacher runs they distil from |
-| Tables 5 and 18 to 23, performance and inference cost | `cost`, `cost_<teacher>`, `cost_scratch` | as the matrix and width study, and all teacher runs |
-| Tables 16 and 17, execution settings and cost on 50-particle jets | `settings`, `cost_rnd50` | none |
+Train in a directory without the released checkpoints, or move `runs/` aside first: a training run
+writes `runs/<id>/best.pt` and would replace the released one.
 
-The cost tables also need timings (section 3).
+### Compute
 
-`python scripts/reproduce.py all` evaluates every model once, rebuilds all of these tables and
-writes every figure of Sections 4 to 7 and Appendices D to F to `reproduced/figures/`.
-`scripts/summarize.py` writes the summary and the analyses of Section 6 (`jetkd/analysis.py`) as
-JSON, and `scripts/make_figures.py` draws the figures from them.
+Training time on one RTX 6000 Ada, from our runs (median per run; the ParT teacher was timed on an
+80 GB GPU):
 
-## 1. Retrain
+| Models | Runs | Hours per run | GPU hours |
+|---|---:|---:|---:|
+| L-GATr teacher | 3 | 16 | 48 |
+| L-GATr-slim teacher | 3 | 9 | 27 |
+| MIParT teacher | 3 | 6 | 18 |
+| ParT teacher | 3 | 3 | 8 |
+| Transformer student | 24 | 5 | 122 |
+| L-GATr-slim student | 24 | 5 | 115 |
+| ParT student | 24 | 1 | 26 |
+| MIParT student | 24 | 3 | 65 |
+| LorentzNet student | 24 | 10 | 250 |
+| width study, Transformer (200k, 20k, 2k) | 36 | 4, 4, 7 | 172 |
+| width study, L-GATr-slim (200k, 20k, 2k) | 36 | 9, 8, 12 | 332 |
+| depth study, Transformer (0 to 8 blocks) | 28 | 1 to 4 | 75 |
+| depth study, L-GATr-slim (1 to 10 blocks) | 28 | 4 to 14 | 250 |
+| all | 260 | | about 1,500 |
+
+The matrix of students and teachers (`matrix_auc`, `matrix_rej`) alone takes about 510 GPU hours.
+
+## Step 1. List the commands for a table
 
 ```bash
 python scripts/reproduce.py matrix_auc --print-jobs
 ```
 
-prints every command behind a table, in order. First it trains the teachers and writes their
-logits, then it trains the students. Run the commands on any number of GPUs. A run that stops
-resumes from its last checkpoint. Pretrained ParT and OmniLearned-S are trained in their own
-code bases, as [below](#pretrained-part-and-omnilearned-s). The last command rebuilds the table
-from your models:
+prints every command behind the table, in order: each teacher's training and logit commands, then
+every student, then the command that builds the table. A line starting with `#` names a teacher that is
+fine-tuned outside this repository (step 3). The table names are listed in the
+[README](README.md#reproducing-the-paper-from-the-released-models); `all` lists every run of the paper.
+
+## Step 2. Train the teachers and write their logits
+
+For each of the 12 jetkd teachers, train it and write its logits on all three splits:
 
 ```bash
-python scripts/reproduce.py matrix_auc
+python scripts/train.py --run lgatr__scratch__s1001
+python scripts/teacher_logits.py --model lgatr --seed 1001 --checkpoint runs/lgatr__scratch__s1001/best.pt
 ```
 
-It evaluates every `runs/<id>/best.pt` behind the table on the test set, writes the predictions
-and the table under `reproduced/`. To compare it with ours, download the paper's source from arXiv
-and add `--paper SOURCE/tables`; the script prints the difference or reports the table identical.
+The teachers are `part`, `mipart`, `lgatr` and `lgatr_slim`, with seeds 1001, 1002 and 1003. Only
+`mipart` run 1001 has students; its other two runs appear only in the teacher tables, which need only
+their test logits (`--splits test`, as `--print-jobs` shows). The L-GATr-slim ensemble needs no training:
+once the three `lgatr_slim` runs have their logits,
 
-### Pretrained ParT and OmniLearned-S
+```bash
+python scripts/teacher_logits.py --model lgatr_slim_ens --seed 1001
+```
 
-These two teachers are fine-tuned in their own code bases. Their logits are released, so this is
-needed only to retrain them; our three runs of each differ only in the random seed. The commands
-run in a clone of each code base, the import in this repository.
+writes the mean of their logits as the ensemble teacher.
 
-Pretrained ParT, with [particle_transformer](https://github.com/jet-universe/particle_transformer)
-at commit `2925bdb` and [weaver-core](https://github.com/hqucms/weaver-core) 0.4.17:
+## Step 3. Pretrained ParT and OmniLearned-S
+
+These two teachers are fine-tuned in clones of their own code bases; their logits are then imported
+into this repository. Our three runs of each differ only in the random seed. Below, `DATA_DIR` is any
+directory for their datasets, `JETKD` this repository, and `RUN` the run directory the training creates.
+
+**Pretrained ParT**, with [particle_transformer](https://github.com/jet-universe/particle_transformer)
+at commit `2925bdb` and [weaver-core](https://github.com/hqucms/weaver-core) 0.4.17. In the
+particle_transformer clone:
 
 ```bash
 ./get_datasets.py TopLandscape -d DATA_DIR
@@ -91,13 +104,18 @@ for split in train val test; do
     --model-prefix training/TopLandscape/ParT-FineTune/RUN/net_best_epoch_state.pt \
     --gpus 0 --batch-size 512 --predict-output pred_${split}.root
 done
+```
+
+Then in this repository, with `PARTICLE_TRANSFORMER` the clone:
+
+```bash
 python scripts/import_logits.py --name part_pretrained --seed 1001 --format weaver \
   --file PARTICLE_TRANSFORMER/training/TopLandscape/ParT-FineTune/RUN/predict_output/pred_{split}.root
 ```
 
-OmniLearned-S, with [OmniLearned](https://github.com/ViniciusMikuni/OmniLearned) at commit
-`25fef9f` and [`scripts/omnilearned.diff`](scripts/omnilearned.diff) applied, which adds gradient
-accumulation and evaluation on every split:
+**OmniLearned-S**, with [OmniLearned](https://github.com/ViniciusMikuni/OmniLearned) at commit `25fef9f`
+and [`scripts/omnilearned.diff`](scripts/omnilearned.diff) applied, which adds gradient accumulation and
+evaluation on every split. In the OmniLearned clone:
 
 ```bash
 git apply JETKD/scripts/omnilearned.diff
@@ -110,27 +128,51 @@ for split in train val test; do
     --save-tag top_s_run1 --dataset top --path DATA_DIR --size small --interaction
   mv outputs/outputs_top_s_run1_top_0.npz outputs/top_s_run1_${split}.npz
 done
+```
+
+Then in this repository, with `OMNILEARNED` the clone:
+
+```bash
 python scripts/import_logits.py --name omnilearned_s --seed 1001 --format omnilearned \
   --file OMNILEARNED/outputs/top_s_run1_{split}.npz
 ```
 
-## 2. Check the released models
+For runs 1002 and 1003, train each teacher twice more (for OmniLearned-S with `--save-tag top_s_run2` and
+`top_s_run3`) and import their logits with `--seed 1002` and `--seed 1003`. The import checks that every
+row matches the dataset.
 
-With the released checkpoints in `runs/`, the same command evaluates our models:
+## Step 4. Train the students
+
+Every student is one command, `python scripts/train.py --run <id>`, and needs its teacher's training
+logits in `data/teachers/`. The runs are independent, so spread them over your GPUs, for example four:
 
 ```bash
-python scripts/reproduce.py matrix_auc --paper SOURCE/tables
+python scripts/reproduce.py matrix_auc --print-jobs | grep '^python scripts/train.py' \
+  | grep -v -E -- '--run (part|mipart|lgatr|lgatr_slim)__' > jobs.txt   # students only
+for g in 0 1 2 3; do
+  awk -v g=$g 'NR % 4 == g' jobs.txt | CUDA_VISIBLE_DEVICES=$g bash > gpu$g.out 2>&1 &
+done
 ```
 
-On a GPU this prints that the table is identical to the paper's. On a CPU pass
-`--device cpu --batch-size 100`: without xformers, attention over a batch of jets builds a
-dense mask whose size grows with the square of the number of particles in the batch.
-`--limit 2000` evaluates only the first test jets, for a quick check.
+Each run prints its progress and writes it to `runs/<id>/train.log` (see the
+[README](README.md#training)). A run that stops resumes from `runs/<id>/last.pt` when started again, so
+rerunning the same commands continues where they stopped.
 
-The teacher metrics come from the teacher checkpoints, except for pretrained ParT and
-OmniLearned-S, whose test logits are released in `data/teachers/`.
+## Step 5. Build the tables and figures
 
-## 3. Inference cost
+```bash
+python scripts/reproduce.py matrix_auc --out reproduced_retrained
+python scripts/reproduce.py all --out reproduced_retrained --benchmark configs/benchmark.json
+```
+
+`reproduce.py` evaluates `runs/<id>/best.pt` of every model behind the table on the test set and writes
+the predictions, the table and, for `all`, every figure under `--out`. Predictions already there are
+reused, so give a new `--out` if you rebuilt tables from the released models before. With the paper's
+arXiv source unpacked, `--paper <source>/tables` prints the difference to each of our tables.
+
+## Timing the models
+
+The inference cost tables and figures come from timings on your own hardware:
 
 ```bash
 pip install -e ".[benchmark]"
@@ -139,21 +181,22 @@ python scripts/benchmark.py --device cuda         # results/benchmark.json
 python scripts/benchmark.py --device cpu --core 2
 ```
 
-`count_flops.py` counts the floating-point operations per jet of the 18 models of the cost tables
-on the first 300 test jets. The counts do not depend on the hardware and equal ours exactly.
+`count_flops.py` counts the floating-point operations per jet of the 18 models of the cost tables on
+the first 300 test jets. The counts do not depend on the hardware and equal ours exactly.
 
-`benchmark.py` times the same models on your hardware: the GPU with a batch of 512 jets, the CPU
-with one jet on one core. Each measurement runs in a fresh process with 100 warm-up and 100 timed
-calls of the whole forward pass, from four-momenta in CPU memory to logits, in full 32-bit
-precision. Every model runs packed or padded where it accepts both, eager and compiled (the network
-compiled, its inputs built eagerly), on test jets and on random 50-particle jets, three times. The fastest setting by the median of its three runs
-is reported. A full pass takes a few hours per device. Timings depend on the GPU, the CPU and the
-software versions. Orderings and rough ratios carry over to other machines; the numbers themselves do not.
+`benchmark.py` times the same models: the GPU with a batch of 512 jets, the CPU with one jet on one core.
+Each measurement runs in a fresh process with 100 warm-up and 100 timed calls of the whole forward pass,
+from four-momenta in CPU memory to logits, in full 32-bit precision. Every model runs packed or padded
+where it accepts both, eager and compiled (the network compiled, its inputs built eagerly), on test jets
+and on random 50-particle jets, three times. The fastest setting by the median of its three runs is
+reported. A full pass takes a few hours per device. Timings depend on the GPU, the CPU and the software
+versions: orderings and rough ratios carry over to other machines, the numbers themselves do not.
 
-`reproduce.py` builds the cost tables from your timings. Our own measurements, on one RTX 6000 Ada
-and one Xeon Platinum 8352Y core with the versions in `requirements.txt`, are in
-`configs/benchmark.json`; with `--benchmark configs/benchmark.json` the tables come out as printed in
-the paper. Our CPU timings are those of `benchmark.py --device cpu --core 10`. On the GPU, the
-setting was chosen by one run of every setting and then timed three times, and FlexAttention was
-also tried for L-GATr and L-GATr-slim; it was never the fastest, and `benchmark.py` leaves it out. Pretrained ParT is timed in the architecture of our ParT
-teacher and OmniLearned-S in that of its pretrained model, both with random weights.
+`reproduce.py` builds the cost tables from `results/benchmark.json`. Our own measurements, on one
+RTX 6000 Ada and one Xeon Platinum 8352Y core with the versions in `requirements.txt`, are in
+`configs/benchmark.json`; with `--benchmark configs/benchmark.json` the tables come out as printed in the
+paper. Our CPU timings are those of `benchmark.py --device cpu --core 10`. On the GPU, the setting was
+chosen by one run of every setting and then timed three times, and FlexAttention was also tried for
+L-GATr and L-GATr-slim; it was never the fastest, and `benchmark.py` leaves it out. Pretrained ParT is
+timed in the architecture of our ParT teacher and OmniLearned-S in that of its pretrained model, both
+with random weights.
