@@ -24,7 +24,7 @@ then change in its last printed digit.
 ```bash
 pip install -e ".[xformers,paper]"
 python scripts/get_data.py          # data/toptagging_full.npz
-python scripts/get_checkpoints.py   # runs/, data/teachers/ and data/external_teachers/, checked by sha256
+python scripts/get_checkpoints.py   # runs/, data/teachers/ and data/external_teachers/
 ```
 
 ## Tables

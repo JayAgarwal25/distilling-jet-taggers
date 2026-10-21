@@ -12,7 +12,7 @@ trained models and the logits of all teachers.
 
 How to reproduce every table and figure of the paper, from the released weights or by retraining,
 and how to time the models on your own hardware is explained in [REPRODUCE.md](REPRODUCE.md).
-If you work on the code with a coding agent, [AGENTS.md](AGENTS.md) gives it the layout, commands and rules.
+If you work on the code with a coding agent, [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) gives it the layout, commands and rules.
 
 ## Install
 

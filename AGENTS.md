@@ -1,14 +1,25 @@
 # Notes for coding agents
 
-## Layout
+This repository reproduces the paper *How Far Can Foundation Models Be Distilled for Efficient Jet
+Tagging?* and lets others distil their own teachers and students. Two things must keep working
+through any change: the released checkpoints load, and the paper's tables come out the same.
 
-- `src/jetkd/`: data, features, models, distillation loss, recipes, trainer, teacher logits,
-  summary, the analyses of Section 6 (`analysis.py`), the run list (`study.py`) and the
-  reference files (`reference.py`).
-- `scripts/`: command-line entry points (`get_data`, `get_checkpoints`, `train`, `teacher_logits`,
-  `import_logits`, `summarize`, `make_tables`, `make_figures`, `reproduce`, `count_flops`,
-  `benchmark`).
-- `configs/`: generated, see below; `configs/benchmark.json` is our timing record.
+## Where things are
+
+| To change | Look at |
+|---|---|
+| a model, or add one | `src/jetkd/models/` (one file per family), registered in `MODELS` in `models/__init__.py` |
+| how a model trains | `src/jetkd/recipes.py` (`RECIPES`, `recipe_for`) and `src/jetkd/train.py` |
+| the distillation loss | `src/jetkd/distillation.py` |
+| the inputs | `src/jetkd/data.py` (dataset, `JetBatch`), `features.py`, `models/inputs.py` |
+| the metrics | `src/jetkd/metrics.py` (rejection by linear interpolation of the ROC curve) |
+| teacher logits | `src/jetkd/teachers.py`, `scripts/teacher_logits.py`, `scripts/import_logits.py` |
+| the paper's runs | `src/jetkd/study.py`, written to `configs/runs.yaml` |
+| tables and figures | `scripts/summarize.py`, then `make_tables.py` and `make_figures.py`; `reproduce.py` runs all three |
+
+Run ids are `<model>__scratch__s<seed>` or `<model>__kd_<teacher>_t<teacher seed>__s<seed>`, for
+example `part_200k__kd_lgatr_t1002__s1002`. The paper uses seeds 1001, 1002 and 1003. The id fixes
+the model, teacher and seeds; the recipe follows from the model. Each run writes `runs/<id>/`.
 
 ## Commands
 
@@ -27,14 +38,42 @@ A full training run needs a GPU and hours. For a quick check on CPU:
 python scripts/train.py --run transformer_200k_L1__scratch__s1001 --device cpu --workers 0 --limit 2048 --iterations 20
 ```
 
-## Rules
+## What must not change
 
-- `configs/runs.yaml` is written by `python -m jetkd.study`; `configs/models.yaml`,
-  `configs/recipes.yaml` and `configs/RUNS.md` by `python -m jetkd.reference`. Never edit them by hand.
-- A run id fixes the model, teacher, teacher seed and seed; the recipe follows from the model.
-- Released checkpoints load with `strict=True`, so module and parameter names in
-  `jetkd/models/` must not change. `tests/test_models.py` pins every parameter count.
-- Teacher logits must be in the dataset's row order; create them with
+- Module and parameter names in `models/`: released checkpoints load with `strict=True`.
+  `tests/test_models.py` pins every parameter count, so a changed count is a changed architecture.
+- `data.py`, `features.py`, `models/inputs.py`, `distillation.py` and `metrics.py` produce the paper's
+  numbers. After a change there, rebuild a table from the released checkpoints with
+  `python scripts/reproduce.py <table>` (GPU, see REPRODUCE.md) and check that it is unchanged.
+- Evaluation runs inside `jetkd.teachers.deterministic()`. Without it, GPU evaluation of the
+  Transformer, MIParT and LorentzNet differs between two calls and rej@0.3 moves in its last digits.
+- Teacher logits are in the row order of `data/toptagging_full.npz`. Write them only with
   `scripts/teacher_logits.py` or `scripts/import_logits.py`, which check it.
-- Paper numbers come from `jetkd.metrics` (rejection by linear interpolation of the ROC curve)
-  on the test predictions in `runs/<id>/predictions_test.npz`.
+- `configs/runs.yaml` is written by `python -m jetkd.study`; `configs/models.yaml`, `recipes.yaml` and
+  `RUNS.md` by `python -m jetkd.reference`. Never edit them by hand. `runs.yaml` lists the paper's
+  runs only: train new experiments with `--model`, not by adding runs.
+- `lgatr` and `lloca` are pinned exactly in `pyproject.toml`, as the checkpoints were trained on them.
+
+## Common tasks
+
+- New student: a module that maps a `JetBatch` to one logit per jet, an entry in `MODELS`, a recipe in
+  `RECIPES` reachable from `recipe_for`, its parameter count in `tests/test_models.py`, then
+  `python -m jetkd.reference`. `examples/distill_your_own.py` does the same at run time, without
+  editing the package.
+- New teacher: save its logits per split, `scripts/import_logits.py --format logits`, then
+  `scripts/train.py --model <student> --teacher <name>`.
+- Tag jets with a checkpoint: `examples/tag_jets.py`.
+
+## Pitfalls
+
+- On CPU without xformers, attention over packed jets builds a dense mask that grows with the square
+  of the particles in the batch. Keep CPU batches near 100 jets.
+- Logits on another GPU or on CPU differ by float32 round-off; for L-GATr-slim, ParT and MIParT a single
+  logit can move by more than one unit. Compare metrics across devices, not logits.
+- The pretrained ParT and OmniLearned-S teachers are fine-tuned in their own code bases (REPRODUCE.md),
+  not with `scripts/train.py`.
+
+## Style
+
+Minimal code and one-line docstrings. Comment only where the code differs from its upstream source,
+and say that the difference was checked numerically. ruff, line length 100.
