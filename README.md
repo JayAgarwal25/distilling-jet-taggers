@@ -8,7 +8,7 @@ This repository contains the code for the paper *How Far Can Foundation Models B
 Efficient Jet Tagging?* by Jay Agarwal, Siddharth Khare and Dhruv Kumar. The package `jetkd` trains
 every model of the paper on the top tagging dataset, from scratch or distilled from a teacher's
 logits, and distils any teacher you provide into any of its students. We release the weights of all
-trained models and the logits of all teachers.
+trained models and the logits of all teachers on [Zenodo](https://sandbox.zenodo.org/records/624034).
 
 How to reproduce every table and figure of the paper, from the released weights or by retraining,
 and how to time the models on your own hardware is explained in [REPRODUCE.md](REPRODUCE.md).
