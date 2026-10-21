@@ -39,7 +39,7 @@ xformers = ["xformers"]
 benchmark = ["omnilearned==0.2.0"]
 teachers = ["uproot", "h5py"]
 paper = ["matplotlib"]
-dev = ["pytest", "ruff"]
+dev = ["pytest", "ruff", "matplotlib"]
 
 [project.urls]
 repository = "https://github.com/JayAgarwal25/distilling-jet-taggers"
