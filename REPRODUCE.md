@@ -168,7 +168,7 @@ python scripts/reproduce.py all --out reproduced_retrained --benchmark configs/b
 `reproduce.py` evaluates `runs/<id>/best.pt` of every model behind the table on the test set and writes
 the predictions, the table and, for `all`, every figure under `--out`. Predictions already there are
 reused, so give a new `--out` if you rebuilt tables from the released models before. With the paper's
-arXiv source unpacked, `--paper <source>/tables` prints the difference to each of our tables.
+[arXiv source](https://arxiv.org/src/2610.29439) unpacked, `--paper <source>/tables` prints the difference to each of our tables.
 
 ## Timing the models
 

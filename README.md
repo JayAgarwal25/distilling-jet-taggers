@@ -4,8 +4,8 @@
 
 </div>
 
-This repository contains the code for the paper *How Far Can Foundation Models Be Distilled for
-Efficient Jet Tagging?* by Jay Agarwal, Siddharth Khare and Dhruv Kumar. The package `jetkd` trains
+This repository contains the code for the paper [*How Far Can Foundation Models Be Distilled for
+Efficient Jet Tagging?*](https://arxiv.org/abs/2610.29439) by Jay Agarwal, Siddharth Khare and Dhruv Kumar. The package `jetkd` trains
 every model of the paper on the top tagging dataset, from scratch or distilled from a teacher's
 logits, and distils any teacher you provide into any of its students. We release the weights of all
 trained models and the logits of all teachers with the
@@ -100,7 +100,7 @@ It prints one line per model (`[3/15] <run id>: AUC 0.98...`), writes the test p
 `reproduced/runs/` and the tables to `reproduced/tables/<table>.tex`; `all` also writes every figure
 to `reproduced/figures/`. Each model takes about 40 s on a GPU and `all` about three hours on one
 RTX 6000 Ada. Predictions already in `reproduced/` are reused, so an interrupted call continues where
-it stopped. To compare with the paper, download the paper's source from arXiv, unpack it and pass
+it stopped. To compare with the paper, download the paper's source from [arXiv](https://arxiv.org/src/2610.29439), unpack it and pass
 its `tables/` folder: `--paper <source>/tables` prints the difference to each table or reports it
 identical.
 
@@ -195,8 +195,11 @@ If you find this code useful in your research, please cite our paper
 
 ```bibtex
 @article{agarwal2026distilling,
-  title  = {How Far Can Foundation Models Be Distilled for Efficient Jet Tagging?},
-  author = {Agarwal, Jay and Khare, Siddharth and Kumar, Dhruv},
-  year   = {2026},
+  title         = {How Far Can Foundation Models Be Distilled for Efficient Jet Tagging?},
+  author        = {Agarwal, Jay and Khare, Siddharth and Kumar, Dhruv},
+  eprint        = {2610.29439},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  year          = {2026},
 }
 ```

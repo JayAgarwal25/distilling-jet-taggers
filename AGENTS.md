@@ -3,7 +3,7 @@
 This repository reproduces the paper *How Far Can Foundation Models Be Distilled for Efficient Jet
 Tagging?* and lets others distil their own teachers and students. Two things must keep working
 through any change: the released checkpoints load, and the paper's tables come out the same.
-Refer to the paper if you are unclear about anything.
+Refer to the [paper](https://arxiv.org/abs/2610.29439) if you are unclear about anything.
 
 ## Where things are
 
